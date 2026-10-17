@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+/* Dark-only theme. Semantic tokens: bg-canvas, bg-surface, border-line, text-muted, bg-accent… */
+@theme {
+  --color-canvas: #0b0b0c;
+  --color-surface: #141416;
+  --color-surface-2: #1c1c1f;
+  --color-line: #29292d;
+  --color-line-strong: #3b3b41;
+  --color-fg: #f4efe6;
+  --color-muted: #a8a39a;
+  --color-subtle: #75716a;
+  --color-accent: #f0805a;
+  --color-accent-strong: #f6966f;
+  --color-accent-fg: #1c0f0a;
+  --color-danger: #f26d6d;
+
+  --animate-sheet-right: sheet-right 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-sheet-up: sheet-up 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-dialog-in: dialog-in 200ms cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-fade-in: fade-in 200ms ease-out;
+
+  @keyframes sheet-right {
+    from { transform: translateX(100%); }
+  }
+  @keyframes sheet-up {
+    from { transform: translateY(100%); }
+  }
+  @keyframes dialog-in {
+    from { opacity: 0; transform: scale(0.96); }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+  }
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-cormorant), ui-serif, Georgia, serif;
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Lock page scroll while a Sheet (native <dialog>) is open */
+html:has(dialog[open]) {
+  overflow: hidden;
+}
+
+body {
+  background: var(--color-canvas);
+  color: var(--color-fg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  ::backdrop {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}
