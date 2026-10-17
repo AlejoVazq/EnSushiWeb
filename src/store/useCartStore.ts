@@ -2,13 +2,14 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { getFlavorById, getProductById, isAvailableOn } from '@/data/menu';
-import type { CartItem, CustomComboProduct, Product, StandardProduct } from '@/types';
+import type { CartItem, CustomComboProduct, Product, SizedProduct, StandardProduct } from '@/types';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-/** Custom combos require their flavors; standard products can't take any. */
+/** Sized products require a size and custom combos their flavors; standard products take neither. */
 export type AddItemInput =
   | { product: StandardProduct; quantity?: number }
+  | { product: SizedProduct; pieces: number; quantity?: number }
   | { product: CustomComboProduct; flavorIds: readonly string[]; quantity?: number };
 
 export interface CartState {
@@ -26,6 +27,7 @@ export interface CartState {
 interface PersistedLine {
   productId: string;
   quantity: number;
+  pieces?: number;
   flavorIds?: string[];
 }
 
@@ -49,31 +51,52 @@ const normalizeFlavorIds = (
   return unique;
 };
 
-/** Standard products: the product id. Custom combos: product id + sorted flavor ids. */
-export const getLineId = (productId: string, flavorIds?: readonly string[]): string =>
-  flavorIds && flavorIds.length > 0 ? `${productId}:${flavorIds.join(',')}` : productId;
+/** What tells two lines of the same product apart */
+interface LineOptions {
+  pieces?: number;
+  flavorIds?: readonly string[];
+}
 
-const createLine = (
-  product: Product,
-  flavorIds: readonly string[] | undefined,
-  quantity: number,
-): CartItem | null => {
+/** Standard: the product id. Sized: product id + pieces. Custom combos: product id + sorted flavor ids. */
+export const getLineId = (productId: string, { pieces, flavorIds }: LineOptions = {}): string => {
+  if (pieces !== undefined) return `${productId}@${pieces}`;
+  if (flavorIds && flavorIds.length > 0) return `${productId}:${flavorIds.join(',')}`;
+  return productId;
+};
+
+const createLine = (product: Product, { pieces, flavorIds }: LineOptions, quantity: number): CartItem | null => {
   if (!isValidQuantity(quantity) || !isAvailableOn(product)) return null;
 
-  if (product.type === 'standard') {
-    if (flavorIds !== undefined) return null;
-    return { lineId: product.id, product, quantity };
+  switch (product.type) {
+    case 'standard': {
+      if (pieces !== undefined || flavorIds !== undefined) return null;
+      return { lineId: product.id, product, quantity, unitPrice: product.price };
+    }
+    case 'sized': {
+      if (flavorIds !== undefined) return null;
+      const variant = product.variants.find((v) => v.pieces === pieces);
+      if (!variant) return null;
+      return {
+        lineId: getLineId(product.id, { pieces: variant.pieces }),
+        product,
+        quantity,
+        unitPrice: variant.price,
+        variant,
+      };
+    }
+    case 'custom-combo': {
+      if (pieces !== undefined || flavorIds === undefined) return null;
+      const normalized = normalizeFlavorIds(product, flavorIds);
+      if (!normalized) return null;
+      return {
+        lineId: getLineId(product.id, { flavorIds: normalized }),
+        product,
+        quantity,
+        unitPrice: product.price,
+        customization: { flavorIds: normalized },
+      };
+    }
   }
-
-  if (flavorIds === undefined) return null;
-  const normalized = normalizeFlavorIds(product, flavorIds);
-  if (!normalized) return null;
-  return {
-    lineId: getLineId(product.id, normalized),
-    product,
-    quantity,
-    customization: { flavorIds: normalized },
-  };
 };
 
 // ─── Persistence helpers ────────────────────────────────────────────────────
@@ -100,8 +123,9 @@ const restoreItems = (persisted: unknown): CartItem[] => {
     const product = getProductById(raw.productId);
     if (!product) continue;
 
+    const pieces = typeof raw.pieces === 'number' ? raw.pieces : undefined;
     const flavorIds = isStringArray(raw.flavorIds) ? raw.flavorIds : undefined;
-    const line = createLine(product, flavorIds, raw.quantity);
+    const line = createLine(product, { pieces, flavorIds }, raw.quantity);
     if (line && !restored.has(line.lineId)) restored.set(line.lineId, line);
   }
   return [...restored.values()];
@@ -116,8 +140,14 @@ export const useCartStore = create<CartState>()(
 
       addItem: (input) => {
         const quantity = input.quantity ?? 1;
-        const flavorIds = 'flavorIds' in input ? input.flavorIds : undefined;
-        const line = createLine(input.product, flavorIds, quantity);
+        const line = createLine(
+          input.product,
+          {
+            pieces: 'pieces' in input ? input.pieces : undefined,
+            flavorIds: 'flavorIds' in input ? input.flavorIds : undefined,
+          },
+          quantity,
+        );
         if (!line) throw new Error(`Invalid cart item: ${input.product.id}`);
 
         set((state) => {
@@ -156,6 +186,7 @@ export const useCartStore = create<CartState>()(
         items: state.items.map((item) => ({
           productId: item.product.id,
           quantity: item.quantity,
+          ...(item.variant && { pieces: item.variant.pieces }),
           ...(item.customization && { flavorIds: [...item.customization.flavorIds] }),
         })),
       }),
@@ -169,7 +200,7 @@ export const useCartStore = create<CartState>()(
 // ─── Derived values ─────────────────────────────────────────────────────────
 
 /** Price × quantity for one line, integer ARS */
-export const lineSubtotal = (item: CartItem): number => item.product.price * item.quantity;
+export const lineSubtotal = (item: CartItem): number => item.unitPrice * item.quantity;
 
 /** Integer ARS */
 export const cartTotal = (items: readonly CartItem[]): number =>

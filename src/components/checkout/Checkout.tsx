@@ -5,12 +5,15 @@ import { useRouter } from 'next/navigation';
 import { useRef, useState, type FormEvent, type ReactNode } from 'react';
 
 import { Button, buttonClassName } from '@/components/ui/Button';
+import { ScheduleNotices } from '@/components/shop/ScheduleNotices';
 import { Input } from '@/components/ui/Input';
 import { BUSINESS, DELIVERY_METHOD_LABELS, PAYMENT_METHOD_LABELS } from '@/config/business';
 import { useCartHydrated } from '@/hooks/useCartHydration';
+import { useCartSchedule } from '@/hooks/useScheduleStatus';
 import {
   CHECKOUT_FIELDS,
   createOrder,
+  deliveryFeeFor,
   validateCheckout,
   type CheckoutErrors,
   type CheckoutForm,
@@ -25,7 +28,11 @@ import { OrderSummary } from './OrderSummary';
 
 const DELIVERY_OPTIONS: readonly ChoiceOption<DeliveryMethod>[] = [
   { value: 'pickup', label: DELIVERY_METHOD_LABELS.pickup, description: 'Lo pasás a buscar por el local.' },
-  { value: 'delivery', label: DELIVERY_METHOD_LABELS.delivery, description: 'Te lo llevamos a tu dirección.' },
+  {
+    value: 'delivery',
+    label: DELIVERY_METHOD_LABELS.delivery,
+    description: `Te lo llevamos a tu dirección. Envío: ${formatPrice(BUSINESS.delivery.fee)}.`,
+  },
 ];
 
 const PAYMENT_OPTIONS: readonly ChoiceOption<PaymentMethod>[] = [
@@ -147,13 +154,15 @@ export function Checkout() {
   const router = useRouter();
   const hydrated = useCartHydrated();
   const items = useCartStore((state) => state.items);
-  const total = useCartStore(selectCartTotal);
+  const subtotal = useCartStore(selectCartTotal);
   const clearCart = useCartStore((state) => state.clearCart);
+  const schedule = useCartSchedule(items);
 
   const formRef = useRef<HTMLFormElement>(null);
   const [form, setForm] = useState<CheckoutForm>({ name: '', deliveryMethod: null, address: '', paymentMethod: null });
   const [errors, setErrors] = useState<CheckoutErrors>({});
   const [whatsappUrl, setWhatsappUrl] = useState<string | null>(null);
+  const deliveryFee = deliveryFeeFor(form.deliveryMethod);
 
   const update = <K extends keyof CheckoutForm>(key: K, value: CheckoutForm[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -162,6 +171,7 @@ export function Checkout() {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!schedule.canCheckout) return;
     const nextErrors = validateCheckout(form);
     setErrors(nextErrors);
 
@@ -274,15 +284,16 @@ export function Checkout() {
           </ChoiceCards>
 
           <div className="space-y-3">
-            <Button type="submit" size="lg" fullWidth>
-              Enviar pedido por WhatsApp · {formatPrice(total)}
+            <ScheduleNotices notices={schedule.notices} />
+            <Button type="submit" size="lg" fullWidth disabled={!schedule.canCheckout}>
+              Enviar pedido por WhatsApp · {formatPrice(subtotal + deliveryFee)}
             </Button>
             <p className="text-center text-sm text-subtle">Se abre WhatsApp con tu pedido listo para enviar.</p>
           </div>
         </form>
 
         <div className="lg:sticky lg:top-8">
-          <OrderSummary items={items} total={total} />
+          <OrderSummary items={items} deliveryFee={deliveryFee} />
         </div>
       </div>
     </PageShell>

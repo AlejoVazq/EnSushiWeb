@@ -4,6 +4,7 @@ import { getProductsByCategory, hasDayRestrictions } from '@/data/menu';
 import { useIsClient } from '@/hooks/useIsClient';
 import type { Category, CustomComboProduct } from '@/types';
 
+import { categoryTabId } from './CategoryNav';
 import { ProductCard } from './ProductCard';
 
 interface CategorySectionProps {
@@ -31,12 +32,11 @@ export function CategorySection({ category, onCustomize }: CategorySectionProps)
   const products = waitForClient
     ? []
     : getProductsByCategory(category.id, isClient ? new Date() : PRERENDER_DATE);
-  const titleId = `${category.id}-title`;
 
   return (
-    <section id={category.id} aria-labelledby={titleId} className="scroll-mt-36">
+    <section id={category.id} role="tabpanel" aria-labelledby={categoryTabId(category.id)} className="scroll-mt-36">
       <header className="mb-6 space-y-1">
-        <h2 id={titleId} className="font-display text-3xl font-medium sm:text-4xl">
+        <h2 className="font-display text-3xl font-medium sm:text-4xl">
           {category.name}
         </h2>
         <p className="text-muted">{category.description}</p>

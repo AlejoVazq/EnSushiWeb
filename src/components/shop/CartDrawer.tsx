@@ -5,10 +5,13 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { QuantityStepper } from '@/components/ui/QuantityStepper';
 import { Sheet } from '@/components/ui/Sheet';
-import { getLineFlavorNames } from '@/lib/cartLine';
+import { getLineFlavorNames, getLineName } from '@/lib/cartLine';
+import { useCartSchedule } from '@/hooks/useScheduleStatus';
 import { formatPrice } from '@/lib/format';
 import { lineSubtotal, selectCartTotal, useCartStore } from '@/store/useCartStore';
 import type { CartItem } from '@/types';
+
+import { ScheduleNotices } from './ScheduleNotices';
 
 interface CartDrawerProps {
   open: boolean;
@@ -19,19 +22,20 @@ interface CartDrawerProps {
 function CartLine({ item }: { item: CartItem }) {
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const flavors = getLineFlavorNames(item);
+  const name = getLineName(item);
 
   return (
     <li className="flex gap-4 py-5">
       <div className="min-w-0 flex-1 space-y-1">
-        <p className="leading-snug font-medium">{item.product.name}</p>
+        <p className="leading-snug font-medium">{name}</p>
         {flavors.length > 0 && <p className="text-sm text-muted">{flavors.join(', ')}</p>}
-        <p className="text-sm text-subtle tabular-nums">{formatPrice(item.product.price)} c/u</p>
+        <p className="text-sm text-subtle tabular-nums">{formatPrice(item.unitPrice)} c/u</p>
       </div>
       <div className="flex flex-col items-end gap-3">
         <p className="font-semibold tabular-nums">{formatPrice(lineSubtotal(item))}</p>
         <QuantityStepper
           quantity={item.quantity}
-          label={item.product.name}
+          label={name}
           onDecrement={() => updateQuantity(item.lineId, item.quantity - 1)}
           onIncrement={() => updateQuantity(item.lineId, item.quantity + 1)}
         />
@@ -44,6 +48,7 @@ export function CartDrawer({ open, onClose, onCheckout }: CartDrawerProps) {
   const items = useCartStore((state) => state.items);
   const total = useCartStore(selectCartTotal);
   const clearCart = useCartStore((state) => state.clearCart);
+  const schedule = useCartSchedule(items);
   const [confirmingClear, setConfirmingClear] = useState(false);
 
   const isEmpty = items.length === 0;
@@ -61,7 +66,8 @@ export function CartDrawer({ open, onClose, onCheckout }: CartDrawerProps) {
               <span className="text-muted">Total</span>
               <span className="text-2xl font-semibold tabular-nums">{formatPrice(total)}</span>
             </div>
-            <Button size="lg" fullWidth onClick={onCheckout}>
+            <ScheduleNotices notices={schedule.notices} />
+            <Button size="lg" fullWidth onClick={onCheckout} disabled={!schedule.canCheckout}>
               Continuar con el pedido
             </Button>
           </div>

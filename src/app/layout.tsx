@@ -18,7 +18,7 @@ const cormorant = Cormorant_Garamond({
 });
 
 const title = `${BUSINESS.name} · Pedidos online`;
-const description = "Makis, uramakis y sushiburs. Armá tu pedido y envialo por WhatsApp.";
+const description = "Combos, sushiburgers y selección de autor. Armá tu pedido y envialo por WhatsApp.";
 
 export const metadata: Metadata = {
   // Absolute base for OG URLs. Without it, Next falls back to the Vercel URL (or localhost).

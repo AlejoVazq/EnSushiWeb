@@ -5,7 +5,7 @@ import { useState } from 'react';
 
 import { BUSINESS } from '@/config/business';
 import { CATEGORIES } from '@/data/menu';
-import type { CustomComboProduct } from '@/types';
+import type { CategoryId, CustomComboProduct } from '@/types';
 
 import { CartDrawer } from './CartDrawer';
 import { CategoryNav } from './CategoryNav';
@@ -25,6 +25,14 @@ export function Shop() {
   const [cartOpen, setCartOpen] = useState(false);
   const [builder, setBuilder] = useState<BuilderSession | null>(null);
   const [builderOpen, setBuilderOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<CategoryId>(CATEGORIES[0]?.id ?? 'combos');
+
+  const selectCategory = (id: CategoryId) => {
+    setActiveCategory(id);
+    // If the menu was scrolled past, bring the new category's top back under the sticky nav
+    const panel = document.getElementById(id);
+    if (panel && panel.getBoundingClientRect().top < 0) panel.scrollIntoView({ block: 'start' });
+  };
 
   const openBuilder = (product: CustomComboProduct) => {
     setBuilder((prev) => ({ product, key: (prev?.key ?? 0) + 1 }));
@@ -46,13 +54,11 @@ export function Shop() {
           </p>
         </section>
 
-        <CategoryNav />
+        <CategoryNav active={activeCategory} onSelect={selectCategory} />
 
-        <div className="space-y-16">
-          {CATEGORIES.map((category) => (
-            <CategorySection key={category.id} category={category} onCustomize={openBuilder} />
-          ))}
-        </div>
+        {CATEGORIES.filter((category) => category.id === activeCategory).map((category) => (
+          <CategorySection key={category.id} category={category} onCustomize={openBuilder} />
+        ))}
       </main>
 
       <footer className="border-t border-line py-8 text-center text-sm text-subtle">

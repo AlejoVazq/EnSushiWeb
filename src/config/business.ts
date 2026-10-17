@@ -17,6 +17,18 @@ export const BUSINESS = {
   pickup: {
     address: 'Puerto Rico 248',
   },
+  delivery: {
+    /** Flat fee in ARS, integer, added to the order total */
+    fee: 3000,
+  },
+  /** 24h "HH:MM" times, in the shop's time zone (not the visitor's) */
+  schedule: {
+    timeZone: 'America/Argentina/Buenos_Aires',
+    /** Express kitchen. `close` may be past midnight ("00:00" = end of the day). */
+    operatingHours: { open: '20:00', close: '00:00' },
+    /** Last time to order "Selección de autor" for the same night */
+    preorderCutoff: '19:00',
+  },
   locale: 'es-AR',
   currency: 'ARS',
 } as const;

@@ -1,16 +1,19 @@
 import Link from 'next/link';
 
-import { getLineFlavorNames } from '@/lib/cartLine';
+import { getLineFlavorNames, getLineName } from '@/lib/cartLine';
 import { formatPrice } from '@/lib/format';
-import { lineSubtotal } from '@/store/useCartStore';
+import { cartTotal, lineSubtotal } from '@/store/useCartStore';
 import type { CartItem } from '@/types';
 
 interface OrderSummaryProps {
   items: readonly CartItem[];
-  total: number;
+  /** Integer ARS; the row is hidden when 0 */
+  deliveryFee: number;
 }
 
-export function OrderSummary({ items, total }: OrderSummaryProps) {
+export function OrderSummary({ items, deliveryFee }: OrderSummaryProps) {
+  const subtotal = cartTotal(items);
+
   return (
     <section aria-labelledby="summary-title" className="rounded-3xl border border-line bg-surface p-5 sm:p-6">
       <div className="mb-2 flex items-baseline justify-between gap-4">
@@ -29,7 +32,7 @@ export function OrderSummary({ items, total }: OrderSummaryProps) {
               <div className="min-w-0">
                 <p>
                   <span className="text-muted tabular-nums">{item.quantity}× </span>
-                  {item.product.name}
+                  {getLineName(item)}
                 </p>
                 {flavors.length > 0 && <p className="text-muted">{flavors.join(', ')}</p>}
               </div>
@@ -38,9 +41,21 @@ export function OrderSummary({ items, total }: OrderSummaryProps) {
           );
         })}
       </ul>
+      {deliveryFee > 0 && (
+        <dl className="space-y-1 border-t border-line pt-3 text-sm">
+          <div className="flex justify-between">
+            <dt className="text-muted">Subtotal</dt>
+            <dd className="tabular-nums">{formatPrice(subtotal)}</dd>
+          </div>
+          <div className="flex justify-between">
+            <dt className="text-muted">Envío</dt>
+            <dd className="tabular-nums">{formatPrice(deliveryFee)}</dd>
+          </div>
+        </dl>
+      )}
       <div className="mt-2 flex items-baseline justify-between border-t border-line pt-4">
         <span className="text-muted">Total</span>
-        <span className="text-2xl font-semibold tabular-nums">{formatPrice(total)}</span>
+        <span className="text-2xl font-semibold tabular-nums">{formatPrice(subtotal + deliveryFee)}</span>
       </div>
     </section>
   );

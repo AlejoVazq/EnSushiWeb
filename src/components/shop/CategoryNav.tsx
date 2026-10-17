@@ -1,23 +1,71 @@
-import { CATEGORIES } from '@/data/menu';
+'use client';
 
-export function CategoryNav() {
+import { useRef, type KeyboardEvent } from 'react';
+
+import { CATEGORIES } from '@/data/menu';
+import { cn } from '@/lib/cn';
+import type { CategoryId } from '@/types';
+
+interface CategoryNavProps {
+  active: CategoryId;
+  onSelect: (id: CategoryId) => void;
+}
+
+export const categoryTabId = (id: CategoryId): string => `tab-${id}`;
+
+/** Category tabs: only the selected category is shown below */
+export function CategoryNav({ active, onSelect }: CategoryNavProps) {
+  const listRef = useRef<HTMLDivElement>(null);
+
+  // Arrow keys move between tabs (WAI-ARIA tabs pattern)
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    const step = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+    if (step === 0) return;
+    event.preventDefault();
+    const index = CATEGORIES.findIndex((c) => c.id === active);
+    const next = CATEGORIES[(index + step + CATEGORIES.length) % CATEGORIES.length];
+    if (!next) return;
+    onSelect(next.id);
+    listRef.current?.querySelector<HTMLElement>(`#${categoryTabId(next.id)}`)?.focus();
+  };
+
   return (
     <nav
       aria-label="Categorías"
       className="sticky top-16 z-30 -mx-4 mb-10 border-b border-line/60 bg-canvas/85 px-4 py-3 backdrop-blur-md sm:-mx-6 sm:px-6"
     >
-      <ul className="scrollbar-none flex gap-2 overflow-x-auto">
-        {CATEGORIES.map((category) => (
-          <li key={category.id} className="shrink-0">
-            <a
-              href={`#${category.id}`}
-              className="inline-flex h-9 items-center rounded-full border border-line px-4 text-sm text-muted transition-colors hover:border-line-strong hover:text-fg"
+      <div
+        ref={listRef}
+        role="tablist"
+        aria-label="Categorías del menú"
+        onKeyDown={handleKeyDown}
+        className="scrollbar-none flex gap-2 overflow-x-auto"
+      >
+        {CATEGORIES.map((category) => {
+          const selected = category.id === active;
+          return (
+            <button
+              key={category.id}
+              id={categoryTabId(category.id)}
+              type="button"
+              role="tab"
+              aria-selected={selected}
+              aria-controls={category.id}
+              tabIndex={selected ? 0 : -1}
+              onClick={() => onSelect(category.id)}
+              className={cn(
+                'inline-flex h-9 shrink-0 items-center rounded-full border px-4 text-sm transition-colors',
+                'focus-visible:outline-2 focus-visible:outline-accent',
+                selected
+                  ? 'border-accent bg-accent text-accent-fg'
+                  : 'border-line text-muted hover:border-line-strong hover:text-fg',
+              )}
             >
               {category.name}
-            </a>
-          </li>
-        ))}
-      </ul>
+            </button>
+          );
+        })}
+      </div>
     </nav>
   );
 }

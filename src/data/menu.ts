@@ -1,18 +1,32 @@
-import type { Category, CategoryId, CustomComboProduct, Product, RollFlavor } from '@/types';
+import { BUSINESS } from '@/config/business';
+import type {
+  Category,
+  CategoryId,
+  CustomComboProduct,
+  Product,
+  ProductVariant,
+  RollFlavor,
+  SizedProduct,
+  StandardProduct,
+} from '@/types';
 
 /**
  * Single source of truth for the catalog.
- * Prices are placeholders in ARS — adjust to the real menu.
+ * Combos, Sushiburgers and Salsas have real prices; Selección de autor and Arma tu combo are still placeholders.
  */
 
 // ─── Categories (display order) ─────────────────────────────────────────────
 
 export const CATEGORIES: readonly Category[] = [
-  { id: 'menu-del-dia', name: 'Menú del día', description: 'Lo que preparó el chef hoy, por tiempo limitado.' },
   { id: 'combos', name: 'Combos', description: 'Selecciones de la casa para compartir.' },
-  { id: 'sushiburs', name: 'Sushiburs', description: 'Nuestra fusión: arroz crocante en formato burger.' },
-  { id: 'acompanamientos', name: 'Acompañamientos', description: 'Para completar el pedido.' },
+  {
+    id: 'seleccion-de-autor',
+    name: 'Selección de autor',
+    description: `Combos premium por encargo. Pedilos antes de las ${BUSINESS.schedule.preorderCutoff} para esa misma noche.`,
+  },
+  { id: 'sushiburgers', name: 'Sushiburgers', description: 'Nuestra fusión: arroz crocante en formato burger.' },
   { id: 'arma-tu-combo', name: 'Arma tu combo', description: 'Elegí el tamaño y tus sabores favoritos.' },
+  { id: 'salsas', name: 'Salsas', description: 'Porciones extra para acompañar.' },
 ];
 
 // ─── Flavors for "Arma tu combo" ────────────────────────────────────────────
@@ -28,178 +42,91 @@ export const ROLL_FLAVORS: readonly RollFlavor[] = [
 
 // ─── Products ───────────────────────────────────────────────────────────────
 
+/** Combo sizes share the piece counts; only prices change per combo */
+const comboSizes = (p15: number, p24: number, p40: number): ProductVariant[] => [
+  { pieces: 15, price: p15 },
+  { pieces: 24, price: p24 },
+  { pieces: 40, price: p40 },
+];
+
+/** Express combo in 15/24/40 pieces, image path derived from its id */
+const combo = (id: string, name: string, description: string, variants: ProductVariant[]): SizedProduct => ({
+  id,
+  type: 'sized',
+  orderType: 'express',
+  categoryId: 'combos',
+  name,
+  description,
+  variants,
+  imageUrl: `/images/menu/${id}.jpg`,
+  available: true,
+});
+
+/** Express standard product */
+const express = (product: Omit<StandardProduct, 'type' | 'orderType' | 'available'>): StandardProduct => ({
+  type: 'standard',
+  orderType: 'express',
+  available: true,
+  ...product,
+});
+
 export const PRODUCTS: readonly Product[] = [
-  // Menú del día
-  {
-    id: 'mdd-poke-salmon',
-    type: 'standard',
-    categoryId: 'menu-del-dia',
-    name: 'Poke de salmón',
-    description: 'Arroz de sushi, salmón marinado, palta, edamame, mango y sésamo.',
-    price: 11500,
-    imageUrl: '/images/menu/poke-salmon.jpg',
-    tags: ['nuevo'],
-    available: true,
-    availableDays: [2, 3, 4], // martes a jueves
-  },
-  {
-    id: 'mdd-roll-del-chef',
-    type: 'standard',
-    categoryId: 'menu-del-dia',
-    name: 'Roll del chef (10 piezas)',
-    description: 'Roll de salmón flambeado con salsa de maracuyá y crocante de batata.',
-    price: 9800,
-    imageUrl: '/images/menu/roll-del-chef.jpg',
-    pieces: 10,
-    available: true,
-    availableDays: [5, 6, 0], // viernes a domingo
-  },
-
   // Combos
+  combo('combo-kanituna', 'Combo Kanituna', 'Kanikama y atún.', comboSizes(20000, 36000, 45000)),
+  combo('combo-green', 'Combo Green', 'Mango y ciboulette.', comboSizes(22000, 38000, 47000)),
+  combo('combo-ensushi', 'Combo Ensushi', 'Salmón, veggie y kanikama.', comboSizes(29000, 45000, 52000)),
+  combo('combo-tunasalm', 'Combo TunaSalm', 'Salmón y atún.', comboSizes(25000, 42000, 50000)),
+  combo('combo-salmon', 'Combo Salmón', 'Salmón.', comboSizes(34000, 53000, 64000)),
+  combo('combo-ocean-duo', 'Combo Ocean Duo', 'Salmón y langostinos.', comboSizes(31000, 50000, 60000)),
+
+  // Selección de autor (examples until the real premium menu is defined)
   {
-    id: 'combo-15',
+    id: 'autor-nigiris-premium',
     type: 'standard',
-    categoryId: 'combos',
-    name: 'Combo 15 piezas',
-    description: '5 Philadelphia, 5 New York y 5 Tempura Roll.',
-    price: 17900,
-    imageUrl: '/images/menu/combo-15.jpg',
-    pieces: 15,
-    tags: ['mas-pedido'],
+    orderType: 'preorder',
+    categoryId: 'seleccion-de-autor',
+    name: 'Nigiris Premium',
+    price: 28900,
+    imageUrl: '/images/menu/autor-nigiris-premium.jpg',
     available: true,
   },
   {
-    id: 'combo-30',
+    id: 'autor-geishas-salmon',
     type: 'standard',
-    categoryId: 'combos',
-    name: 'Combo 30 piezas',
-    description: 'Philadelphia, New York, Tempura, Acevichado y Salmon Skin.',
-    price: 32500,
-    imageUrl: '/images/menu/combo-30.jpg',
-    pieces: 30,
-    available: true,
-  },
-  {
-    id: 'combo-veggie-20',
-    type: 'standard',
-    categoryId: 'combos',
-    name: 'Combo Veggie 20 piezas',
-    description: 'Veggie Roll, roll de palta y hongos, y hosomakis de pepino.',
-    price: 21000,
-    imageUrl: '/images/menu/combo-veggie.jpg',
-    pieces: 20,
-    tags: ['veggie'],
+    orderType: 'preorder',
+    categoryId: 'seleccion-de-autor',
+    name: 'Geishas de Salmón',
+    price: 24900,
+    imageUrl: '/images/menu/autor-geishas-salmon.jpg',
     available: true,
   },
 
-  // Sushiburs
-  {
-    id: 'sb-langostinos',
-    type: 'standard',
-    categoryId: 'sushiburs',
-    name: 'Sushibur de langostinos',
-    description: 'Langostinos entre panes de arroz.',
-    price: 14500,
-    imageUrl: '/images/menu/sushibur-langostinos.jpg',
-    available: true,
-  },
-  {
+  // Sushiburgers
+  express({
     id: 'sb-salmon',
-    type: 'standard',
-    categoryId: 'sushiburs',
-    name: 'Sushibur de salmón',
-    description: 'Salmón fresco entre panes de arroz.',
-    price: 13900,
-    imageUrl: '/images/menu/sushibur-salmon.jpg',
-    available: true,
-  },
-  {
-    id: 'sb-salmon-cocido',
-    type: 'standard',
-    categoryId: 'sushiburs',
-    name: 'Sushibur de salmón cocido',
-    description: 'Salmón cocido entre panes de arroz.',
-    price: 13900,
-    imageUrl: '/images/menu/sushibur-salmon-cocido.jpg',
-    available: true,
-  },
+    categoryId: 'sushiburgers',
+    name: 'SushiBurger Salmón',
+    price: 15000,
+    imageUrl: '/images/menu/sb-salmon.jpg',
+  }),
+  express({
+    id: 'sb-langostinos',
+    categoryId: 'sushiburgers',
+    name: 'SushiBurger Langostinos',
+    price: 14000,
+    imageUrl: '/images/menu/sb-langostinos.jpg',
+  }),
 
-  // Acompañamientos
-  {
-    id: 'acomp-gyozas',
-    type: 'standard',
-    categoryId: 'acompanamientos',
-    name: 'Gyozas de cerdo (6)',
-    description: 'Selladas a la plancha, con salsa ponzu.',
-    price: 6900,
-    imageUrl: '/images/menu/gyozas.jpg',
-    pieces: 6,
-    available: true,
-  },
-  {
-    id: 'acomp-edamame',
-    type: 'standard',
-    categoryId: 'acompanamientos',
-    name: 'Edamame',
-    description: 'Con sal marina en escamas.',
-    price: 4500,
-    imageUrl: '/images/menu/edamame.jpg',
-    tags: ['veggie', 'sin-tacc'],
-    available: true,
-  },
-  {
-    id: 'acomp-papas-batata',
-    type: 'standard',
-    categoryId: 'acompanamientos',
-    name: 'Papas de batata',
-    description: 'Bastones de batata crocantes con mayo de wasabi.',
-    price: 5200,
-    imageUrl: '/images/menu/papas-batata.jpg',
-    tags: ['veggie'],
-    available: true,
-  },
   // Salsas: one product each, so the order says exactly which one
-  {
-    id: 'salsa-soja',
-    type: 'standard',
-    categoryId: 'acompanamientos',
-    name: 'Salsa de soja',
-    description: 'Porción extra.',
-    price: 900,
-    available: true,
-  },
-  {
-    id: 'salsa-buenos-aires',
-    type: 'standard',
-    categoryId: 'acompanamientos',
-    name: 'Salsa Buenos Aires',
-    description: 'Salsa especial de la casa. Porción extra.',
-    price: 900,
-    available: true,
-  },
-  {
-    id: 'salsa-teriyaki',
-    type: 'standard',
-    categoryId: 'acompanamientos',
-    name: 'Salsa teriyaki',
-    description: 'Salsa especial de la casa. Porción extra.',
-    price: 900,
-    available: true,
-  },
-  {
-    id: 'salsa-agridulce',
-    type: 'standard',
-    categoryId: 'acompanamientos',
-    name: 'Salsa agridulce',
-    description: 'Salsa especial de la casa. Porción extra.',
-    price: 900,
-    available: true,
-  },
+  express({ id: 'salsa-teriyaki', categoryId: 'salsas', name: 'Salsa Teriyaki', price: 1500 }),
+  express({ id: 'salsa-buenos-aires', categoryId: 'salsas', name: 'Salsa Buenos Aires', price: 1500 }),
+  express({ id: 'salsa-agridulce', categoryId: 'salsas', name: 'Salsa Agridulce', price: 1500 }),
 
   // Arma tu combo
   {
     id: 'custom-15',
     type: 'custom-combo',
+    orderType: 'express',
     categoryId: 'arma-tu-combo',
     name: 'Arma tu combo · 15 piezas',
     description: 'Elegí hasta 3 sabores.',
@@ -212,6 +139,7 @@ export const PRODUCTS: readonly Product[] = [
   {
     id: 'custom-30',
     type: 'custom-combo',
+    orderType: 'express',
     categoryId: 'arma-tu-combo',
     name: 'Arma tu combo · 30 piezas',
     description: 'Elegí hasta 5 sabores.',

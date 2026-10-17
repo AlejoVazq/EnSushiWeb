@@ -1,3 +1,4 @@
+import { BUSINESS } from '@/config/business';
 import { cartTotal } from '@/store/useCartStore';
 import type { CartItem, DeliveryMethod, OrderDetails, PaymentMethod } from '@/types';
 
@@ -30,12 +31,17 @@ export const validateCheckout = (form: CheckoutForm): CheckoutErrors => {
   return errors;
 };
 
+/** Integer ARS; only delivery has a fee */
+export const deliveryFeeFor = (method: DeliveryMethod | null): number =>
+  method === 'delivery' ? BUSINESS.delivery.fee : 0;
+
 /**
  * Builds the order from a validated form; null if a required choice is missing.
- * Total is always recomputed from the items at submit time.
+ * Total is always recomputed from the items (plus the delivery fee) at submit time.
  */
 export const createOrder = (form: CheckoutForm, items: readonly CartItem[]): OrderDetails | null => {
   if (!form.deliveryMethod || !form.paymentMethod) return null;
+  const deliveryFee = deliveryFeeFor(form.deliveryMethod);
   return {
     customer: { name: form.name.trim() },
     fulfillment:
@@ -44,6 +50,7 @@ export const createOrder = (form: CheckoutForm, items: readonly CartItem[]): Ord
         : { method: 'pickup' },
     paymentMethod: form.paymentMethod,
     items,
-    total: cartTotal(items),
+    deliveryFee,
+    total: cartTotal(items) + deliveryFee,
   };
 };
