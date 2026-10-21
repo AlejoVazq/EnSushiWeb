@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { QuantityStepper } from '@/components/ui/QuantityStepper';
 import { Sheet } from '@/components/ui/Sheet';
 import { getLineFlavorNames, getLineName } from '@/lib/cartLine';
-import { useCartSchedule } from '@/hooks/useScheduleStatus';
+import { useCartNotices } from '@/hooks/useScheduleStatus';
 import { formatPrice } from '@/lib/format';
 import { lineSubtotal, selectCartTotal, useCartStore } from '@/store/useCartStore';
 import type { CartItem } from '@/types';
@@ -48,7 +48,7 @@ export function CartDrawer({ open, onClose, onCheckout }: CartDrawerProps) {
   const items = useCartStore((state) => state.items);
   const total = useCartStore(selectCartTotal);
   const clearCart = useCartStore((state) => state.clearCart);
-  const schedule = useCartSchedule(items);
+  const scheduleNotices = useCartNotices(items);
   const [confirmingClear, setConfirmingClear] = useState(false);
 
   const isEmpty = items.length === 0;
@@ -66,8 +66,8 @@ export function CartDrawer({ open, onClose, onCheckout }: CartDrawerProps) {
               <span className="text-muted">Total</span>
               <span className="text-2xl font-semibold tabular-nums">{formatPrice(total)}</span>
             </div>
-            <ScheduleNotices notices={schedule.notices} />
-            <Button size="lg" fullWidth onClick={onCheckout} disabled={!schedule.canCheckout}>
+            <ScheduleNotices notices={scheduleNotices} />
+            <Button size="lg" fullWidth onClick={onCheckout}>
               Continuar con el pedido
             </Button>
           </div>

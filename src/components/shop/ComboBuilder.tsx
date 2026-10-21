@@ -18,7 +18,7 @@ interface ComboBuilderProps {
   onClose: () => void;
 }
 
-/** "Arma tu combo": pick a size, then 1..maxFlavors flavors. Price is fixed by size. */
+/** Interim Arma tu combo: pick a size, then 1..maxFlavors flavors. Price is fixed by size. */
 export function ComboBuilder({ open, initialProduct, onClose }: ComboBuilderProps) {
   const sizes = getCustomCombos();
   const [productId, setProductId] = useState(initialProduct.id);
@@ -47,7 +47,7 @@ export function ComboBuilder({ open, initialProduct, onClose }: ComboBuilderProp
     <Sheet
       open={open}
       onClose={onClose}
-      title="Arma tu combo"
+      title="Armá tu combo"
       side="bottom"
       footer={
         <Button size="lg" fullWidth disabled={flavorIds.length === 0} onClick={handleAdd}>

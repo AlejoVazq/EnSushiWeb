@@ -5,12 +5,7 @@
 
 // ─── Catalog ────────────────────────────────────────────────────────────────
 
-export type CategoryId =
-  | 'combos'
-  | 'sushiburgers'
-  | 'salsas'
-  | 'seleccion-de-autor'
-  | 'arma-tu-combo';
+export type CategoryId = 'arma-tu-combo' | 'sushiburgers' | 'combos' | 'salsas';
 
 export interface Category {
   id: CategoryId;
@@ -23,7 +18,7 @@ export type ProductTag = 'nuevo' | 'mas-pedido' | 'picante' | 'veggie' | 'sin-ta
 /**
  * Kitchen dynamic:
  * - express: made on demand during opening hours.
- * - preorder: needs advance notice; orders close at `BUSINESS.schedule.preorderCutoff`.
+ * - preorder: same-day orders close at `BUSINESS.schedule.preorderCutoff`; after that, only for another day.
  */
 export type OrderType = 'express' | 'preorder';
 
@@ -48,11 +43,28 @@ interface BaseProduct {
   availableDays?: readonly DayOfWeek[];
 }
 
+/** One choice of a product option (e.g. "Crudo"); `id` is unique within the option */
+export interface ProductOptionValue {
+  id: string;
+  label: string;
+  /** Overrides the product image while this value is selected */
+  imageUrl?: string;
+}
+
+/** A required choice that doesn't change the price (e.g. raw or cooked salmon) */
+export interface ProductOption {
+  /** Accessible name of the choice, e.g. "Salmón" */
+  name: string;
+  values: readonly ProductOptionValue[];
+}
+
 /** A regular, ready-to-add product */
 export interface StandardProduct extends BaseProduct {
   type: 'standard';
   /** Unit price in ARS, integer */
   price: number;
+  /** If set, the customer must pick one value; each value is a separate cart line */
+  option?: ProductOption;
 }
 
 /** One size of a sized product; `pieces` is unique within the product */
@@ -69,7 +81,7 @@ export interface SizedProduct extends BaseProduct {
 }
 
 /**
- * "Arma tu combo": fixed size and price; the customer chooses
+ * Interim build-your-own combo (Arma tu combo, until the per-item builder): fixed size and price; the customer chooses
  * between 1 and `maxFlavors` flavors from ROLL_FLAVORS.
  */
 export interface CustomComboProduct extends BaseProduct {
@@ -81,6 +93,29 @@ export interface CustomComboProduct extends BaseProduct {
 }
 
 export type Product = StandardProduct | SizedProduct | CustomComboProduct;
+
+/** Sections of the "Arma tu combo" builder */
+export type BuildItemGroup = 'rolls' | 'nigiris' | 'acompanamientos';
+
+/**
+ * Something the customer adds to their own combo, in fixed steps, each with its own price.
+ * The combo starts empty and has no minimum or maximum. Not wired to the UI yet (Paso 10).
+ */
+export interface BuildItem {
+  id: string;
+  group: BuildItemGroup;
+  name: string;
+  description?: string;
+  imageUrl?: string;
+  /** Units added per step: 5 pieces of a roll, 1 nigiri, 3 empanaditas, 5 sticks */
+  step: number;
+  /** Plural unit shown next to `step`, e.g. "piezas", "unidades", "palitos" */
+  unitLabel: string;
+  /** Price of one step in ARS, integer */
+  price: number;
+  /** Master switch to hide an item without deleting it */
+  available: boolean;
+}
 
 /** Selectable flavor for custom combos */
 export interface RollFlavor {
@@ -99,7 +134,7 @@ export interface ComboCustomization {
 
 export interface CartItem {
   /**
-   * Unique per cart line. Standard products: the product id.
+   * Unique per cart line. Standard products: the product id (+ the option value, if any).
    * Sized products: product id + pieces. Custom combos: product id + sorted
    * flavor ids, so two combos with different flavors become separate lines.
    */
@@ -110,6 +145,8 @@ export interface CartItem {
   unitPrice: number;
   /** Chosen size, only for sized products */
   variant?: ProductVariant;
+  /** Chosen option value, only for standard products with an `option` */
+  optionValue?: ProductOptionValue;
   customization?: ComboCustomization;
 }
 
@@ -128,6 +165,8 @@ export interface CustomerInfo {
 
 export interface OrderDetails {
   customer: CustomerInfo;
+  /** Opening day the order is for, "YYYY-MM-DD" in the shop's time zone */
+  orderDate: string;
   fulfillment: Fulfillment;
   paymentMethod: PaymentMethod;
   items: readonly CartItem[];

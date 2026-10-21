@@ -24,10 +24,16 @@ export const BUSINESS = {
   /** 24h "HH:MM" times, in the shop's time zone (not the visitor's) */
   schedule: {
     timeZone: 'America/Argentina/Buenos_Aires',
-    /** Express kitchen. `close` may be past midnight ("00:00" = end of the day). */
-    operatingHours: { open: '20:00', close: '00:00' },
-    /** Last time to order "Selección de autor" for the same night */
-    preorderCutoff: '19:00',
+    /** Regular opening days, 0 = Sunday … 6 = Saturday (Friday to Sunday) */
+    openDays: [5, 6, 0],
+    /** Holidays outside `openDays` the shop works, "YYYY-MM-DD" */
+    extraOpenDates: [] as readonly string[],
+    /** `openDays` the shop doesn't work (e.g. Christmas), "YYYY-MM-DD" */
+    closedDates: [] as readonly string[],
+    /** Express kitchen, same day (`close` after `open`) */
+    operatingHours: { open: '17:00', close: '23:30' },
+    /** Last time to order `preorder` products (Arma tu combo) for the same night */
+    preorderCutoff: '20:00',
   },
   locale: 'es-AR',
   currency: 'ARS',

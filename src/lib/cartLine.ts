@@ -7,6 +7,9 @@ export const getLineFlavorNames = (item: CartItem): string[] =>
     .map((id) => getFlavorById(id)?.name)
     .filter((name): name is string => name !== undefined);
 
-/** Product name plus the chosen size for sized products: "Combo Kanituna · 24 piezas" */
-export const getLineName = (item: CartItem): string =>
-  item.variant ? `${item.product.name} · ${item.variant.pieces} piezas` : item.product.name;
+/** Product name plus the chosen size or option: "Combo Kanituna · 24 piezas", "SushiBurger Salmón · Crudo" */
+export const getLineName = (item: CartItem): string => {
+  if (item.variant) return `${item.product.name} · ${item.variant.pieces} piezas`;
+  if (item.optionValue) return `${item.product.name} · ${item.optionValue.label}`;
+  return item.product.name;
+};

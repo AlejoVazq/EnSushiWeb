@@ -1,5 +1,7 @@
 import { BUSINESS } from '@/config/business';
 import type {
+  BuildItem,
+  BuildItemGroup,
   Category,
   CategoryId,
   CustomComboProduct,
@@ -12,24 +14,58 @@ import type {
 
 /**
  * Single source of truth for the catalog.
- * Combos, Sushiburgers and Salsas have real prices; Selección de autor and Arma tu combo are still placeholders.
+ * Combos, Sushiburgers and Salsas have real prices; Arma tu combo is still a placeholder (prices TBD).
  */
 
 // ─── Categories (display order) ─────────────────────────────────────────────
 
 export const CATEGORIES: readonly Category[] = [
-  { id: 'combos', name: 'Combos', description: 'Selecciones de la casa para compartir.' },
   {
-    id: 'seleccion-de-autor',
-    name: 'Selección de autor',
-    description: `Combos premium por encargo. Pedilos antes de las ${BUSINESS.schedule.preorderCutoff} para esa misma noche.`,
+    id: 'arma-tu-combo',
+    name: 'Arma tu combo',
+    description: `Rolls de autor, nigiris y acompañamientos, a tu gusto. Para el mismo día, pedilo hasta las ${BUSINESS.schedule.preorderCutoff}.`,
   },
   { id: 'sushiburgers', name: 'Sushiburgers', description: 'Nuestra fusión: arroz crocante en formato burger.' },
-  { id: 'arma-tu-combo', name: 'Arma tu combo', description: 'Elegí el tamaño y tus sabores favoritos.' },
-  { id: 'salsas', name: 'Salsas', description: 'Porciones extra para acompañar.' },
+  { id: 'combos', name: 'Combos', description: 'Selecciones de la casa para compartir.' },
+  { id: 'salsas', name: 'Salsas & complementos', description: 'Porciones extra para acompañar.' },
 ];
 
-// ─── Flavors for "Arma tu combo" ────────────────────────────────────────────
+// ─── "Arma tu combo" builder (Paso 10, not wired to the UI yet) ──────────────
+
+/** Placeholder until the real prices are defined; every BuildItem uses it */
+const PRICE_TBD = 1000;
+
+export const BUILD_ITEM_GROUPS: readonly { id: BuildItemGroup; name: string }[] = [
+  { id: 'rolls', name: 'Rolls de autor' },
+  { id: 'nigiris', name: 'Nigiris' },
+  { id: 'acompanamientos', name: 'Acompañamientos' },
+];
+
+/** "Rolls de autor" item, sold in steps of 5 pieces */
+const roll = (id: string, name: string): BuildItem => ({
+  id,
+  group: 'rolls',
+  name,
+  step: 5,
+  unitLabel: 'piezas',
+  price: PRICE_TBD,
+  available: true,
+});
+
+export const BUILD_ITEMS: readonly BuildItem[] = [
+  roll('roll-new-york', 'New York'),
+  roll('roll-sake', 'Sake'),
+  roll('roll-midori', 'Midori'),
+  roll('roll-hikaru', 'Hikaru'),
+  roll('roll-sakana-maki', 'Sakana Maki'),
+  roll('roll-tuna-spicy', 'TunaSpicy'),
+  { id: 'nigiri-salmon', group: 'nigiris', name: 'Nigiri de salmón', step: 1, unitLabel: 'unidades', price: PRICE_TBD, available: true },
+  { id: 'empanaditas', group: 'acompanamientos', name: 'Empanaditas', step: 3, unitLabel: 'unidades', price: PRICE_TBD, available: true },
+  { id: 'langostinos-empanados', group: 'acompanamientos', name: 'Langostinos empanados', step: 5, unitLabel: 'palitos', price: PRICE_TBD, available: true },
+  { id: 'pollo-tandoori', group: 'acompanamientos', name: 'Pollo tandoori', step: 5, unitLabel: 'palitos', price: PRICE_TBD, available: true },
+];
+
+// ─── Flavors for custom combos ───────────────────────────────────────────────
 
 export const ROLL_FLAVORS: readonly RollFlavor[] = [
   { id: 'philadelphia', name: 'Philadelphia', description: 'Salmón, queso crema y palta.' },
@@ -79,59 +115,60 @@ export const PRODUCTS: readonly Product[] = [
   combo('combo-salmon', 'Combo Salmón', 'Salmón.', comboSizes(34000, 53000, 64000)),
   combo('combo-ocean-duo', 'Combo Ocean Duo', 'Salmón y langostinos.', comboSizes(31000, 50000, 60000)),
 
-  // Selección de autor (examples until the real premium menu is defined)
-  {
-    id: 'autor-nigiris-premium',
-    type: 'standard',
-    orderType: 'preorder',
-    categoryId: 'seleccion-de-autor',
-    name: 'Nigiris Premium',
-    price: 28900,
-    imageUrl: '/images/menu/autor-nigiris-premium.jpg',
-    available: true,
-  },
-  {
-    id: 'autor-geishas-salmon',
-    type: 'standard',
-    orderType: 'preorder',
-    categoryId: 'seleccion-de-autor',
-    name: 'Geishas de Salmón',
-    price: 24900,
-    imageUrl: '/images/menu/autor-geishas-salmon.jpg',
-    available: true,
-  },
 
   // Sushiburgers
   express({
     id: 'sb-salmon',
     categoryId: 'sushiburgers',
     name: 'SushiBurger Salmón',
+    description: 'Salmón (cocido o crudo), palta y queso philly entre dos panes de arroz empanizados y fritos. Incluye nachos y guacamole.',
     price: 15000,
     imageUrl: '/images/menu/sb-salmon.jpg',
+    // TODO: one photo per version (imageUrl on each value) once they're taken
+    option: {
+      name: 'Salmón',
+      values: [
+        { id: 'crudo', label: 'Crudo' },
+        { id: 'cocido', label: 'Cocido' },
+      ],
+    },
   }),
   express({
     id: 'sb-langostinos',
     categoryId: 'sushiburgers',
     name: 'SushiBurger Langostinos',
+    description: 'Langostinos empanados en panko, palta y queso philly entre dos panes de arroz empanizados y fritos. Incluye nachos y guacamole.',
     price: 14000,
     imageUrl: '/images/menu/sb-langostinos.jpg',
   }),
 
   // Salsas: one product each, so the order says exactly which one
-  express({ id: 'salsa-teriyaki', categoryId: 'salsas', name: 'Salsa Teriyaki', price: 1500 }),
-  express({ id: 'salsa-buenos-aires', categoryId: 'salsas', name: 'Salsa Buenos Aires', price: 1500 }),
+  express({
+    id: 'salsa-teriyaki',
+    categoryId: 'salsas',
+    name: 'Salsa Teriyaki',
+    description: 'Dulce, hecha con salsa de soja, jengibre, ajo y miel.',
+    price: 1500,
+  }),
+  express({
+    id: 'salsa-buenos-aires',
+    categoryId: 'salsas',
+    name: 'Salsa Buenos Aires',
+    description: 'Base de teriyaki con aceite de sésamo, semillas de sésamo y ralladura de limón.',
+    price: 1500,
+  }),
   express({ id: 'salsa-agridulce', categoryId: 'salsas', name: 'Salsa Agridulce', price: 1500 }),
 
-  // Arma tu combo
+  // Arma tu combo: interim size + flavors picker, replaced by BUILD_ITEMS in Paso 10
   {
     id: 'custom-15',
     type: 'custom-combo',
-    orderType: 'express',
+    orderType: 'preorder',
     categoryId: 'arma-tu-combo',
     name: 'Arma tu combo · 15 piezas',
     description: 'Elegí hasta 3 sabores.',
     price: 18900,
-    imageUrl: '/images/menu/arma-tu-combo.jpg',
+    imageUrl: '/images/menu/seleccion-de-autor.jpg',
     pieces: 15,
     maxFlavors: 3,
     available: true,
@@ -139,12 +176,12 @@ export const PRODUCTS: readonly Product[] = [
   {
     id: 'custom-30',
     type: 'custom-combo',
-    orderType: 'express',
+    orderType: 'preorder',
     categoryId: 'arma-tu-combo',
     name: 'Arma tu combo · 30 piezas',
     description: 'Elegí hasta 5 sabores.',
     price: 34900,
-    imageUrl: '/images/menu/arma-tu-combo.jpg',
+    imageUrl: '/images/menu/seleccion-de-autor.jpg',
     pieces: 30,
     maxFlavors: 5,
     available: true,
@@ -169,7 +206,10 @@ export const getProductById = (id: string): Product | undefined =>
 export const getFlavorById = (id: string): RollFlavor | undefined =>
   ROLL_FLAVORS.find((f) => f.id === id);
 
-/** Available "Arma tu combo" sizes */
+export const getBuildItemsByGroup = (group: BuildItemGroup): BuildItem[] =>
+  BUILD_ITEMS.filter((item) => item.group === group && item.available);
+
+/** Available custom combo sizes */
 export const getCustomCombos = (date: Date = new Date()): CustomComboProduct[] =>
   PRODUCTS.filter((p): p is CustomComboProduct => p.type === 'custom-combo' && isAvailableOn(p, date));
 

@@ -1,3 +1,6 @@
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+
 import { ImageResponse } from 'next/og';
 
 import { BUSINESS } from '@/config/business';
@@ -6,8 +9,11 @@ export const alt = `${BUSINESS.name} · Pedidos online`;
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
-/** Text-only share image until the brand logo is ready. Colors mirror the tokens in globals.css. */
-export default function OpengraphImage() {
+/** Share image with the brand logo. Colors mirror the tokens in globals.css. */
+export default async function OpengraphImage() {
+  const logo = await readFile(join(process.cwd(), 'public/logo.png'));
+  const logoSrc = `data:image/png;base64,${logo.toString('base64')}`;
+
   return new ImageResponse(
     (
       <div
@@ -22,7 +28,8 @@ export default function OpengraphImage() {
           color: '#f4efe6',
         }}
       >
-        <div style={{ fontSize: 140, fontWeight: 600, letterSpacing: -2 }}>{BUSINESS.name}</div>
+        {/* eslint-disable-next-line @next/next/no-img-element -- ImageResponse only renders plain <img> */}
+        <img src={logoSrc} alt={BUSINESS.name} width={720} height={239} />
         <div style={{ width: 120, height: 4, background: '#f0805a', margin: '28px 0' }} />
         <div style={{ fontSize: 44, color: '#a8a39a' }}>Pedí online y confirmá por WhatsApp</div>
       </div>

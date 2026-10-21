@@ -25,7 +25,7 @@ export function Shop() {
   const [cartOpen, setCartOpen] = useState(false);
   const [builder, setBuilder] = useState<BuilderSession | null>(null);
   const [builderOpen, setBuilderOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState<CategoryId>(CATEGORIES[0]?.id ?? 'combos');
+  const [activeCategory, setActiveCategory] = useState<CategoryId>(CATEGORIES[0]?.id ?? 'arma-tu-combo');
 
   const selectCategory = (id: CategoryId) => {
     setActiveCategory(id);

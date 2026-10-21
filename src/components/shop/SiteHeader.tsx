@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 import { BagIcon } from '@/components/ui/icons';
 import { BUSINESS } from '@/config/business';
 import { selectCartItemCount, useCartStore } from '@/store/useCartStore';
@@ -14,7 +16,9 @@ export function SiteHeader({ onOpenCart }: SiteHeaderProps) {
   return (
     <header className="sticky top-0 z-40 border-b border-line/60 bg-canvas/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <p className="font-display text-2xl font-medium tracking-tight">{BUSINESS.name}</p>
+        <p>
+          <Image src="/logo.png" alt={BUSINESS.name} width={900} height={299} priority className="h-8 w-auto" />
+        </p>
         <button
           type="button"
           onClick={onOpenCart}

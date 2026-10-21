@@ -6,9 +6,9 @@ import type { CartItem, CustomComboProduct, Product, SizedProduct, StandardProdu
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-/** Sized products require a size and custom combos their flavors; standard products take neither. */
+/** Sized products require a size and custom combos their flavors; standard products their option value, if they have one. */
 export type AddItemInput =
-  | { product: StandardProduct; quantity?: number }
+  | { product: StandardProduct; optionId?: string; quantity?: number }
   | { product: SizedProduct; pieces: number; quantity?: number }
   | { product: CustomComboProduct; flavorIds: readonly string[]; quantity?: number };
 
@@ -29,6 +29,7 @@ interface PersistedLine {
   quantity: number;
   pieces?: number;
   flavorIds?: string[];
+  optionId?: string;
 }
 
 interface PersistedCart {
@@ -55,25 +56,46 @@ const normalizeFlavorIds = (
 interface LineOptions {
   pieces?: number;
   flavorIds?: readonly string[];
+  optionId?: string;
 }
 
-/** Standard: the product id. Sized: product id + pieces. Custom combos: product id + sorted flavor ids. */
-export const getLineId = (productId: string, { pieces, flavorIds }: LineOptions = {}): string => {
+/**
+ * Standard: the product id (+ option value id). Sized: product id + pieces.
+ * Custom combos: product id + sorted flavor ids.
+ */
+export const getLineId = (productId: string, { pieces, flavorIds, optionId }: LineOptions = {}): string => {
   if (pieces !== undefined) return `${productId}@${pieces}`;
+  if (optionId !== undefined) return `${productId}#${optionId}`;
   if (flavorIds && flavorIds.length > 0) return `${productId}:${flavorIds.join(',')}`;
   return productId;
 };
 
-const createLine = (product: Product, { pieces, flavorIds }: LineOptions, quantity: number): CartItem | null => {
+const createLine = (
+  product: Product,
+  { pieces, flavorIds, optionId }: LineOptions,
+  quantity: number,
+): CartItem | null => {
   if (!isValidQuantity(quantity) || !isAvailableOn(product)) return null;
 
   switch (product.type) {
     case 'standard': {
       if (pieces !== undefined || flavorIds !== undefined) return null;
-      return { lineId: product.id, product, quantity, unitPrice: product.price };
+      if (!product.option) {
+        if (optionId !== undefined) return null;
+        return { lineId: product.id, product, quantity, unitPrice: product.price };
+      }
+      const optionValue = product.option.values.find((v) => v.id === optionId);
+      if (!optionValue) return null;
+      return {
+        lineId: getLineId(product.id, { optionId: optionValue.id }),
+        product,
+        quantity,
+        unitPrice: product.price,
+        optionValue,
+      };
     }
     case 'sized': {
-      if (flavorIds !== undefined) return null;
+      if (flavorIds !== undefined || optionId !== undefined) return null;
       const variant = product.variants.find((v) => v.pieces === pieces);
       if (!variant) return null;
       return {
@@ -85,7 +107,7 @@ const createLine = (product: Product, { pieces, flavorIds }: LineOptions, quanti
       };
     }
     case 'custom-combo': {
-      if (pieces !== undefined || flavorIds === undefined) return null;
+      if (pieces !== undefined || optionId !== undefined || flavorIds === undefined) return null;
       const normalized = normalizeFlavorIds(product, flavorIds);
       if (!normalized) return null;
       return {
@@ -125,7 +147,8 @@ const restoreItems = (persisted: unknown): CartItem[] => {
 
     const pieces = typeof raw.pieces === 'number' ? raw.pieces : undefined;
     const flavorIds = isStringArray(raw.flavorIds) ? raw.flavorIds : undefined;
-    const line = createLine(product, { pieces, flavorIds }, raw.quantity);
+    const optionId = typeof raw.optionId === 'string' ? raw.optionId : undefined;
+    const line = createLine(product, { pieces, flavorIds, optionId }, raw.quantity);
     if (line && !restored.has(line.lineId)) restored.set(line.lineId, line);
   }
   return [...restored.values()];
@@ -145,6 +168,7 @@ export const useCartStore = create<CartState>()(
           {
             pieces: 'pieces' in input ? input.pieces : undefined,
             flavorIds: 'flavorIds' in input ? input.flavorIds : undefined,
+            optionId: 'optionId' in input ? input.optionId : undefined,
           },
           quantity,
         );
@@ -188,6 +212,7 @@ export const useCartStore = create<CartState>()(
           quantity: item.quantity,
           ...(item.variant && { pieces: item.variant.pieces }),
           ...(item.customization && { flavorIds: [...item.customization.flavorIds] }),
+          ...(item.optionValue && { optionId: item.optionValue.id }),
         })),
       }),
       merge: (persisted, current) => ({ ...current, items: restoreItems(persisted) }),

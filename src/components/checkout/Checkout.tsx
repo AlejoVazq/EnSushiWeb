@@ -9,7 +9,7 @@ import { ScheduleNotices } from '@/components/shop/ScheduleNotices';
 import { Input } from '@/components/ui/Input';
 import { BUSINESS, DELIVERY_METHOD_LABELS, PAYMENT_METHOD_LABELS } from '@/config/business';
 import { useCartHydrated } from '@/hooks/useCartHydration';
-import { useCartSchedule } from '@/hooks/useScheduleStatus';
+import { useOrderSchedule } from '@/hooks/useScheduleStatus';
 import {
   CHECKOUT_FIELDS,
   createOrder,
@@ -20,6 +20,7 @@ import {
 } from '@/lib/checkout';
 import { cn } from '@/lib/cn';
 import { formatPrice } from '@/lib/format';
+import type { OrderDay } from '@/lib/schedule';
 import { buildWhatsAppUrl } from '@/services/whatsappService';
 import { selectCartTotal, useCartStore } from '@/store/useCartStore';
 import type { DeliveryMethod, PaymentMethod } from '@/types';
@@ -43,6 +44,14 @@ const PAYMENT_OPTIONS: readonly ChoiceOption<PaymentMethod>[] = [
     description: `Por ${BUSINESS.transfer.provider}. Te pasamos el alias cuando confirmemos el pedido.`,
   },
 ];
+
+const { open, close } = BUSINESS.schedule.operatingHours;
+
+const toDayOption = ({ date, label }: OrderDay): ChoiceOption<string> => ({
+  value: date,
+  label,
+  description: `De ${open} a ${close}`,
+});
 
 interface ChoiceOption<T extends string> {
   value: T;
@@ -156,10 +165,16 @@ export function Checkout() {
   const items = useCartStore((state) => state.items);
   const subtotal = useCartStore(selectCartTotal);
   const clearCart = useCartStore((state) => state.clearCart);
-  const schedule = useCartSchedule(items);
 
   const formRef = useRef<HTMLFormElement>(null);
-  const [form, setForm] = useState<CheckoutForm>({ name: '', deliveryMethod: null, address: '', paymentMethod: null });
+  const [form, setForm] = useState<CheckoutForm>({
+    name: '',
+    orderDate: null,
+    deliveryMethod: null,
+    address: '',
+    paymentMethod: null,
+  });
+  const { orderDays, check: schedule } = useOrderSchedule(items, form.orderDate);
   const [errors, setErrors] = useState<CheckoutErrors>({});
   const [whatsappUrl, setWhatsappUrl] = useState<string | null>(null);
   const deliveryFee = deliveryFeeFor(form.deliveryMethod);
@@ -172,7 +187,7 @@ export function Checkout() {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!schedule.canCheckout) return;
-    const nextErrors = validateCheckout(form);
+    const nextErrors = validateCheckout(form, orderDays.map((day) => day.date));
     setErrors(nextErrors);
 
     const firstInvalid = CHECKOUT_FIELDS.find((field) => nextErrors[field]);
@@ -243,6 +258,15 @@ export function Checkout() {
               error={errors.name}
             />
           </fieldset>
+
+          <ChoiceCards
+            name="orderDate"
+            legend="¿Para cuándo?"
+            options={orderDays.map(toDayOption)}
+            value={form.orderDate}
+            onChange={(date) => update('orderDate', date)}
+            error={errors.orderDate}
+          />
 
           <ChoiceCards
             name="deliveryMethod"
