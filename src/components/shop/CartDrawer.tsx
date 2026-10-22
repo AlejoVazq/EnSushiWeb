@@ -12,6 +12,7 @@ import { formatPrice } from '@/lib/format';
 import { lineSubtotal, selectCartTotal, toBoxInput, useCartStore } from '@/store/useCartStore';
 import type { BoxCartItem, CartItem } from '@/types';
 
+import { CartSuggestions } from './CartSuggestions';
 import { stepButtonClassName } from './LineAction';
 import { lineTitle, unitPriceText } from './lineText';
 
@@ -376,6 +377,8 @@ export function CartDrawer({ open, onClose, onCheckout, onEditBox }: CartDrawerP
               </button>
             )}
           </div>
+          {/* Only while orders are taken: with the shop closed nothing can be added */}
+          {canOrder && <CartSuggestions />}
         </>
       )}
     </Sheet>

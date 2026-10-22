@@ -22,9 +22,14 @@ export const CATEGORIES: readonly Category[] = [
   {
     id: 'arma-tu-combo',
     name: 'Arma tu combo',
-    description: `Elegí una caja y llenala con rolls de autor y nigiris (hasta las ${BUSINESS.schedule.preorderCutoff}). Los acompañamientos van aparte.`,
+    description: `Elegí una caja y llenala con rolls de autor y nigiris (hasta las ${BUSINESS.schedule.preorderCutoff}).`,
   },
   { id: 'sushiburgers', name: 'Sushiburgers', description: 'Nuestra fusión: arroz crocante en formato burger.' },
+  {
+    id: 'acompanamientos',
+    name: 'Acompañamientos',
+    description: 'Para sumar a tu pedido. Se piden solos, también después de las 20:00.',
+  },
   { id: 'combos', name: 'Combos', description: 'Selecciones de la casa para compartir.' },
   { id: 'salsas', name: 'Salsas & complementos', description: 'Porciones extra para acompañar.' },
 ];
@@ -33,6 +38,9 @@ export const CATEGORIES: readonly Category[] = [
 
 /** The category whose tab shows the box builder instead of product rows */
 export const BUILD_CATEGORY_ID: CategoryId = 'arma-tu-combo';
+
+/** The category whose tab lists the acompañamientos (build items ordered on their own) */
+export const EXTRAS_CATEGORY_ID: CategoryId = 'acompanamientos';
 
 /** Box sizes in pieces; a box must be filled exactly. A nigiri counts as one piece. */
 export const BUILD_BOX_SIZES: readonly number[] = [10, 15, 20, 25, 30];

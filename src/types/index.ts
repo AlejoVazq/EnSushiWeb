@@ -5,7 +5,7 @@
 
 // ─── Catalog ────────────────────────────────────────────────────────────────
 
-export type CategoryId = 'arma-tu-combo' | 'sushiburgers' | 'combos' | 'salsas';
+export type CategoryId = 'arma-tu-combo' | 'sushiburgers' | 'acompanamientos' | 'combos' | 'salsas';
 
 export interface Category {
   id: CategoryId;

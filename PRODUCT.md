@@ -20,7 +20,7 @@ Web de pedidos online de EnSushi: el cliente arma el pedido para hoy (combos, Ar
 
 ## Positioning
 
-- **Arma tu combo**: el cliente elige una caja de 10, 15, 20, 25 o 30 piezas y la llena exactamente con rolls de autor de a 5 piezas y nigiris (cada nigiri cuenta como 1 pieza); los acompañamientos van aparte y se pueden pedir solos. El total es la suma de los ítems.
+- **Arma tu combo**: el cliente elige una caja de 10, 15, 20, 25 o 30 piezas y la llena exactamente con rolls de autor de a 5 piezas y nigiris (cada nigiri cuenta como 1 pieza); los acompañamientos tienen su propia pestaña y se piden solos. El total es la suma de los ítems.
 - **Rolls de autor propios**: recetas de la casa (New York, Sake, Midori, Hikaru, Sakana Maki, TunaSpicy; la lista puede crecer).
 - **Sushiburgers**: producto poco común en la zona (ej. SushiBurger Salmón, crudo o cocido).
 - **Pedido sin fricción**: elegir desde el celu y en un toque queda listo en WhatsApp, sin registrarse ni pagar online.
@@ -28,7 +28,7 @@ Web de pedidos online de EnSushi: el cliente arma el pedido para hoy (combos, Ar
 ## Operating Context
 
 - Uso nocturno, en el celular, muchas veces con poca luz y apuro por la hora de la cena.
-- El catálogo va por pestañas (una categoría por vez): Arma tu combo, Sushiburgers, Combos, Salsas & complementos.
+- El catálogo va por pestañas (una categoría por vez): Arma tu combo, Sushiburgers, Acompañamientos, Combos, Salsas & complementos. Al abrir el carrito se sugieren acompañamientos y salsas.
 - Momentos clave: elegir combo y tamaño (15 / 24 / 40 piezas); armar su propio combo (rolls y nigiris hasta las 20:00; los acompañamientos no tienen corte); revisar el carrito; completar el checkout (entrega y pago; el horario lo coordina el local por WhatsApp).
 - Horario en la zona horaria del local: solo pedidos para hoy. En un día cerrado o después del cierre se bloquea el envío y se avisa cuándo abre; antes de la apertura se puede mandar, con un aviso. El corte de las 20:00 es por ítem (rolls y nigiris de Arma tu combo), no por pedido. Cuando el local no toma pedidos, la web queda solo para ver el menú: no se puede agregar nada.
 - El pedido termina en el WhatsApp del local; la confirmación, el cobro por transferencia y el comprobante pasan por ese chat.
@@ -40,7 +40,7 @@ Web de pedidos online de EnSushi: el cliente arma el pedido para hoy (combos, Ar
 - Envío a domicilio suma un costo fijo (hoy) y se muestra Subtotal / Envío / Total. Retiro muestra la dirección del local.
 - Transferencia: nunca mostrar alias ni CVU. Se avisa que no transfiera todavía: el local confirma por WhatsApp y recién ahí pasa el alias y el total.
 - El mensaje de WhatsApp sigue la plantilla exacta de `CLAUDE.md`.
-- Terminología fija: "Arma tu combo", "Combos", "Sushiburgers", "Salsas & complementos", "piezas", "Retiro en el local", "Envío a domicilio", "Efectivo", "Transferencia / Mercado Pago", "Para hoy".
+- Terminología fija: "Arma tu combo", "Combos", "Sushiburgers", "Acompañamientos", "Salsas & complementos", "piezas", "Retiro en el local", "Envío a domicilio", "Efectivo", "Transferencia / Mercado Pago", "Para hoy".
 - Futuras versiones (el diseño tiene que dejarles lugar): app de escritorio para el local, productos marcados como agotados sin tocar el código e interconexión entre la app del local y la web. También: costo de envío por zona (el reparto llega a Arrecifes y alrededores) y pedido mínimo.
 - Abierto: precios, descripciones y lista completa de rolls de Arma tu combo.
 

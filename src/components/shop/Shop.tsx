@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { BUSINESS } from '@/config/business';
-import { BUILD_CATEGORY_ID, CATEGORIES } from '@/data/menu';
+import { BUILD_CATEGORY_ID, CATEGORIES, EXTRAS_CATEGORY_ID } from '@/data/menu';
 import { useCanOrder } from '@/hooks/useScheduleStatus';
 import { toBoxInput } from '@/store/useCartStore';
 import type { BoxCartItem, CategoryId } from '@/types';
@@ -13,6 +13,7 @@ import { BoxBuilder, EMPTY_BOX_DRAFT, isBoxDraftActive, type BoxDraft } from './
 import { CartDrawer } from './CartDrawer';
 import { CategoryNav } from './CategoryNav';
 import { CategorySection } from './CategorySection';
+import { ExtrasList } from './ExtraRow';
 import { FloatingCartBar } from './FloatingCartBar';
 import { SiteHeader } from './SiteHeader';
 import { StatusBand } from './StatusBand';
@@ -60,6 +61,8 @@ export function Shop() {
             <CategorySection key={category.id} category={category}>
               {category.id === BUILD_CATEGORY_ID ? (
                 <BoxBuilder draft={boxDraft} onDraftChange={setBoxDraft} onOpenCart={() => setCartOpen(true)} />
+              ) : category.id === EXTRAS_CATEGORY_ID ? (
+                <ExtrasList />
               ) : undefined}
             </CategorySection>
           ))}

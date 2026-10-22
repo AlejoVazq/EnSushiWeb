@@ -9,10 +9,10 @@ import { useCanOrder, useScheduleStatus } from '@/hooks/useScheduleStatus';
 import { formatUnits, stepUnits } from '@/lib/cartLine';
 import { cn } from '@/lib/cn';
 import { formatPrice } from '@/lib/format';
-import { getExtraLineId, useCartStore, type BoxInput } from '@/store/useCartStore';
+import { useCartStore, type BoxInput } from '@/store/useCartStore';
 import type { BuildItem, BuildItemGroup } from '@/types';
 
-import { addButtonClassName, HollowSeal, LineAction, stepButtonClassName } from './LineAction';
+import { addButtonClassName, HollowSeal, stepButtonClassName } from './LineAction';
 
 const { preorderCutoff } = BUSINESS.schedule;
 
@@ -51,7 +51,8 @@ const stepLabel = (item: BuildItem): string =>
 const GROUP_NOTES: Record<BuildItemGroup, (items: readonly BuildItem[]) => string> = {
   rolls: (items) => (items[0] ? stepLabel(items[0]) : ''),
   nigiris: (items) => (items[0] ? stepLabel(items[0]) : ''),
-  acompanamientos: () => 'Van aparte, no cuentan en la caja',
+  // Not shown in the builder: acompañamientos have their own tab
+  acompanamientos: () => '',
 };
 
 const CUTOFF_TITLE = `Se pueden pedir hasta las ${preorderCutoff}`;
@@ -134,39 +135,13 @@ function BoxItemRow({ item, steps, fits, blocked, closed, onChange, onNeedSize, 
   );
 }
 
-function ExtraRow({ item, closed }: { item: BuildItem; closed: boolean }) {
-  const addExtra = useCartStore((state) => state.addExtra);
-
-  return (
-    <div className="flex min-h-19 items-center justify-between gap-4 py-3.5">
-      <div className={cn('min-w-0', !item.available && 'opacity-60')}>
-        <h4 className={cn('font-title text-lg leading-snug', item.available ? 'text-washi' : 'text-washi-muted')}>
-          {item.name}
-        </h4>
-        <p className="text-sm text-washi-muted tabular-nums">
-          {formatUnits(item.step, item.unitLabel)} · {formatPrice(item.price)}
-        </p>
-      </div>
-      {closed ? null : item.available ? (
-        <LineAction
-          lineId={getExtraLineId(item.id)}
-          label={`${item.name} (${formatUnits(item.step, item.unitLabel)})`}
-          onAdd={() => addExtra(item.id)}
-        />
-      ) : (
-        <HollowSeal>Agotado hoy</HollowSeal>
-      )}
-    </div>
-  );
-}
-
 interface BoxBuilderProps {
   draft: BoxDraft;
   onDraftChange: (draft: BoxDraft) => void;
   onOpenCart: () => void;
 }
 
-/** "Arma tu combo": pick a box size, fill it exactly with rolls and nigiris; acompañamientos go to the order on their own */
+/** "Arma tu combo": pick a box size and fill it exactly with rolls and nigiris (acompañamientos have their own tab) */
 export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps) {
   const addBox = useCartStore((state) => state.addBox);
   const replaceBox = useCartStore((state) => state.replaceBox);
@@ -236,7 +211,7 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
 
       {blocked && (
         <p className="rounded-xl border border-hairline-strong px-4 py-3 text-sm leading-relaxed text-washi">
-          Los rolls y nigiris se piden hasta las {preorderCutoff}. Ahora podés sumar acompañamientos a tu pedido.
+          Los rolls y nigiris se piden hasta las {preorderCutoff}. Los acompañamientos siguen disponibles en su pestaña.
         </p>
       )}
 
@@ -288,8 +263,8 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
 
       {BUILD_ITEM_GROUPS.map((group) => {
         const items = getBuildItemsByGroup(group.id);
-        if (items.length === 0) return null;
-        const inBox = items.every(isBoxItem);
+        // Acompañamientos have their own tab
+        if (items.length === 0 || !items.every(isBoxItem)) return null;
         return (
           <section key={group.id} aria-labelledby={`group-${group.id}`}>
             <header className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5 border-b border-hairline pb-2">
@@ -298,28 +273,22 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
               </h3>
               <p className="text-sm text-washi-muted">
                 {GROUP_NOTES[group.id](items)}
-                {inBox && (
-                  <span className={cn(blocked && 'font-bold text-washi')}> · hasta las {preorderCutoff}</span>
-                )}
+                <span className={cn(blocked && 'font-bold text-washi')}> · hasta las {preorderCutoff}</span>
               </p>
             </header>
             <ul className="grid lg:grid-cols-2 lg:gap-x-12">
               {items.map((item) => (
                 <li key={item.id} className="border-b border-hairline">
-                  {inBox ? (
-                    <BoxItemRow
-                      item={item}
-                      steps={steps[item.id] ?? 0}
-                      fits={remaining !== null && item.step <= remaining}
-                      blocked={blocked}
-                      closed={closed}
-                      needsSize={pieces === null}
-                      onNeedSize={requestSize}
-                      onChange={(count) => setSteps(item, count)}
-                    />
-                  ) : (
-                    <ExtraRow item={item} closed={closed} />
-                  )}
+                  <BoxItemRow
+                    item={item}
+                    steps={steps[item.id] ?? 0}
+                    fits={remaining !== null && item.step <= remaining}
+                    blocked={blocked}
+                    closed={closed}
+                    needsSize={pieces === null}
+                    onNeedSize={requestSize}
+                    onChange={(count) => setSteps(item, count)}
+                  />
                 </li>
               ))}
             </ul>
