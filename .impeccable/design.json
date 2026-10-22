@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-22T04:30:00Z",
+  "generatedAt": "2026-10-22T23:00:00Z",
   "title": "Design System: EnSushi",
   "extensions": {
     "colorMeta": {
@@ -12,10 +12,12 @@
       "washi": { "role": "neutral", "displayName": "Papel Washi", "canonical": "#f1ebe0", "tonalRamp": ["#3a352e", "#5c554b", "#7f776b", "#a0978a", "#b9b0a2", "#d2c9bb", "#e4ddd0", "#f1ebe0"] },
       "washi-muted": { "role": "neutral", "displayName": "Papel Gastado", "canonical": "#b9b0a2", "tonalRamp": ["#3a352e", "#5c554b", "#7f776b", "#a0978a", "#b9b0a2", "#d2c9bb", "#e4ddd0", "#f1ebe0"] },
       "shu": { "role": "primary", "displayName": "Bermellón de Sello", "canonical": "#c8432b", "tonalRamp": ["#3d120b", "#621d12", "#8c2a1a", "#b03522", "#c8432b", "#dd6a53", "#ec9c8b", "#f8d3ca"] },
-      "shu-fg": { "role": "primary", "displayName": "Papel sobre Sello", "canonical": "#fff6ee", "tonalRamp": ["#c8432b", "#dd6a53", "#ec9c8b", "#f4b9ab", "#f8d3ca", "#fbe4dc", "#fdeee6", "#fff6ee"] }
+      "shu-fg": { "role": "primary", "displayName": "Papel sobre Sello", "canonical": "#fff6ee", "tonalRamp": ["#c8432b", "#dd6a53", "#ec9c8b", "#f4b9ab", "#f8d3ca", "#fbe4dc", "#fdeee6", "#fff6ee"] },
+      "field-edge": { "role": "neutral", "displayName": "Borde de Campo", "canonical": "#7a7268", "tonalRamp": ["#1d1a17", "#34302b", "#4d463e", "#635b51", "#7a7268", "#948b7f", "#b9b0a2", "#d6cdbf"] },
+      "error": { "role": "secondary", "displayName": "Rosa Frío", "canonical": "#e8768f", "tonalRamp": ["#3d1520", "#622433", "#8c3549", "#b74b64", "#d35f79", "#e8768f", "#f2a5b6", "#fad6de"] }
     },
     "typographyMeta": {
-      "headline": { "displayName": "Headline", "purpose": "Título de categoría (30/36px) y título del pie (24/30px)." },
+      "headline": { "displayName": "Headline", "purpose": "Título de categoría (30/36px), título del pie (24/30px) y títulos del checkout (24/36px)." },
       "title": { "displayName": "Title", "purpose": "Nombre del producto en la fila (18/20px)." },
       "body": { "displayName": "Body", "purpose": "Descripción de categoría y bajada del pie." },
       "body-sm": { "displayName": "Body small", "purpose": "Descripción del producto y banda de estado." },
@@ -93,6 +95,22 @@
       "description": "Placa crema 'Ver pedido' del celular: la única placa invertida de acción.",
       "html": "<button class=\"ds-plate\"><span class=\"ds-plate-l\"><span class=\"ds-plate-seal\">3</span>Ver pedido</span><span>$ 62.000</span></button>",
       "css": ".ds-plate { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 360px; height: 56px; padding: 0 16px; border: 0; border-radius: 16px; background: var(--color-washi); color: var(--color-sumi); font: 700 16px var(--font-figtree), system-ui, sans-serif; font-variant-numeric: tabular-nums; box-shadow: 0 10px 15px -3px rgb(0 0 0 / .5), 0 4px 6px -4px rgb(0 0 0 / .5); cursor: pointer; } .ds-plate:focus-visible { outline: 2px solid var(--color-washi); outline-offset: 2px; } .ds-plate-l { display: flex; align-items: center; gap: 12px; } .ds-plate-seal { display: grid; place-items: center; height: 32px; min-width: 32px; padding: 0 6px; border-radius: 6px; background: var(--color-shu); color: var(--color-shu-fg); font: 700 14px var(--font-mplus-rounded), sans-serif; transform: rotate(-6deg); }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "Campo del checkout: label arriba, ayuda abajo; el error va en rosa frío, nunca en bermellón.",
+      "html": "<div class=\"ds-field\"><label class=\"ds-field-label\" for=\"ds-addr\">Dirección de entrega</label><input class=\"ds-field-input\" id=\"ds-addr\" placeholder=\"Calle y número\"><p class=\"ds-field-hint\">Sumá piso, depto o alguna referencia si hace falta.</p></div><div class=\"ds-field\"><label class=\"ds-field-label\" for=\"ds-name\">Nombre</label><input class=\"ds-field-input ds-field-error\" id=\"ds-name\" aria-invalid=\"true\"><p class=\"ds-field-msg\">Escribí tu nombre.</p></div>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 6px; max-width: 360px; margin-bottom: 16px; font-family: var(--font-figtree), system-ui, sans-serif; } .ds-field-label { font-size: 14px; font-weight: 700; color: var(--color-washi); } .ds-field-input { height: 48px; padding: 0 16px; border: 1px solid var(--color-field-edge); border-radius: 12px; background: var(--color-sumi-1); color: var(--color-washi); caret-color: var(--color-washi); font-size: 16px; transition: border-color .15s; } .ds-field-input::placeholder { color: var(--color-washi-muted); } .ds-field-input:focus { border-color: var(--color-washi); outline: 2px solid var(--color-washi); outline-offset: 2px; } .ds-field-error { border-color: var(--color-error); } .ds-field-hint, .ds-field-msg { margin: 0; font-size: 14px; color: var(--color-washi-muted); } .ds-field-msg { color: var(--color-error); font-weight: 500; }"
+    },
+    {
+      "name": "Choice Cards",
+      "kind": "custom",
+      "refersTo": "choice-card",
+      "description": "Entrega y Pago en el checkout: dos opciones iguales lado a lado; la elegida con borde washi, fondo sumi-2 y tilde.",
+      "html": "<div class=\"ds-choices\"><label class=\"ds-choice ds-choice-on\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 10l9-6 9 6v10H3z\"/><path d=\"M9 20v-6h6v6\"/></svg><svg class=\"ds-choice-check\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12l5 5L20 7\"/></svg><b>Envío a domicilio</b><span>Te lo llevamos a tu dirección.</span></label><label class=\"ds-choice\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"7\" y=\"3\" width=\"10\" height=\"18\" rx=\"2\"/><path d=\"M11 17h2\"/></svg><b>Transferencia / Mercado Pago</b><span>Por Mercado Pago.</span></label></div>",
+      "css": ".ds-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 420px; font-family: var(--font-figtree), system-ui, sans-serif; } .ds-choice { position: relative; display: flex; flex-direction: column; gap: 8px; min-height: 128px; padding: 16px; border: 1px solid var(--color-hairline-strong); border-radius: 12px; color: var(--color-washi-muted); cursor: pointer; transition: border-color .15s; } .ds-choice:hover { border-color: var(--color-washi-muted); } .ds-choice b { font-size: 15px; line-height: 1.25; color: var(--color-washi); } .ds-choice span { font-size: 14px; line-height: 1.375; } .ds-choice-on { border-color: var(--color-washi); background: var(--color-sumi-2); color: var(--color-washi); } .ds-choice-check { position: absolute; top: 14px; right: 14px; color: var(--color-washi); } .ds-choice:not(.ds-choice-on) .ds-choice-check { display: none; }"
     }
   ],
   "narrative": {
@@ -107,7 +125,7 @@
       "Lleno se tiene, hueco no: sello lleno con la cantidad, sello hueco \"Agotado hoy\"."
     ],
     "rules": [
-      { "name": "La Regla del Sello", "body": "El bermellón significa \"en tu pedido\" y solo eso. Si algo es rojo y no muestra una cantidad que está en el pedido, está mal. No hay un segundo color saturado.", "section": "colors" },
+      { "name": "La Regla del Sello", "body": "El bermellón significa \"en tu pedido\" y solo eso. Si algo es rojo y no muestra una cantidad que está en el pedido, está mal. El único otro color saturado es el rosa frío de los errores de campos.", "section": "colors" },
       { "name": "La Regla de los Dos Papeles", "body": "Hay dos niveles de texto, `washi` y `washi-muted`, y los dos pasan AA sobre todas las superficies. No existe un tercer gris para texto: los filetes son para bordes, nunca para letras.", "section": "colors" },
       { "name": "La Regla de la Placa", "body": "Lo que hay que leer o tocar primero va en crema invertida (`washi` de fondo, `sumi` de texto): la banda de estado arriba y una sola placa de acción abajo. Una placa invertida por pantalla.", "section": "colors" },
       { "name": "La Regla del Nombre", "body": "M PLUS Rounded es para nombres: platos, categorías, el título del pie y la cifra del sello. Nunca para precios, botones, avisos ni descripciones.", "section": "typography" },
@@ -132,7 +150,7 @@
       "Don't usar sombras en filas, chips o bandas (La Regla de lo que Flota).",
       "Don't usar blanco puro para texto ni fondos; el texto es `washi`.",
       "Don't agregar una variante clara del tema.",
-      "Don't usar los tokens del sistema anterior (`accent`, `canvas`, `subtle`…) ni Cormorant o Geist en pantallas nuevas."
+      "Don't usar el rosa frío fuera de los errores de campos, ni el bermellón para errores."
     ]
   }
 }

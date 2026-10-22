@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# impeccable: el binario se descarga solo la primera vez
+/.claude/skills/impeccable/scripts/bin/
