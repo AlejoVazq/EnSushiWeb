@@ -10,6 +10,7 @@ target_fingerprint: "sha256:0c9bf51108350de846b66c6060e052176945d9b6d75dd9f72c3b
 target_path: "A:\\Cosas Alejo\\Proyectos\\EnSushiWeb\\sushi-app\\src\\components\\shop\\CartDrawer.tsx"
 timestamp: 2026-10-21T23-22-25Z
 slug: src-components-shop-cartdrawer-tsx
+closed: true
 ---
 Method: dual-agent (A: revisión de diseño · B: detector + navegador)
 

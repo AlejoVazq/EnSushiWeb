@@ -269,7 +269,7 @@ El armado de la caja, dentro de la pestaña. Arriba, el selector de caja: cinco 
 - **Pasado el corte:** rolls y nigiris desteñidos con el sello hueco "Hasta las 20:00", chips de caja apagados y un aviso con filete `hairline-strong` arriba del selector.
 
 ### Checkout
-Una sola columna en el celular y dos desde `lg` (formulario a la izquierda, resumen pegado a la derecha). El orden es: Tus datos, "¿Cómo lo recibís?", "¿Cómo pagás?", la línea "Para hoy", y al final el total y la placa "Enviar pedido por WhatsApp".
+Una sola columna en el celular y dos desde `lg` (formulario a la izquierda, resumen pegado a la derecha). Los títulos de página van en el estilo Headline a 24px en el celular (36px desde `sm`), para que el formulario arranque en la primera pantalla. "← Volver al menú" tiene 44px de alto. El orden es: Tus datos, "¿Cómo lo recibís?", "¿Cómo pagás?", la línea "Para hoy", y al final el total y la placa "Enviar pedido por WhatsApp".
 - **Opciones de Entrega y Pago:** dos opciones grandes del mismo tamaño, lado a lado también en el celular (128px de alto como mínimo, 12px de radio): ícono de línea, nombre en 700 y una ayuda en `washi-muted`. Seleccionada: borde `washi`, fondo `sumi-2` y un tilde arriba a la derecha (la selección no es solo color). Con error, borde rosa frío.
 - **Total arriba del botón (celular):** un bloque con filete que muestra Subtotal / Envío / Total cuando hay envío, solo Total con retiro, y "Si elegís envío a domicilio, se suman $ X." si todavía no eligió.
 - **Retiro:** la dirección del local en un bloque con filete. **Transferencia:** el aviso de no transferir todavía, con filete `hairline-strong` y texto `washi`.

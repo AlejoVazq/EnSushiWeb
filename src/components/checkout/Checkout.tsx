@@ -150,7 +150,7 @@ function SentScreen({ url, isTransfer, onEdit, onNewOrder }: {
 }) {
   return (
     <div className="mx-auto mt-10 max-w-md space-y-6 text-center">
-      <h1 className="font-title text-3xl text-balance sm:text-4xl">Terminá de enviarlo en WhatsApp</h1>
+      <h1 className="font-title text-2xl text-balance sm:text-4xl">Terminá de enviarlo en WhatsApp</h1>
       <p className="text-washi-muted">
         Tu pedido ya está escrito en WhatsApp: solo tenés que tocar <strong className="text-washi">Enviar</strong>. Si no se
         abrió, tocá Abrir WhatsApp.
@@ -240,7 +240,7 @@ export function Checkout() {
     return (
       <PageShell>
         <div className="mx-auto mt-16 max-w-sm space-y-4 text-center">
-          <h1 className="font-title text-3xl">Tu pedido está vacío</h1>
+          <h1 className="font-title text-2xl sm:text-3xl">Tu pedido está vacío</h1>
           <p className="text-washi-muted">Sumá algo del menú para poder finalizar el pedido.</p>
           <Link href="/" className={buttonClassName({ variant: 'secondary', className: 'mt-2' })}>
             Ver el menú
@@ -252,7 +252,7 @@ export function Checkout() {
 
   return (
     <PageShell>
-      <h1 className="mt-4 mb-6 font-title text-3xl sm:mb-8 sm:text-4xl">Finalizar pedido</h1>
+      <h1 className="mt-4 mb-6 font-title text-2xl sm:mb-8 sm:text-4xl">Finalizar pedido</h1>
 
       <div className="grid gap-8 lg:grid-cols-[1fr_380px] lg:items-start">
         <form ref={formRef} onSubmit={handleSubmit} noValidate className="space-y-9">
@@ -356,7 +356,9 @@ export function Checkout() {
                 {submitLabel}
               </Button>
             )}
-            <p className="text-center text-sm text-washi-muted">Se abre WhatsApp con tu pedido listo para enviar.</p>
+            <p className="text-center text-sm text-balance text-washi-muted">
+              Se abre WhatsApp con tu pedido listo para enviar. Te confirmamos por WhatsApp.
+            </p>
           </div>
         </form>
 
