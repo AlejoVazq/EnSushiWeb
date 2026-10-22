@@ -29,7 +29,7 @@ function CartLine({ item }: { item: CartItem }) {
       <div className="min-w-0 flex-1 space-y-1">
         <p className="leading-snug font-medium">{name}</p>
         {flavors.length > 0 && <p className="text-sm text-muted">{flavors.join(', ')}</p>}
-        <p className="text-sm text-subtle tabular-nums">{formatPrice(item.unitPrice)} c/u</p>
+        <p className="text-sm text-muted tabular-nums">{formatPrice(item.unitPrice)} c/u</p>
       </div>
       <div className="flex flex-col items-end gap-3">
         <p className="font-semibold tabular-nums">{formatPrice(lineSubtotal(item))}</p>

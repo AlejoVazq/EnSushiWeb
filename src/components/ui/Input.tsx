@@ -27,7 +27,7 @@ export function Input({ label, hint, error, id, className, ...props }: InputProp
         aria-describedby={message ? messageId : undefined}
         className={cn(
           // text-base keeps iOS from zooming in on focus
-          'h-12 rounded-xl border bg-surface px-4 text-base text-fg transition-colors placeholder:text-subtle',
+          'h-12 rounded-xl border bg-surface px-4 text-base text-fg transition-colors placeholder:text-muted',
           'focus:border-accent focus:outline-none',
           error ? 'border-danger' : 'border-line',
           className,
@@ -35,7 +35,7 @@ export function Input({ label, hint, error, id, className, ...props }: InputProp
         {...props}
       />
       {message && (
-        <p id={messageId} className={cn('text-sm', error ? 'text-danger' : 'text-subtle')}>
+        <p id={messageId} className={cn('text-sm', error ? 'text-danger' : 'text-muted')}>
           {message}
         </p>
       )}

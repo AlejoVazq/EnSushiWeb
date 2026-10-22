@@ -43,7 +43,7 @@ const PAYMENT_OPTIONS: readonly ChoiceOption<PaymentMethod>[] = [
   {
     value: 'transfer',
     label: PAYMENT_METHOD_LABELS.transfer,
-    description: `Por ${BUSINESS.transfer.provider}. Te pasamos el alias cuando confirmemos el pedido.`,
+    description: `Por ${BUSINESS.transfer.provider}.`,
   },
 ];
 
@@ -109,7 +109,8 @@ function ChoiceCards<T extends string>({ name, legend, options, value, onChange,
 function TransferNotice() {
   return (
     <p role="note" className="rounded-xl border border-accent/40 bg-accent/10 p-4 text-left text-sm leading-relaxed">
-      Te habilitaremos la transferencia por WhatsApp una vez que hayamos confirmado tu pedido.
+      No transfieras todavía: cuando confirmemos tu pedido por WhatsApp te pasamos el alias y el total. Después
+      mandás el comprobante por el mismo chat.
     </p>
   );
 }
@@ -274,7 +275,7 @@ export function Checkout() {
             )}
             {form.deliveryMethod === 'pickup' && (
               <div className="rounded-2xl border border-line bg-surface-2 p-4 text-sm">
-                <p className="text-subtle">Retirás en</p>
+                <p className="text-muted">Retirás en</p>
                 <p className="mt-0.5 font-medium">{BUSINESS.pickup.address}</p>
               </div>
             )}
@@ -327,7 +328,7 @@ export function Checkout() {
                 {submitLabel}
               </Button>
             )}
-            <p className="text-center text-sm text-subtle">Se abre WhatsApp con tu pedido listo para enviar.</p>
+            <p className="text-center text-sm text-muted">Se abre WhatsApp con tu pedido listo para enviar.</p>
           </div>
         </form>
 
