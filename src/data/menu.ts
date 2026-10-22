@@ -190,15 +190,20 @@ export const PRODUCTS: readonly Product[] = [
 
 // ─── Selectors ──────────────────────────────────────────────────────────────
 
+/** True if the product is on the menu on `date`'s weekday (always, unless day-restricted) */
+const isOfferedOn = (product: Product, date: Date): boolean =>
+  !product.availableDays || product.availableDays.some((day) => day === date.getDay());
+
 /** True if the product is enabled and, when day-restricted, offered on `date`'s weekday */
-export const isAvailableOn = (product: Product, date: Date = new Date()): boolean => {
-  if (!product.available) return false;
-  if (!product.availableDays) return true;
-  return product.availableDays.some((day) => day === date.getDay());
-};
+export const isAvailableOn = (product: Product, date: Date = new Date()): boolean =>
+  product.available && isOfferedOn(product, date);
 
 export const getProductsByCategory = (categoryId: CategoryId, date: Date = new Date()): Product[] =>
   PRODUCTS.filter((p) => p.categoryId === categoryId && isAvailableOn(p, date));
+
+/** What the menu shows on `date`: like getProductsByCategory, but sold-out products (`available: false`) stay listed */
+export const getMenuByCategory = (categoryId: CategoryId, date: Date = new Date()): Product[] =>
+  PRODUCTS.filter((p) => p.categoryId === categoryId && isOfferedOn(p, date));
 
 export const getProductById = (id: string): Product | undefined =>
   PRODUCTS.find((p) => p.id === id);

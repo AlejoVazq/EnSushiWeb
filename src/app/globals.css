@@ -15,6 +15,24 @@
   --color-accent-fg: #1c0f0a;
   --color-danger: #f26d6d;
 
+  /* Sello y sumi (menú; carrito y checkout pasan en la Fase 7) */
+  --color-sumi: #141210;
+  --color-sumi-1: #1d1a17;
+  --color-sumi-2: #262220;
+  --color-hairline: #34302b;
+  --color-hairline-strong: #4d463e;
+  --color-washi: #f1ebe0;
+  --color-washi-muted: #b9b0a2;
+  /* Bermellón: solo "en tu pedido" */
+  --color-shu: #c8432b;
+  --color-shu-fg: #fff6ee;
+
+  --animate-stamp: stamp 220ms cubic-bezier(0.22, 1, 0.36, 1);
+
+  @keyframes stamp {
+    from { transform: scale(1.3) rotate(-14deg); opacity: 0.4; }
+  }
+
   --animate-sheet-right: sheet-right 300ms cubic-bezier(0.22, 1, 0.36, 1);
   --animate-sheet-up: sheet-up 300ms cubic-bezier(0.22, 1, 0.36, 1);
   --animate-dialog-in: dialog-in 200ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -37,6 +55,8 @@
 @theme inline {
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-cormorant), ui-serif, Georgia, serif;
+  --font-title: var(--font-mplus-rounded), ui-rounded, system-ui, sans-serif;
+  --font-ui: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
 }
 
 @utility scrollbar-none {

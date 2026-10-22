@@ -13,6 +13,7 @@ import { CategorySection } from './CategorySection';
 import { ComboBuilder } from './ComboBuilder';
 import { FloatingCartBar } from './FloatingCartBar';
 import { SiteHeader } from './SiteHeader';
+import { StatusBand } from './StatusBand';
 
 interface BuilderSession {
   product: CustomComboProduct;
@@ -41,29 +42,33 @@ export function Shop() {
 
   return (
     <>
-      <SiteHeader onOpenCart={() => setCartOpen(true)} />
+      {/* Sello y sumi covers the menu only; the cart and the builder keep the previous look until Fase 7 */}
+      <div className="flex flex-1 flex-col bg-sumi font-ui text-washi selection:bg-washi selection:text-sumi">
+        <SiteHeader onOpenCart={() => setCartOpen(true)} />
 
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-32 sm:px-6 sm:pb-20">
-        <section className="py-12 sm:py-20">
-          <p className="mb-3 text-sm font-medium tracking-[0.2em] text-accent uppercase">Pedidos online</p>
-          <h1 className="max-w-2xl font-display text-5xl leading-[1.05] font-medium sm:text-6xl">
-            Sushi de autor, directo a tu casa.
-          </h1>
-          <p className="mt-5 max-w-lg text-lg text-muted">
-            Elegí del menú o armá tu propio combo, y mandanos el pedido por WhatsApp.
-          </p>
-        </section>
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-16 sm:px-6">
+          <h1 className="sr-only">{BUSINESS.name} · Menú</h1>
+          <div className="pt-4 pb-2">
+            <StatusBand />
+          </div>
 
-        <CategoryNav active={activeCategory} onSelect={selectCategory} />
+          <CategoryNav active={activeCategory} onSelect={selectCategory} />
 
-        {CATEGORIES.filter((category) => category.id === activeCategory).map((category) => (
-          <CategorySection key={category.id} category={category} onCustomize={openBuilder} />
-        ))}
-      </main>
+          {CATEGORIES.filter((category) => category.id === activeCategory).map((category) => (
+            <CategorySection key={category.id} category={category} onCustomize={openBuilder} />
+          ))}
+        </main>
 
-      <footer className="border-t border-line py-8 text-center text-sm text-subtle">
-        {BUSINESS.name} · Pedidos por WhatsApp
-      </footer>
+        <footer className="border-t border-hairline">
+          <div className="mx-auto max-w-6xl space-y-3 px-4 pt-12 pb-32 sm:px-6 sm:pb-14">
+            <p className="font-title text-2xl leading-tight text-balance sm:text-3xl">Sushi de autor, directo a tu casa.</p>
+            <p className="max-w-md text-pretty text-washi-muted">
+              Armá tu propio combo, o elegí de nuestros combos, y mandanos el pedido por WhatsApp.
+            </p>
+            <p className="pt-4 text-sm text-washi-muted">{BUSINESS.name} · Pedidos por WhatsApp</p>
+          </div>
+        </footer>
+      </div>
 
       {!cartOpen && <FloatingCartBar onOpenCart={() => setCartOpen(true)} />}
       <CartDrawer

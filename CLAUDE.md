@@ -22,7 +22,7 @@
    - Los combos son productos `sized`: una tarjeta con selector de 15/24/40 piezas, cada tamaño con su precio. En el carrito cada tamaño es una línea distinta.
    - Cada producto tiene `orderType`: `express` (se cocina en el momento, dentro del horario de apertura) o `preorder` (Arma tu combo: los rolls y nigiris se piden hasta `BUSINESS.schedule.preorderCutoff`, 20:00; los acompañamientos no tienen corte). Badge: "Rolls y nigiris hasta las 20:00". El bloqueo por ítem llega en el Paso 10; hasta entonces, pasado el corte solo se avisa y se puede mandar igual.
    - Un producto `standard` puede tener `option` (ej. SushiBurger Salmón: Crudo / Cocido): mismo precio, elección obligatoria, cada valor es una línea distinta en el carrito y puede tener su propia foto.
-   - Un producto con `availableDays` solo se muestra esos días; usar siempre `getProductsByCategory`.
+   - Un producto con `availableDays` solo se muestra esos días; usar siempre `getMenuByCategory` (menú: los agotados, `available: false`, se listan desteñidos con "Agotado hoy") o `getProductsByCategory` (solo lo que se puede pedir).
    - **Arma tu combo** (reemplaza a la vieja Selección de autor; no hay combos de autor predefinidos): el cliente arma su combo desde 0, sin mínimo ni máximo, sumando ítems de `BUILD_ITEMS` (`src/data/menu.ts`) en pasos fijos, cada paso con su precio; el total es la suma.
      - Rolls de autor, de a 5 piezas: New York, Sake, Midori, Hikaru, Sakana Maki, TunaSpicy (la lista puede crecer).
      - Nigiris (salmón): por unidad.

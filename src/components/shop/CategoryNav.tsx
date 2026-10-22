@@ -32,14 +32,14 @@ export function CategoryNav({ active, onSelect }: CategoryNavProps) {
   return (
     <nav
       aria-label="Categorías"
-      className="sticky top-16 z-30 -mx-4 mb-10 border-b border-line/60 bg-canvas/85 px-4 py-3 backdrop-blur-md sm:-mx-6 sm:px-6"
+      className="sticky top-14 z-30 -mx-4 mb-8 border-b border-hairline bg-sumi/90 px-4 backdrop-blur-md sm:-mx-6 sm:px-6"
     >
       <div
         ref={listRef}
         role="tablist"
         aria-label="Categorías del menú"
         onKeyDown={handleKeyDown}
-        className="scrollbar-none flex gap-2 overflow-x-auto"
+        className="scrollbar-none -mx-2 flex gap-3 overflow-x-auto max-sm:mask-r-from-[calc(100%-2rem)]"
       >
         {CATEGORIES.map((category) => {
           const selected = category.id === active;
@@ -54,11 +54,11 @@ export function CategoryNav({ active, onSelect }: CategoryNavProps) {
               tabIndex={selected ? 0 : -1}
               onClick={() => onSelect(category.id)}
               className={cn(
-                'inline-flex h-9 shrink-0 items-center rounded-full border px-4 text-sm transition-colors',
-                'focus-visible:outline-2 focus-visible:outline-accent',
+                'inline-flex h-12 shrink-0 items-center px-2 text-[15px] transition-colors',
+                'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-washi',
                 selected
-                  ? 'border-accent bg-accent text-accent-fg'
-                  : 'border-line text-muted hover:border-line-strong hover:text-fg',
+                  ? 'font-bold text-washi shadow-[inset_0_-2px_0_currentColor]'
+                  : 'font-medium text-washi-muted hover:text-washi',
               )}
             >
               {category.name}
