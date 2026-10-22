@@ -165,7 +165,7 @@ export function Checkout() {
   const formRef = useRef<HTMLFormElement>(null);
   // Only read on the client: until the cart hydrates the page renders a skeleton, so the server's empty form never shows
   const [form, setForm] = useState<CheckoutForm>(loadCheckoutDraft);
-  const schedule = useCheckoutSchedule(items);
+  const schedule = useCheckoutSchedule();
   const [errors, setErrors] = useState<CheckoutErrors>({});
   const [sent, setSent] = useState(false);
   const deliveryFee = deliveryFeeFor(form.deliveryMethod);

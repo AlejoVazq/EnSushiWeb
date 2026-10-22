@@ -252,8 +252,15 @@ Banda crema de 44px como mínimo, 12px de radio, texto `sumi` de 14px. La primer
 - **Pestañas:** botones de texto de 48px de alto, 15px, con 12px entre sí. La inactiva va en `washi-muted` (en hover, `washi`); la activa en `washi` 700 con un subrayado interno de 2px del mismo color. Patrón de pestañas WAI-ARIA con flechas.
 - **Placa "Ver pedido" (celular):** placa `washi` de 56px a todo el ancho, 16px de radio, con el sello y "Ver pedido" a la izquierda y el total a la derecha, en `sumi` 700. Desaparece desde `sm`.
 
+### Box Builder (Arma tu combo)
+El armado de la caja, dentro de la pestaña. Arriba, el selector de caja: cinco chips de 56px de alto con el tamaño en M PLUS Rounded y "piezas" debajo, con el mismo estado de selección que los chips de tamaño. Debajo, un grupo por sección (Rolls de autor, Nigiris, Acompañamientos) con su título y una nota a la derecha ("De a 5 piezas · hasta las 20:00"), y filas de texto de 76px: nombre, unidad de venta y precio, y el control.
+- **Dentro de la caja, sin sello:** lo que está en la caja todavía no está en el pedido, así que la cantidad va en número `washi` (M PLUS Rounded, tabular) entre el menos y el más. Los acompañamientos sí se agregan directo al pedido y usan el stepper con sello.
+- **Antes de elegir caja:** el "+" de un roll o nigiri no se deshabilita; lleva al selector, lo enmarca con un contorno `washi` y cambia la ayuda a "Elegí el tamaño de la caja".
+- **Barra del armado:** es la placa crema de esta pantalla y reemplaza a "Ver pedido" mientras hay una caja en curso. Va pegada al pie (en escritorio, hasta 576px y a la derecha) y muestra "Caja de 20 · 15 de 20", el total y una barrita de progreso `sumi` sobre `sumi` al 15%. Su botón es `sumi` lleno cuando hay una acción ("Agregar · $ X", "Guardar · $ X", "Ver pedido") y contorneado con texto `sumi` a contraste completo cuando informa ("Faltan 5 piezas", "Hasta las 20:00"): deshabilitado no quiere decir ilegible.
+- **Pasado el corte:** rolls y nigiris desteñidos con el sello hueco "Hasta las 20:00", chips de caja apagados y un aviso con filete `hairline-strong` arriba del selector.
+
 ### Transición
-El carrito, el checkout, el modal de Arma tu combo y su tarjeta todavía usan el sistema anterior hasta la Fase 7 y el Paso 10: en `src/app/globals.css` siguen `canvas`, `surface`, `surface-2`, `line`, `line-strong`, `fg`, `muted`, `subtle`, `accent`, `accent-strong`, `accent-fg` y `danger`, con Geist (`font-sans`) y Cormorant Garamond (`font-display`). Son legado: no se usan en trabajo nuevo y se borran cuando esas pantallas pasen a Sello y sumi. Para los errores de campos ya está decidido un rosa frío propio, distinto del bermellón; todavía no existe como token.
+El carrito y el checkout todavía usan el sistema anterior hasta la Fase 7 (el carrito ya suma el botón "Editar" de las cajas en ese estilo): en `src/app/globals.css` siguen `canvas`, `surface`, `surface-2`, `line`, `line-strong`, `fg`, `muted`, `subtle`, `accent`, `accent-strong`, `accent-fg` y `danger`, con Geist (`font-sans`) y Cormorant Garamond (`font-display`). Son legado: no se usan en trabajo nuevo y se borran cuando esas pantallas pasen a Sello y sumi. Para los errores de campos ya está decidido un rosa frío propio, distinto del bermellón; todavía no existe como token.
 
 ## Do's and Don'ts
 

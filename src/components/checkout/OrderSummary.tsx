@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { getLineFlavorNames, getLineName } from '@/lib/cartLine';
+import { getLineDetail, getLineName } from '@/lib/cartLine';
 import { formatPrice } from '@/lib/format';
 import { cartTotal, lineSubtotal } from '@/store/useCartStore';
 import type { CartItem } from '@/types';
@@ -26,7 +26,7 @@ export function OrderSummary({ items, deliveryFee }: OrderSummaryProps) {
       </div>
       <ul className="divide-y divide-line">
         {items.map((item) => {
-          const flavors = getLineFlavorNames(item);
+          const detail = getLineDetail(item);
           return (
             <li key={item.lineId} className="flex justify-between gap-4 py-3 text-sm">
               <div className="min-w-0">
@@ -34,7 +34,7 @@ export function OrderSummary({ items, deliveryFee }: OrderSummaryProps) {
                   <span className="text-muted tabular-nums">{item.quantity}× </span>
                   {getLineName(item)}
                 </p>
-                {flavors.length > 0 && <p className="text-muted">{flavors.join(', ')}</p>}
+                {detail && <p className="text-muted">{detail}</p>}
               </div>
               <p className="shrink-0 font-medium tabular-nums">{formatPrice(lineSubtotal(item))}</p>
             </li>

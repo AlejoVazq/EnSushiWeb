@@ -1,17 +1,19 @@
 'use client';
 
+import type { ReactNode } from 'react';
+
 import { getMenuByCategory, hasDayRestrictions } from '@/data/menu';
 import { useIsClient } from '@/hooks/useIsClient';
 import { getNow } from '@/lib/schedule';
-import type { Category, CustomComboProduct, Product } from '@/types';
+import type { Category } from '@/types';
 
 import { categoryTabId } from './CategoryNav';
-import { ProductCard } from './ProductCard';
-import { ProductRow, type RowProduct } from './ProductRow';
+import { ProductRow } from './ProductRow';
 
 interface CategorySectionProps {
   category: Category;
-  onCustomize: (product: CustomComboProduct) => void;
+  /** Replaces the product rows (Arma tu combo shows its builder here) */
+  children?: ReactNode;
 }
 
 function SkeletonRows() {
@@ -30,23 +32,15 @@ function SkeletonRows() {
   );
 }
 
-const isRowProduct = (product: Product): product is RowProduct => product.type !== 'custom-combo';
-
 /** Categories without day restrictions ignore the date, so the prerender can use any fixed one */
 const PRERENDER_DATE = new Date(0);
 
-export function CategorySection({ category, onCustomize }: CategorySectionProps) {
+export function CategorySection({ category, children }: CategorySectionProps) {
   const isClient = useIsClient();
   // Day-dependent categories must use the visitor's clock, never the server's/build's
   const waitForClient = hasDayRestrictions(category.id) && !isClient;
   // Sold-out products stay listed (greyed out) so regulars know they're only out for today
-  const listed = waitForClient ? [] : getMenuByCategory(category.id, isClient ? getNow() : PRERENDER_DATE);
-  const rows = listed.filter(isRowProduct);
-  // The previous Arma tu combo card has no sold-out state: it keeps hiding them until Paso 10
-  const builders = listed.filter(
-    (product): product is CustomComboProduct => product.type === 'custom-combo' && product.available,
-  );
-  const products = [...rows, ...builders];
+  const products = waitForClient ? [] : getMenuByCategory(category.id, isClient ? getNow() : PRERENDER_DATE);
 
   return (
     <section id={category.id} role="tabpanel" aria-labelledby={categoryTabId(category.id)} className="scroll-mt-28">
@@ -55,33 +49,22 @@ export function CategorySection({ category, onCustomize }: CategorySectionProps)
         <p className="text-washi-muted">{category.description}</p>
       </header>
 
-      {waitForClient ? (
-        <SkeletonRows />
-      ) : products.length === 0 ? (
-        <p className="rounded-xl border border-hairline px-6 py-10 text-center text-washi-muted">
-          Hoy no hay nada disponible en esta sección. ¡Volvé mañana!
-        </p>
-      ) : (
-        <>
-          {rows.length > 0 && (
-            <ul className="grid border-t border-hairline lg:grid-cols-2 lg:gap-x-12">
-              {rows.map((product) => (
-                <li key={product.id} className="border-b border-hairline">
-                  <ProductRow product={product} />
-                </li>
-              ))}
-            </ul>
-          )}
-          {/* Arma tu combo keeps the previous card until the builder is redone in Paso 10 */}
-          {builders.length > 0 && (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {builders.map((product) => (
-                <ProductCard key={product.id} product={product} onCustomize={onCustomize} />
-              ))}
-            </div>
-          )}
-        </>
-      )}
+      {children ??
+        (waitForClient ? (
+          <SkeletonRows />
+        ) : products.length === 0 ? (
+          <p className="rounded-xl border border-hairline px-6 py-10 text-center text-washi-muted">
+            Hoy no hay nada disponible en esta sección. ¡Volvé mañana!
+          </p>
+        ) : (
+          <ul className="grid border-t border-hairline lg:grid-cols-2 lg:gap-x-12">
+            {products.map((product) => (
+              <li key={product.id} className="border-b border-hairline">
+                <ProductRow product={product} />
+              </li>
+            ))}
+          </ul>
+        ))}
     </section>
   );
 }

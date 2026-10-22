@@ -20,7 +20,7 @@ Web de pedidos online de EnSushi: el cliente arma el pedido (combos, Arma tu com
 
 ## Positioning
 
-- **Arma tu combo**: el cliente arma su combo desde cero, sin mínimo ni máximo, sumando rolls de autor de a 5 piezas, nigiris por unidad y acompañamientos; el total es la suma.
+- **Arma tu combo**: el cliente elige una caja de 10, 15, 20, 25 o 30 piezas y la llena exactamente con rolls de autor de a 5 piezas y nigiris (cada nigiri cuenta como 1 pieza); los acompañamientos van aparte y se pueden pedir solos. El total es la suma de los ítems.
 - **Rolls de autor propios**: recetas de la casa (New York, Sake, Midori, Hikaru, Sakana Maki, TunaSpicy; la lista puede crecer).
 - **Sushiburgers**: producto poco común en la zona (ej. SushiBurger Salmón, crudo o cocido).
 - **Pedido sin fricción**: elegir desde el celu y en un toque queda listo en WhatsApp, sin registrarse ni pagar online.
@@ -42,7 +42,7 @@ Web de pedidos online de EnSushi: el cliente arma el pedido (combos, Arma tu com
 - El mensaje de WhatsApp sigue la plantilla exacta de `CLAUDE.md`.
 - Terminología fija: "Arma tu combo", "Combos", "Sushiburgers", "Salsas & complementos", "piezas", "Retiro en el local", "Envío a domicilio", "Efectivo", "Transferencia / Mercado Pago", "Para hoy".
 - Futuras versiones (el diseño tiene que dejarles lugar): app de escritorio para el local, productos marcados como agotados sin tocar el código e interconexión entre la app del local y la web. También: costo de envío por zona (el reparto llega a Arrecifes y alrededores) y pedido mínimo.
-- Abierto: precios, descripciones y lista completa de rolls de Arma tu combo; cómo va Arma tu combo en el mensaje de WhatsApp.
+- Abierto: precios, descripciones y lista completa de rolls de Arma tu combo.
 
 ## Brand Commitments
 

@@ -1,5 +1,5 @@
 import { BUSINESS, DELIVERY_METHOD_LABELS, PAYMENT_METHOD_LABELS } from '@/config/business';
-import { getLineFlavorNames, getLineName } from '@/lib/cartLine';
+import { formatBoxContents, getLineName, stepUnits } from '@/lib/cartLine';
 import { formatPrice } from '@/lib/format';
 import { lineSubtotal } from '@/store/useCartStore';
 import type { CartItem, OrderDetails } from '@/types';
@@ -10,11 +10,22 @@ const price = (amount: number): string => formatPrice(amount).replace(/ /g, ' '
 /** Customer input goes on a single line so it can't break the message layout */
 const oneLine = (text: string): string => text.replace(/\s+/g, ' ').trim();
 
-/** "- 2x Combo Kanituna · 24 piezas ($ 72.000)"; custom combos add their flavors before the price */
+/**
+ * One line per cart line, subtotal last:
+ * - "- 2x Combo Kanituna · 24 piezas ($ 72.000)"
+ * - "- 1x Arma tu combo · 20 piezas (New York 10, Midori 5, Nigiri de salmón 5) ($ 28.500)"
+ * - "- 6x Empanaditas ($ 8.000)": acompañamientos count real units, not steps
+ */
 const formatLine = (item: CartItem): string => {
-  const flavors = getLineFlavorNames(item);
-  const flavorText = flavors.length > 0 ? ` (${flavors.join(', ')})` : '';
-  return `- ${item.quantity}x ${getLineName(item)}${flavorText} (${price(lineSubtotal(item))})`;
+  const subtotal = `(${price(lineSubtotal(item))})`;
+  switch (item.kind) {
+    case 'box':
+      return `- ${item.quantity}x ${getLineName(item)} (${formatBoxContents(item.box)}) ${subtotal}`;
+    case 'extra':
+      return `- ${stepUnits(item.item, item.quantity)}x ${getLineName(item)} ${subtotal}`;
+    case 'product':
+      return `- ${item.quantity}x ${getLineName(item)} ${subtotal}`;
+  }
 };
 
 export const buildOrderMessage = (order: OrderDetails): string =>

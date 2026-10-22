@@ -5,11 +5,11 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { QuantityStepper } from '@/components/ui/QuantityStepper';
 import { Sheet } from '@/components/ui/Sheet';
-import { getLineFlavorNames, getLineName } from '@/lib/cartLine';
-import { useCartNotices } from '@/hooks/useScheduleStatus';
+import { getLineDetail, getLineName } from '@/lib/cartLine';
+import { useCartNotices, useScheduleStatus } from '@/hooks/useScheduleStatus';
 import { formatPrice } from '@/lib/format';
 import { lineSubtotal, selectCartTotal, useCartStore } from '@/store/useCartStore';
-import type { CartItem } from '@/types';
+import type { BoxCartItem, CartItem } from '@/types';
 
 import { ScheduleNotices } from './ScheduleNotices';
 
@@ -17,19 +17,32 @@ interface CartDrawerProps {
   open: boolean;
   onClose: () => void;
   onCheckout: () => void;
+  /** Opens Arma tu combo with this box loaded */
+  onEditBox: (item: BoxCartItem) => void;
 }
 
-function CartLine({ item }: { item: CartItem }) {
+interface CartLineProps {
+  item: CartItem;
+  /** Set for boxes that can still be edited (before the rolls and nigiris cutoff) */
+  onEdit?: () => void;
+}
+
+function CartLine({ item, onEdit }: CartLineProps) {
   const updateQuantity = useCartStore((state) => state.updateQuantity);
-  const flavors = getLineFlavorNames(item);
+  const detail = getLineDetail(item);
   const name = getLineName(item);
 
   return (
     <li className="flex gap-4 py-5">
       <div className="min-w-0 flex-1 space-y-1">
         <p className="leading-snug font-medium">{name}</p>
-        {flavors.length > 0 && <p className="text-sm text-muted">{flavors.join(', ')}</p>}
+        {detail && <p className="text-sm text-muted">{detail}</p>}
         <p className="text-sm text-muted tabular-nums">{formatPrice(item.unitPrice)} c/u</p>
+        {onEdit && (
+          <Button variant="secondary" size="sm" className="mt-2" onClick={onEdit} aria-label={`Editar ${name}`}>
+            Editar
+          </Button>
+        )}
       </div>
       <div className="flex flex-col items-end gap-3">
         <p className="font-semibold tabular-nums">{formatPrice(lineSubtotal(item))}</p>
@@ -44,11 +57,13 @@ function CartLine({ item }: { item: CartItem }) {
   );
 }
 
-export function CartDrawer({ open, onClose, onCheckout }: CartDrawerProps) {
+export function CartDrawer({ open, onClose, onCheckout, onEditBox }: CartDrawerProps) {
   const items = useCartStore((state) => state.items);
   const total = useCartStore(selectCartTotal);
   const clearCart = useCartStore((state) => state.clearCart);
-  const scheduleNotices = useCartNotices(items);
+  const scheduleNotices = useCartNotices();
+  // Past the cutoff the rolls and nigiris of a box can't change, so it can only be kept or removed
+  const canEditBoxes = !useScheduleStatus()?.isPastPreorderCutoff;
   const [confirmingClear, setConfirmingClear] = useState(false);
 
   const isEmpty = items.length === 0;
@@ -86,7 +101,11 @@ export function CartDrawer({ open, onClose, onCheckout }: CartDrawerProps) {
         <>
           <ul className="divide-y divide-line">
             {items.map((item) => (
-              <CartLine key={item.lineId} item={item} />
+              <CartLine
+                key={item.lineId}
+                item={item}
+                onEdit={item.kind === 'box' && canEditBoxes ? () => onEditBox(item) : undefined}
+              />
             ))}
           </ul>
           <div className="flex items-center justify-end gap-2 border-t border-line py-4">

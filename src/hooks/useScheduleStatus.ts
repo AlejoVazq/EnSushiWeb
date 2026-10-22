@@ -11,7 +11,6 @@ import {
   type CartScheduleNotice,
   type ScheduleStatus,
 } from '@/lib/schedule';
-import type { CartItem } from '@/types';
 
 const MINUTE = 60_000;
 
@@ -33,15 +32,15 @@ export function useScheduleStatus(): ScheduleStatus | null {
 const NO_NOTICES: CartScheduleNotice[] = [];
 
 /** Schedule heads-ups for the cart; none until the clock is known */
-export function useCartNotices(items: readonly CartItem[]): CartScheduleNotice[] {
+export function useCartNotices(): CartScheduleNotice[] {
   const status = useScheduleStatus();
-  return useMemo(() => (status ? getCartNotices(items, status) : NO_NOTICES), [items, status]);
+  return useMemo(() => (status ? getCartNotices(status) : NO_NOTICES), [status]);
 }
 
 const UNKNOWN: CartScheduleCheck = { canCheckout: true, notices: [] };
 
 /** Schedule check for the checkout; allows it until the clock is known */
-export function useCheckoutSchedule(items: readonly CartItem[]): CartScheduleCheck {
+export function useCheckoutSchedule(): CartScheduleCheck {
   const status = useScheduleStatus();
-  return useMemo(() => (status ? checkSchedule(items, status) : UNKNOWN), [items, status]);
+  return useMemo(() => (status ? checkSchedule(status) : UNKNOWN), [status]);
 }

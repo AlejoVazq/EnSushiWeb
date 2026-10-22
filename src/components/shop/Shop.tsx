@@ -4,29 +4,24 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { BUSINESS } from '@/config/business';
-import { CATEGORIES } from '@/data/menu';
-import type { CategoryId, CustomComboProduct } from '@/types';
+import { BUILD_CATEGORY_ID, CATEGORIES } from '@/data/menu';
+import { toBoxInput } from '@/store/useCartStore';
+import type { BoxCartItem, CategoryId } from '@/types';
 
+import { BoxBuilder, EMPTY_BOX_DRAFT, isBoxDraftActive, type BoxDraft } from './BoxBuilder';
 import { CartDrawer } from './CartDrawer';
 import { CategoryNav } from './CategoryNav';
 import { CategorySection } from './CategorySection';
-import { ComboBuilder } from './ComboBuilder';
 import { FloatingCartBar } from './FloatingCartBar';
 import { SiteHeader } from './SiteHeader';
 import { StatusBand } from './StatusBand';
 
-interface BuilderSession {
-  product: CustomComboProduct;
-  /** Incremented on every open so the builder remounts with a fresh selection */
-  key: number;
-}
-
 export function Shop() {
   const router = useRouter();
   const [cartOpen, setCartOpen] = useState(false);
-  const [builder, setBuilder] = useState<BuilderSession | null>(null);
-  const [builderOpen, setBuilderOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState<CategoryId>(CATEGORIES[0]?.id ?? 'arma-tu-combo');
+  const [activeCategory, setActiveCategory] = useState<CategoryId>(CATEGORIES[0]?.id ?? BUILD_CATEGORY_ID);
+  // Lives here so the box survives switching tabs, and "Editar" in the cart can load one
+  const [boxDraft, setBoxDraft] = useState<BoxDraft>(EMPTY_BOX_DRAFT);
 
   const selectCategory = (id: CategoryId) => {
     setActiveCategory(id);
@@ -35,14 +30,19 @@ export function Shop() {
     if (panel && panel.getBoundingClientRect().top < 0) panel.scrollIntoView({ block: 'start' });
   };
 
-  const openBuilder = (product: CustomComboProduct) => {
-    setBuilder((prev) => ({ product, key: (prev?.key ?? 0) + 1 }));
-    setBuilderOpen(true);
+  const editBox = (item: BoxCartItem) => {
+    setBoxDraft({ ...toBoxInput(item), editingLineId: item.lineId, notice: null });
+    setCartOpen(false);
+    setActiveCategory(BUILD_CATEGORY_ID);
+    // After the drawer closes and the tab renders
+    requestAnimationFrame(() => document.getElementById(BUILD_CATEGORY_ID)?.scrollIntoView({ block: 'start' }));
   };
+
+  // One plate per screen: while a box is in progress its bar replaces "Ver pedido"
+  const builderBarShown = activeCategory === BUILD_CATEGORY_ID && isBoxDraftActive(boxDraft);
 
   return (
     <>
-      {/* Sello y sumi covers the menu only; the cart and the builder keep the previous look until Fase 7 */}
       <div className="flex flex-1 flex-col bg-sumi font-ui text-washi selection:bg-washi selection:text-sumi">
         <SiteHeader onOpenCart={() => setCartOpen(true)} />
 
@@ -55,7 +55,11 @@ export function Shop() {
           <CategoryNav active={activeCategory} onSelect={selectCategory} />
 
           {CATEGORIES.filter((category) => category.id === activeCategory).map((category) => (
-            <CategorySection key={category.id} category={category} onCustomize={openBuilder} />
+            <CategorySection key={category.id} category={category}>
+              {category.id === BUILD_CATEGORY_ID ? (
+                <BoxBuilder draft={boxDraft} onDraftChange={setBoxDraft} onOpenCart={() => setCartOpen(true)} />
+              ) : undefined}
+            </CategorySection>
           ))}
         </main>
 
@@ -70,7 +74,7 @@ export function Shop() {
         </footer>
       </div>
 
-      {!cartOpen && <FloatingCartBar onOpenCart={() => setCartOpen(true)} />}
+      {!cartOpen && !builderBarShown && <FloatingCartBar onOpenCart={() => setCartOpen(true)} />}
       <CartDrawer
         open={cartOpen}
         onClose={() => setCartOpen(false)}
@@ -78,15 +82,8 @@ export function Shop() {
           setCartOpen(false);
           router.push('/checkout');
         }}
+        onEditBox={editBox}
       />
-      {builder && (
-        <ComboBuilder
-          key={builder.key}
-          open={builderOpen}
-          initialProduct={builder.product}
-          onClose={() => setBuilderOpen(false)}
-        />
-      )}
     </>
   );
 }

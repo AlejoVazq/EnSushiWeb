@@ -1,5 +1,4 @@
 import { BUSINESS } from '@/config/business';
-import type { CartItem } from '@/types';
 
 export interface ScheduleStatus {
   isOpenToday: boolean;
@@ -9,6 +8,8 @@ export interface ScheduleStatus {
   isStoreOpen: boolean;
   /** Today is an opening day and still before its preorder cutoff */
   isPreorderAvailable: boolean;
+  /** Past the preorder cutoff (any day): rolls and nigiris of Arma tu combo can't be added */
+  isPastPreorderCutoff: boolean;
   /** When the shop opens next: "hoy", "mañana" or "el viernes"; null if no opening day is coming up */
   nextOpening: string | null;
 }
@@ -144,15 +145,13 @@ export const getScheduleStatus = (date: Date = getNow()): ScheduleStatus => {
     isTakingOrders: isOpenToday && minutes < CLOSE,
     isStoreOpen: isOpenToday && minutes >= OPEN && minutes < CLOSE,
     isPreorderAvailable: isOpenToday && minutes < CUTOFF,
+    isPastPreorderCutoff: minutes >= CUTOFF,
     nextOpening,
   };
 };
 
-const hasOrderType = (items: readonly CartItem[], orderType: CartItem['product']['orderType']): boolean =>
-  items.some((item) => item.product.orderType === orderType);
-
 /** Orders are only for today: closed days and after closing block the checkout; the rest are heads-ups */
-export const checkSchedule = (items: readonly CartItem[], status: ScheduleStatus): CartScheduleCheck => {
+export const checkSchedule = (status: ScheduleStatus): CartScheduleCheck => {
   if (!status.isTakingOrders) {
     const reopening = status.nextOpening ? ` Abrimos ${status.nextOpening} a las ${operatingHours.open}.` : '';
     const closed = status.isOpenToday ? 'Ya cerramos por hoy.' : 'Hoy no abrimos.';
@@ -163,16 +162,9 @@ export const checkSchedule = (items: readonly CartItem[], status: ScheduleStatus
   if (!status.isStoreOpen) {
     notices.push({ tone: 'info', message: `Abrimos hoy a las ${operatingHours.open}.` });
   }
-  // The per-item block (rolls and nigiris) lands with the Arma tu combo builder; for now it's only a heads-up
-  if (hasOrderType(items, 'preorder') && !status.isPreorderAvailable) {
-    notices.push({
-      tone: 'info',
-      message: `Los rolls y nigiris de Arma tu combo se piden hasta las ${preorderCutoff}.`,
-    });
-  }
   return { canCheckout: true, notices };
 };
 
 /** Heads-ups for the cart: same as the checkout, but nothing blocks there */
-export const getCartNotices = (items: readonly CartItem[], status: ScheduleStatus): CartScheduleNotice[] =>
-  checkSchedule(items, status).notices.map((notice) => ({ ...notice, tone: 'info' }));
+export const getCartNotices = (status: ScheduleStatus): CartScheduleNotice[] =>
+  checkSchedule(status).notices.map((notice) => ({ ...notice, tone: 'info' }));

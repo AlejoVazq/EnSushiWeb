@@ -80,26 +80,15 @@ export interface SizedProduct extends BaseProduct {
   variants: readonly ProductVariant[];
 }
 
-/**
- * Interim build-your-own combo (Arma tu combo, until the per-item builder): fixed size and price; the customer chooses
- * between 1 and `maxFlavors` flavors from ROLL_FLAVORS.
- */
-export interface CustomComboProduct extends BaseProduct {
-  type: 'custom-combo';
-  /** Unit price in ARS, integer */
-  price: number;
-  pieces: number;
-  maxFlavors: number;
-}
-
-export type Product = StandardProduct | SizedProduct | CustomComboProduct;
+export type Product = StandardProduct | SizedProduct;
 
 /** Sections of the "Arma tu combo" builder */
 export type BuildItemGroup = 'rolls' | 'nigiris' | 'acompanamientos';
 
 /**
- * Something the customer adds to their own combo, in fixed steps, each with its own price.
- * The combo starts empty and has no minimum or maximum. Not wired to the UI yet (Paso 10).
+ * Something the customer adds in "Arma tu combo", in fixed steps, each with its own price.
+ * Rolls and nigiris fill a box (one piece each unit) and stop at the preorder cutoff;
+ * acompañamientos go to the order on their own and have no cutoff.
  */
 export interface BuildItem {
   id: string;
@@ -117,38 +106,58 @@ export interface BuildItem {
   available: boolean;
 }
 
-/** Selectable flavor for custom combos */
-export interface RollFlavor {
-  id: string;
-  name: string;
-  description: string;
-  tags?: readonly ProductTag[];
+/** How many steps of one box item went into a box (e.g. 2 steps of a roll = 10 pieces) */
+export interface BuildBoxEntry {
+  item: BuildItem;
+  steps: number;
+}
+
+/** A filled "Arma tu combo" box: its entries add up to exactly `pieces` */
+export interface BuildBox {
+  /** One of BUILD_BOX_SIZES */
+  pieces: number;
+  /** Rolls and nigiris only, in BUILD_ITEMS order */
+  entries: readonly BuildBoxEntry[];
 }
 
 // ─── Cart ───────────────────────────────────────────────────────────────────
 
-export interface ComboCustomization {
-  /** IDs from ROLL_FLAVORS, 1..maxFlavors, no duplicates */
-  flavorIds: readonly string[];
-}
-
-export interface CartItem {
+interface CartLineBase {
   /**
-   * Unique per cart line. Standard products: the product id (+ the option value, if any).
-   * Sized products: product id + pieces. Custom combos: product id + sorted
-   * flavor ids, so two combos with different flavors become separate lines.
+   * Unique and stable per cart line, so equal lines merge:
+   * - standard products: the product id (+ the option value, if any);
+   * - sized products: product id + pieces;
+   * - boxes: box size + sorted item ids with their steps;
+   * - acompañamientos: the build item id.
    */
   lineId: string;
-  product: Product;
   quantity: number;
-  /** Integer ARS, resolved from the catalog (the variant's price for sized products) */
+  /** Integer ARS, resolved from the catalog (variant price; sum of a box's entries) */
   unitPrice: number;
+}
+
+export interface ProductCartItem extends CartLineBase {
+  kind: 'product';
+  product: Product;
   /** Chosen size, only for sized products */
   variant?: ProductVariant;
   /** Chosen option value, only for standard products with an `option` */
   optionValue?: ProductOptionValue;
-  customization?: ComboCustomization;
 }
+
+/** An "Arma tu combo" box */
+export interface BoxCartItem extends CartLineBase {
+  kind: 'box';
+  box: BuildBox;
+}
+
+/** An acompañamiento ordered on its own; `quantity` counts steps (2 × 3 empanaditas) */
+export interface ExtraCartItem extends CartLineBase {
+  kind: 'extra';
+  item: BuildItem;
+}
+
+export type CartItem = ProductCartItem | BoxCartItem | ExtraCartItem;
 
 // ─── Checkout ───────────────────────────────────────────────────────────────
 
