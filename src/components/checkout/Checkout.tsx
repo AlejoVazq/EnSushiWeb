@@ -294,6 +294,23 @@ export function Checkout() {
           <p className="text-sm text-muted">Para hoy · el horario lo coordinamos por WhatsApp</p>
 
           <div className="space-y-3">
+            {/* On mobile the summary sits below the button, so the delivery fee is repeated right above it */}
+            {deliveryFee > 0 && (
+              <dl className="space-y-1 rounded-2xl border border-line bg-surface p-4 text-sm lg:hidden">
+                <div className="flex justify-between">
+                  <dt className="text-muted">Subtotal</dt>
+                  <dd className="tabular-nums">{formatPrice(subtotal)}</dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt className="text-muted">Envío</dt>
+                  <dd className="tabular-nums">{formatPrice(deliveryFee)}</dd>
+                </div>
+                <div className="flex justify-between border-t border-line pt-2 font-semibold">
+                  <dt>Total</dt>
+                  <dd className="tabular-nums">{formatPrice(subtotal + deliveryFee)}</dd>
+                </div>
+              </dl>
+            )}
             <ScheduleNotices notices={schedule.notices} />
             {whatsappUrl && schedule.canCheckout ? (
               <a
