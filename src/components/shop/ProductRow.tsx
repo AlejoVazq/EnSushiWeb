@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { useState, type ReactNode } from 'react';
 
+import { useCanOrder } from '@/hooks/useScheduleStatus';
 import { cn } from '@/lib/cn';
 import { formatPrice } from '@/lib/format';
 import { TAG_LABELS } from '@/lib/labels';
@@ -90,6 +91,7 @@ function ChoicePicker<T extends string | number>({
 
 export function ProductRow({ product }: ProductRowProps) {
   const soldOut = !product.available;
+  const canOrder = useCanOrder();
   const addItem = useCartStore((state) => state.addItem);
   const [pieces, setPieces] = useState(product.type === 'sized' ? (product.variants[0]?.pieces ?? 0) : 0);
   const [optionId, setOptionId] = useState(
@@ -218,7 +220,7 @@ export function ProductRow({ product }: ProductRowProps) {
           ) : (
             <span />
           )}
-          {soldOut ? <HollowSeal>Agotado hoy</HollowSeal> : action}
+          {soldOut ? <HollowSeal>Agotado hoy</HollowSeal> : canOrder ? action : null}
         </div>
       </div>
     </article>

@@ -6,7 +6,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { MinusIcon, PlusIcon, TrashIcon } from '@/components/ui/icons';
 import { Sheet } from '@/components/ui/Sheet';
 import { BUSINESS } from '@/config/business';
-import { useCartNotices, useScheduleStatus } from '@/hooks/useScheduleStatus';
+import { useCanOrder, useCartNotices, useScheduleStatus } from '@/hooks/useScheduleStatus';
 import { formatBoxContents, getLineName } from '@/lib/cartLine';
 import { formatPrice } from '@/lib/format';
 import { lineSubtotal, selectCartTotal, toBoxInput, useCartStore } from '@/store/useCartStore';
@@ -66,11 +66,13 @@ interface CartLineProps {
   /** Set for boxes that can still be edited (before the rolls and nigiris cutoff) */
   onEdit?: () => void;
   onRemove: () => void;
+  /** False while the shop isn't taking orders: lines can be reduced or removed, not increased */
+  canAdd: boolean;
   /** The line's title, focused when the line above it is removed */
   titleRef: (element: HTMLHeadingElement | null) => void;
 }
 
-function CartLine({ item, onEdit, onRemove, titleRef }: CartLineProps) {
+function CartLine({ item, onEdit, onRemove, canAdd, titleRef }: CartLineProps) {
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const name = getLineName(item);
 
@@ -119,6 +121,7 @@ function CartLine({ item, onEdit, onRemove, titleRef }: CartLineProps) {
               <button
                 type="button"
                 onClick={() => updateQuantity(item.lineId, item.quantity + 1)}
+                disabled={!canAdd}
                 aria-label={`Agregar uno más de ${name}`}
                 className={stepButtonClassName}
               >
@@ -157,7 +160,9 @@ export function CartDrawer({ open, onClose, onCheckout, onEditBox }: CartDrawerP
   const { addItem, addBox, addExtra, removeItem, updateQuantity, clearCart } = useCartStore.getState();
   const scheduleNotices = useCartNotices();
   // Past the cutoff the rolls and nigiris of a box can't change, so it can only be kept or removed
-  const canEditBoxes = !useScheduleStatus()?.isPastPreorderCutoff;
+  const canOrder = useCanOrder();
+  const pastCutoff = useScheduleStatus()?.isPastPreorderCutoff ?? false;
+  const canEditBoxes = canOrder && !pastCutoff;
   const [confirmingClear, setConfirmingClear] = useState(false);
   const [removal, setRemoval] = useState<Removal | null>(null);
   const [announcement, setAnnouncement] = useState('');
@@ -257,6 +262,7 @@ export function CartDrawer({ open, onClose, onCheckout, onEditBox }: CartDrawerP
       item={item}
       onEdit={item.kind === 'box' && canEditBoxes ? () => leave(() => onEditBox(item)) : undefined}
       onRemove={() => removeLine(item)}
+      canAdd={canOrder}
       titleRef={(element) => {
         if (element) titleRefs.current.set(item.lineId, element);
         else titleRefs.current.delete(item.lineId);
@@ -299,7 +305,9 @@ export function CartDrawer({ open, onClose, onCheckout, onEditBox }: CartDrawerP
             <button
               type="button"
               onClick={() => leave(onCheckout)}
-              className="flex h-14 w-full items-center justify-center rounded-2xl bg-washi font-bold text-sumi transition-colors hover:bg-washi/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi"
+              // Closed: the notice above says when the shop opens
+              disabled={!canOrder}
+              className="flex h-14 w-full items-center justify-center rounded-2xl bg-washi font-bold text-sumi transition-colors hover:bg-washi/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi disabled:pointer-events-none disabled:opacity-40"
             >
               Continuar con el pedido
             </button>

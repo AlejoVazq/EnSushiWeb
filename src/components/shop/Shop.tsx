@@ -5,6 +5,7 @@ import { useState } from 'react';
 
 import { BUSINESS } from '@/config/business';
 import { BUILD_CATEGORY_ID, CATEGORIES } from '@/data/menu';
+import { useCanOrder } from '@/hooks/useScheduleStatus';
 import { toBoxInput } from '@/store/useCartStore';
 import type { BoxCartItem, CategoryId } from '@/types';
 
@@ -39,7 +40,8 @@ export function Shop() {
   };
 
   // One plate per screen: while a box is in progress its bar replaces "Ver pedido"
-  const builderBarShown = activeCategory === BUILD_CATEGORY_ID && isBoxDraftActive(boxDraft);
+  const canOrder = useCanOrder();
+  const builderBarShown = canOrder && activeCategory === BUILD_CATEGORY_ID && isBoxDraftActive(boxDraft);
 
   return (
     <>

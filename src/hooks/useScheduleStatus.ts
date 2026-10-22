@@ -29,6 +29,14 @@ export function useScheduleStatus(): ScheduleStatus | null {
   return useMemo(() => (minute === null ? null : getScheduleStatus(new Date(minute * MINUTE))), [minute]);
 }
 
+/**
+ * False on a closed day or after closing: the menu is view-only and nothing can be added.
+ * True until the clock is known, so nothing is hidden before hydration.
+ */
+export function useCanOrder(): boolean {
+  return useScheduleStatus()?.isTakingOrders ?? true;
+}
+
 const NO_NOTICES: CartScheduleNotice[] = [];
 
 /** Schedule heads-ups for the cart; none until the clock is known */

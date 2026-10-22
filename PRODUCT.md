@@ -30,7 +30,7 @@ Web de pedidos online de EnSushi: el cliente arma el pedido para hoy (combos, Ar
 - Uso nocturno, en el celular, muchas veces con poca luz y apuro por la hora de la cena.
 - El catálogo va por pestañas (una categoría por vez): Arma tu combo, Sushiburgers, Combos, Salsas & complementos.
 - Momentos clave: elegir combo y tamaño (15 / 24 / 40 piezas); armar su propio combo (rolls y nigiris hasta las 20:00; los acompañamientos no tienen corte); revisar el carrito; completar el checkout (entrega y pago; el horario lo coordina el local por WhatsApp).
-- Horario en la zona horaria del local: solo pedidos para hoy. En un día cerrado o después del cierre se bloquea el envío y se avisa cuándo abre; antes de la apertura se puede mandar, con un aviso. El corte de las 20:00 es por ítem (rolls y nigiris de Arma tu combo), no por pedido. En el carrito nunca se bloquea, solo se avisa.
+- Horario en la zona horaria del local: solo pedidos para hoy. En un día cerrado o después del cierre se bloquea el envío y se avisa cuándo abre; antes de la apertura se puede mandar, con un aviso. El corte de las 20:00 es por ítem (rolls y nigiris de Arma tu combo), no por pedido. Cuando el local no toma pedidos, la web queda solo para ver el menú: no se puede agregar nada.
 - El pedido termina en el WhatsApp del local; la confirmación, el cobro por transferencia y el comprobante pasan por ese chat.
 
 ## Capabilities and Constraints

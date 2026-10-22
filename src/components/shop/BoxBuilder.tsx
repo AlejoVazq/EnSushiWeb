@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { MinusIcon, PlusIcon } from '@/components/ui/icons';
 import { BUSINESS } from '@/config/business';
 import { BUILD_BOX_SIZES, BUILD_ITEM_GROUPS, getBuildItemById, getBuildItemsByGroup, isBoxItem } from '@/data/menu';
-import { useScheduleStatus } from '@/hooks/useScheduleStatus';
+import { useCanOrder, useScheduleStatus } from '@/hooks/useScheduleStatus';
 import { formatUnits, stepUnits } from '@/lib/cartLine';
 import { cn } from '@/lib/cn';
 import { formatPrice } from '@/lib/format';
@@ -63,18 +63,21 @@ interface BoxItemRowProps {
   fits: boolean;
   /** Past the preorder cutoff */
   blocked: boolean;
+  /** The shop isn't taking orders: view-only */
+  closed: boolean;
   onChange: (steps: number) => void;
   /** "+" before choosing a size: sends the customer to the size picker */
   onNeedSize: () => void;
   needsSize: boolean;
 }
 
-function BoxItemRow({ item, steps, fits, blocked, onChange, onNeedSize, needsSize }: BoxItemRowProps) {
+function BoxItemRow({ item, steps, fits, blocked, closed, onChange, onNeedSize, needsSize }: BoxItemRowProps) {
   const units = stepUnits(item, steps);
   const unavailable = !item.available || blocked;
 
   let control;
   if (!item.available) control = <HollowSeal>Agotado hoy</HollowSeal>;
+  else if (closed) control = null;
   else if (blocked) control = <HollowSeal title={CUTOFF_TITLE}>Hasta las {preorderCutoff}</HollowSeal>;
   else if (steps === 0)
     control = (
@@ -131,7 +134,7 @@ function BoxItemRow({ item, steps, fits, blocked, onChange, onNeedSize, needsSiz
   );
 }
 
-function ExtraRow({ item }: { item: BuildItem }) {
+function ExtraRow({ item, closed }: { item: BuildItem; closed: boolean }) {
   const addExtra = useCartStore((state) => state.addExtra);
 
   return (
@@ -144,7 +147,7 @@ function ExtraRow({ item }: { item: BuildItem }) {
           {formatUnits(item.step, item.unitLabel)} · {formatPrice(item.price)}
         </p>
       </div>
-      {item.available ? (
+      {closed ? null : item.available ? (
         <LineAction
           lineId={getExtraLineId(item.id)}
           label={`${item.name} (${formatUnits(item.step, item.unitLabel)})`}
@@ -167,7 +170,10 @@ interface BoxBuilderProps {
 export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps) {
   const addBox = useCartStore((state) => state.addBox);
   const replaceBox = useCartStore((state) => state.replaceBox);
-  const blocked = useScheduleStatus()?.isPastPreorderCutoff ?? false;
+  // Closed (day off or after closing) wins over the cutoff: nothing can be added at all
+  const closed = !useCanOrder();
+  const pastCutoff = useScheduleStatus()?.isPastPreorderCutoff ?? false;
+  const blocked = !closed && pastCutoff;
   const sizeRef = useRef<HTMLFieldSetElement>(null);
   const [askSize, setAskSize] = useState(false);
 
@@ -218,10 +224,16 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
   const cancelEdit = () => onDraftChange(EMPTY_BOX_DRAFT);
 
   const tooSmall = BUILD_BOX_SIZES.some((size) => size < filled);
-  const showBar = isBoxDraftActive(draft);
+  const showBar = !closed && isBoxDraftActive(draft);
 
   return (
     <div className="space-y-8">
+      {closed && (
+        <p className="rounded-xl border border-hairline-strong px-4 py-3 text-sm leading-relaxed text-washi">
+          Ahora no tomamos pedidos. Podés ver el menú y armar tu pedido cuando abramos.
+        </p>
+      )}
+
       {blocked && (
         <p className="rounded-xl border border-hairline-strong px-4 py-3 text-sm leading-relaxed text-washi">
           Los rolls y nigiris se piden hasta las {preorderCutoff}. Ahora podés sumar acompañamientos a tu pedido.
@@ -230,7 +242,7 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
 
       <fieldset
         ref={sizeRef}
-        disabled={blocked}
+        disabled={blocked || closed}
         className={cn(
           'scroll-mt-32 rounded-xl transition-[outline-color] duration-300',
           askSize ? 'outline-2 outline-offset-8 outline-washi' : 'outline-transparent',
@@ -243,7 +255,7 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
         <div className="grid grid-cols-5 gap-2 sm:max-w-lg">
           {BUILD_BOX_SIZES.map((size) => {
             const selected = size === pieces;
-            const disabled = blocked || size < filled;
+            const disabled = blocked || closed || size < filled;
             return (
               <label
                 key={size}
@@ -269,7 +281,7 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
             );
           })}
         </div>
-        {tooSmall && !blocked && (
+        {tooSmall && !blocked && !closed && (
           <p className="mt-2 text-sm text-washi-muted">Para una caja más chica, sacá piezas.</p>
         )}
       </fieldset>
@@ -300,12 +312,13 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
                       steps={steps[item.id] ?? 0}
                       fits={remaining !== null && item.step <= remaining}
                       blocked={blocked}
+                      closed={closed}
                       needsSize={pieces === null}
                       onNeedSize={requestSize}
                       onChange={(count) => setSteps(item, count)}
                     />
                   ) : (
-                    <ExtraRow item={item} />
+                    <ExtraRow item={item} closed={closed} />
                   )}
                 </li>
               ))}
