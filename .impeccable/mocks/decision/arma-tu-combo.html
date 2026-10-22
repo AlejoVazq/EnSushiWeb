@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Arma tu combo · decisiones</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700&family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--sumi:#141210;--s1:#1d1a17;--s2:#262220;--line:#34302b;--line2:#4d463e;--washi:#f1ebe0;--muted:#b9b0a2;--shu:#c8432b;--shu-fg:#fff6ee}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0b0a09;color:var(--washi);font:400 15px/1.5 Figtree,sans-serif;padding:32px 16px 80px}
+.wrap{max-width:1180px;margin:0 auto}
+h1{font:700 32px/1.15 "M PLUS Rounded 1c";margin-bottom:8px}
+.lead{color:var(--muted);max-width:720px;margin-bottom:24px}
+section{border-top:1px solid var(--line);padding:32px 0}
+h2{font:700 22px "M PLUS Rounded 1c";margin-bottom:4px}
+.q{color:var(--muted);margin-bottom:20px;max-width:760px}
+.opts{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.opt{width:360px}
+.opt>b{display:block;font:700 16px "M PLUS Rounded 1c";margin-bottom:4px}
+.opt>p{color:var(--muted);font-size:13px;margin-bottom:10px;min-height:40px}
+.tag{display:inline-block;font:700 11px Figtree;padding:2px 8px;border-radius:6px;background:var(--washi);color:var(--sumi);margin-left:6px;vertical-align:2px}
+.ph{width:360px;background:var(--sumi);border:1px solid var(--line);border-radius:22px;overflow:hidden;position:relative;padding-bottom:96px}
+.ph.short{padding-bottom:0}
+.band{margin:12px 14px 0;padding:8px 12px;border-radius:10px;background:var(--washi);color:var(--sumi);font-size:12px;display:flex;justify-content:space-between;gap:8px}
+.band b{font-weight:700}
+.nav{display:flex;gap:16px;padding:10px 14px 0;border-bottom:1px solid var(--line);font-size:13px;white-space:nowrap;overflow:hidden}
+.nav a{padding-bottom:9px;color:var(--muted)}.nav a.on{color:var(--washi);font-weight:700;box-shadow:inset 0 -2px 0 var(--washi)}
+h3{font:700 22px "M PLUS Rounded 1c";padding:16px 14px 2px}
+.sub{padding:0 14px;color:var(--muted);font-size:13px}
+.lbl{padding:14px 14px 6px;font-size:13px;font-weight:700}
+.lbl small{font-weight:500;color:var(--muted)}
+.box{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:0 14px}
+.box span{min-height:42px;border:1px solid var(--line);border-radius:8px;display:grid;place-items:center;font-size:13px;color:var(--muted);text-align:center;line-height:1.1}
+.box span small{display:block;font-size:10px}
+.box span.on{border-color:var(--washi);background:var(--s2);color:var(--washi);font-weight:700}
+.box span.off{opacity:.35}
+.gh{display:flex;justify-content:space-between;align-items:baseline;padding:18px 14px 4px;border-bottom:1px solid var(--line)}
+.gh b{font:700 16px "M PLUS Rounded 1c"}
+.gh span{font-size:12px;color:var(--muted)}
+.gh span.cut{color:var(--washi);font-weight:700}
+.it{display:grid;grid-template-columns:52px 1fr auto;gap:10px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line)}
+.im{width:52px;height:52px;border-radius:9px;background:radial-gradient(circle at 50% 55%,#4a3a30 0 30%,#2c2520 31% 60%,#201b18 61%)}
+.nm{font:700 15px "M PLUS Rounded 1c"}.ds{font-size:12px;color:var(--muted)}
+.st{display:flex;align-items:center;gap:2px}
+.st i{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-style:normal;color:var(--muted);font-size:18px}
+.st i.off{opacity:.3}
+.seal{width:32px;height:32px;border-radius:6px;background:var(--shu);color:var(--shu-fg);display:grid;place-items:center;font:700 14px "M PLUS Rounded 1c";transform:rotate(-6deg)}
+.add{width:36px;height:36px;border-radius:9px;border:1px solid var(--line2);display:grid;place-items:center;font-size:18px}
+.add.off{opacity:.3}
+.hollow{display:inline-flex;align-items:center;height:28px;padding:0 8px;border-radius:6px;border:1.5px solid var(--muted);font-size:11px;font-weight:700;transform:rotate(-3deg);white-space:nowrap}
+.dim .im,.dim .nm,.dim .ds{opacity:.45;filter:grayscale(1)}
+.note{margin:10px 14px;padding:9px 12px;border-radius:10px;border:1px solid var(--line2);font-size:12px;color:var(--washi)}
+.bar{position:absolute;left:10px;right:10px;bottom:10px;border-radius:16px;background:var(--washi);color:var(--sumi);padding:10px 12px;display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center}
+.bar .t{font-weight:700;font-size:14px}
+.bar .m{font-size:12px;font-weight:500;grid-column:1}
+.bar .meter{grid-column:1/-1;height:5px;border-radius:3px;background:#d9d1c3;overflow:hidden;margin-top:4px}
+.bar .meter u{display:block;height:100%;background:var(--sumi)}
+.bar .btn{grid-row:1/3;grid-column:2;height:40px;padding:0 12px;border-radius:10px;background:var(--sumi);color:var(--washi);font-weight:700;font-size:13px;display:grid;place-items:center}
+.bar .btn.off{background:#cfc6b7;color:#5c554b}
+.msg{background:#0b141a;border:1px solid #233138;border-radius:14px;padding:14px;font:400 13px/1.55 ui-monospace,Consolas,monospace;color:#e9edef;white-space:pre-wrap}
+.msg em{font-style:normal;color:#ffd79a}
+.cart{padding:6px 0}
+.cl{padding:12px 14px;border-bottom:1px solid var(--line)}
+.cl .r{display:flex;justify-content:space-between;font-weight:700;font-size:14px}
+.cl .c{font-size:12px;color:var(--muted);margin-top:2px}
+.cl .a{display:flex;gap:8px;margin-top:8px;align-items:center}
+.pill{height:34px;padding:0 12px;border-radius:9px;border:1px solid var(--line2);display:inline-grid;place-items:center;font-size:12px;font-weight:700}
+.trash{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font-size:13px}
+.kv{font-size:13px;color:var(--muted);margin-top:8px}
+.kv b{color:var(--washi)}
+</style></head><body><div class="wrap">
+
+<h1>Arma tu combo · decisiones</h1>
+<p class="lead">Arriba está cómo se vería la pestaña con el sistema Sello y sumi, antes y después de las 20:00. Abajo, las cuatro cosas a decidir, cada una con sus opciones dibujadas. Los precios son de ejemplo, porque los reales todavía no están (eso es la decisión 2).</p>
+
+<section><h2>Vista general (celu)</h2>
+<p class="q">Arriba, la caja: 10, 15, 20, 25 o 30 piezas. Debajo, las filas en tres grupos, cada una con su unidad de venta y su stepper. Abajo, la barra del armado (placa crema) con el total en vivo, cuántas piezas faltan y el botón, que se habilita recién con la caja completa. Los acompañamientos se agregan directo al pedido con su propio sello, como en el resto del menú, y no cuentan en la caja.</p>
+<div class="opts">
+<div class="opt"><b>Antes de las 20:00 · caja de 20 a medio llenar</b><p>Entran 5 piezas más: el "+" de los rolls sigue activo. El corte se lee en el título del grupo, sin hover.</p>
+<div class="ph">
+<div class="band"><span><b>Abierto hoy</b> hasta las 23:30</span><span>Rolls y nigiris hasta 20:00</span></div>
+<div class="nav"><a class="on">Arma tu combo</a><a>Sushiburgers</a><a>Combos</a><a>Salsas</a></div>
+<h3>Arma tu combo</h3><p class="sub">Elegí la caja y llenala con rolls de autor y nigiris.</p>
+<p class="lbl">1 · Tamaño de la caja</p>
+<div class="box"><span>10</span><span>15</span><span class="on">20<small>piezas</small></span><span>25</span><span>30</span></div>
+<div class="gh"><b>Rolls de autor</b><span class="cut">de a 5 piezas · hasta las 20:00</span></div>
+<div class="it"><div class="im"></div><div><p class="nm">New York</p><p class="ds">5 piezas · $ 6.500</p></div><div class="st"><i>−</i><span class="seal">10</span><i>+</i></div></div>
+<div class="it"><div class="im"></div><div><p class="nm">Midori</p><p class="ds">5 piezas · $ 6.500</p></div><div class="add">+</div></div>
+<div class="it"><div class="im"></div><div><p class="nm">Hikaru</p><p class="ds">5 piezas · $ 7.000</p></div><div class="add">+</div></div>
+<div class="gh"><b>Nigiris</b><span class="cut">por unidad · hasta las 20:00</span></div>
+<div class="it"><div class="im"></div><div><p class="nm">Nigiri de salmón</p><p class="ds">1 unidad · $ 1.800</p></div><div class="st"><i>−</i><span class="seal">5</span><i>+</i></div></div>
+<div class="gh"><b>Acompañamientos</b><span>van aparte · no cuentan en la caja</span></div>
+<div class="it"><div class="im"></div><div><p class="nm">Empanaditas</p><p class="ds">3 unidades · $ 4.000</p></div><div class="add">+</div></div>
+<div class="bar"><span class="t">Caja de 20 · 15 de 20</span><span class="btn off">Faltan 5 piezas</span><span class="m">Total $ 22.000</span><span class="meter"><u style="width:75%"></u></span></div>
+</div></div>
+
+<div class="opt"><b>Caja completa</b><p>Con 20 de 20, los "+" de rolls y nigiris se apagan y el botón se habilita con el total.</p>
+<div class="ph short" style="padding-bottom:96px">
+<div class="gh"><b>Rolls de autor</b><span class="cut">de a 5 piezas · hasta las 20:00</span></div>
+<div class="it"><div class="im"></div><div><p class="nm">New York</p><p class="ds">5 piezas · $ 6.500</p></div><div class="st"><i>−</i><span class="seal">10</span><i class="off">+</i></div></div>
+<div class="it"><div class="im"></div><div><p class="nm">Midori</p><p class="ds">5 piezas · $ 6.500</p></div><div class="st"><i>−</i><span class="seal">5</span><i class="off">+</i></div></div>
+<div class="it"><div class="im"></div><div><p class="nm">Hikaru</p><p class="ds">5 piezas · $ 7.000</p></div><div class="add off">+</div></div>
+<div class="gh"><b>Nigiris</b><span class="cut">por unidad · hasta las 20:00</span></div>
+<div class="it"><div class="im"></div><div><p class="nm">Nigiri de salmón</p><p class="ds">1 unidad · $ 1.800</p></div><div class="st"><i>−</i><span class="seal">5</span><i class="off">+</i></div></div>
+<div class="bar"><span class="t">Caja de 20 · completa</span><span class="btn">Agregar · $ 28.500</span><span class="m">10 New York, 5 Midori, 5 nigiris</span><span class="meter"><u style="width:100%"></u></span></div>
+</div></div>
+
+<div class="opt"><b>Después de las 20:00</b><p>Rolls y nigiris desteñidos, cada uno con el sello hueco "Hasta las 20:00" a la vista (sin hover). La caja no se puede armar; los acompañamientos siguen.</p>
+<div class="ph short">
+<div class="band"><span><b>Abierto hoy</b> hasta las 23:30</span></div>
+<h3>Arma tu combo</h3>
+<p class="note">Los rolls y nigiris se piden hasta las 20:00. Ahora podés sumar acompañamientos a tu pedido.</p>
+<div class="box"><span class="off">10</span><span class="off">15</span><span class="off">20</span><span class="off">25</span><span class="off">30</span></div>
+<div class="gh"><b>Rolls de autor</b><span class="cut">hasta las 20:00</span></div>
+<div class="it dim"><div class="im"></div><div><p class="nm">New York</p><p class="ds">5 piezas · $ 6.500</p></div><span class="hollow">Hasta las 20:00</span></div>
+<div class="it dim"><div class="im"></div><div><p class="nm">Midori</p><p class="ds">5 piezas · $ 6.500</p></div><span class="hollow">Hasta las 20:00</span></div>
+<div class="gh"><b>Acompañamientos</b><span>sin corte</span></div>
+<div class="it"><div class="im"></div><div><p class="nm">Empanaditas</p><p class="ds">3 unidades · $ 4.000</p></div><div class="st"><i>−</i><span class="seal">2</span><i>+</i></div></div>
+<div class="it"><div class="im"></div><div><p class="nm">Langostinos empanados</p><p class="ds">5 palitos · $ 6.000</p></div><div class="add">+</div></div>
+</div></div>
+</div>
+<p class="kv">Referencias de <code>inspiracion/</code>: <b>Entradas.png</b> (fila con unidad de venta entre nombre y precio) y <b>agregando producto a carrito.png</b> (barra de pie con subtotal en vivo y acción).</p>
+</section>
+
+<section><h2>0 · Capacidad de la caja (pendiente de la vez anterior)</h2>
+<p class="q">Dijiste "30 piezas, o 24p y 4 nigiris es lo máximo que entra". Con rolls de a 5 no se llega a 24 piezas de rolls, y si un nigiri cuenta como 1 pieza, 24 + 4 son 28. Esto define cómo cuenta la barra.</p>
+<div class="opts">
+<div class="opt"><b>A · Un nigiri = 1 pieza</b><p>La caja de 20 se completa con, por ejemplo, 15 de rolls + 5 nigiris. Es simple y la cuenta es exacta. Como los rolls van de a 5, los nigiris completan los huecos.</p>
+<div class="ph short" style="padding:14px"><p class="kv">Caja de 30: <b>30 de rolls</b> · <b>25 + 5 nigiris</b> · <b>20 + 10 nigiris</b>…</p></div></div>
+<div class="opt"><b>B · El nigiri ocupa más lugar</b><p>Cada nigiri cuenta más que una pieza de roll (por ejemplo, 1,5), y la barra cuenta lugar, no piezas. Necesito la regla exacta.</p>
+<div class="ph short" style="padding:14px"><p class="kv">Caja de 30: <b>30 de rolls</b> · <b>ej. 24 de lugar + 4 nigiris de 1,5</b>, pero 24 no sale con rolls de a 5.</p></div></div>
+</div></section>
+
+<section><h2>1 · Cómo va el combo en el mensaje de WhatsApp</h2>
+<p class="q">La plantilla es una línea por producto: "- Nx Nombre ($subtotal)". Así quedaría cada opción con una caja de 20 y 6 empanaditas aparte.</p>
+<div class="opts">
+<div class="opt"><b>A · Una línea, contenido entre paréntesis <span class="tag">recomendada</span></b><p>Igual que la regla actual de los custom combos. No rompe la plantilla y WhatsApp corta la línea solo.</p>
+<div class="msg">¡Hola! Quiero hacer un pedido:
+<em>- 1x Arma tu combo · 20 piezas (New York 10, Midori 5, Nigiri de salmón 5) ($ 28.500)</em>
+<em>- 6x Empanaditas ($ 8.000)</em>
+Total: $ 36.500
+Nombre: …</div></div>
+<div class="opt"><b>B · Línea del combo + detalle debajo</b><p>Más fácil de leer en la cocina, pero agrega renglones que la plantilla no tiene.</p>
+<div class="msg">¡Hola! Quiero hacer un pedido:
+<em>- 1x Arma tu combo · 20 piezas ($ 28.500)
+   · New York x10
+   · Midori x5
+   · Nigiri de salmón x5</em>
+<em>- 6x Empanaditas ($ 8.000)</em>
+Total: $ 36.500</div></div>
+</div>
+<p class="kv">En las dos, los acompañamientos van como línea propia, con la cantidad en unidades reales ("6x Empanaditas" son 2 porciones de 3; "10x Langostinos empanados" son 10 palitos).</p>
+</section>
+
+<section><h2>2 · Ítems sin precio real (hoy todos usan PRICE_TBD)</h2>
+<p class="q">Hoy el "precio provisorio" es $1.000 por ítem, un número que parece real. Si sale así, un cliente podría mandar un pedido con precios inventados.</p>
+<div class="opts">
+<div class="opt"><b>A · "Precio a confirmar" y no se agrega <span class="tag">recomendada</span></b><p>Se ve y se puede armar, pero el botón dice "Precios a confirmar" y no agrega. En desarrollo sí se puede agregar, para probar el flujo, con el precio marcado como provisorio.</p>
+<div class="ph short"><div class="it"><div class="im"></div><div><p class="nm">Sake</p><p class="ds">5 piezas · Precio a confirmar</p></div><div class="add">+</div></div>
+<div style="padding:12px"><div class="bar" style="position:static"><span class="t">Caja de 15 · completa</span><span class="btn off">Precios a confirmar</span><span class="m">Total a confirmar</span></div></div></div></div>
+<div class="opt"><b>B · Se agrega y el local cotiza</b><p>Se puede mandar. En el carrito y en el mensaje dice "a confirmar", y el total suma solo lo que tiene precio. Es más flexible, pero el "Total" del mensaje deja de ser el total.</p>
+<div class="msg">- 1x Arma tu combo · 15 piezas (Sake 10, New York 5) <em>(precio a confirmar)</em>
+- 1x Combo Kanituna · 15 piezas ($ 20.000)
+Total: $ 20.000 <em>+ a confirmar</em></div></div>
+<div class="opt"><b>C · Ocultar la pestaña</b><p>Arma tu combo no aparece hasta que estén los precios. Es lo más seguro, pero no se puede probar en el celu hasta tenerlos.</p></div>
+</div></section>
+
+<section><h2>3 · Editar o quitar un combo ya agregado</h2>
+<p class="q">En el carrito, la caja es una sola línea con su contenido.</p>
+<div class="opts">
+<div class="opt"><b>A · "Editar" reabre el armado <span class="tag">recomendada</span></b><p>"Editar" lleva a Arma tu combo con esa caja cargada; al guardar, reemplaza la línea. El tacho la quita. La cantidad (2 cajas iguales) se cambia con el stepper.</p>
+<div class="ph short cart"><div class="cl"><div class="r"><span>1× Arma tu combo · 20 piezas</span><span>$ 28.500</span></div><p class="c">New York 10, Midori 5, Nigiri de salmón 5</p><div class="a"><span class="pill">Editar</span><span class="st"><i>−</i><span style="width:20px;text-align:center;font-weight:700">1</span><i>+</i></span><span class="trash">🗑</span></div></div></div></div>
+<div class="opt"><b>B · Solo quitar</b><p>Para cambiar algo, se quita y se arma de nuevo. Es más simple, pero rearmar una caja de 30 cuesta.</p>
+<div class="ph short cart"><div class="cl"><div class="r"><span>1× Arma tu combo · 20 piezas</span><span>$ 28.500</span></div><p class="c">New York 10, Midori 5, Nigiri de salmón 5</p><div class="a"><span class="st"><i>−</i><span style="width:20px;text-align:center;font-weight:700">1</span><i>+</i></span><span class="trash">🗑</span></div></div></div></div>
+</div>
+<p class="kv">Ojo: el carrito todavía tiene el estilo viejo (Fase 7). "Editar" se puede agregar ahí sin rediseñar el carrito entero.</p>
+</section>
+
+</div></body></html>

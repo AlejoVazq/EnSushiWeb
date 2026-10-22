@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=390">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#141210;--s1:#1d1a17;--line:#34302b;--fg:#f1ebe0;--muted:#b9b0a2;--shu:#c8432b;--shu-fg:#fff6ee}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:390px;height:844px;overflow:hidden;background:var(--ink);color:var(--fg);font:400 14px/1.45 "Zen Kaku Gothic New",sans-serif;position:relative}
+header{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+.logo{font:700 26px "Zen Maru Gothic";letter-spacing:-.5px}
+.cartbtn{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;position:relative}
+.cartbtn i{position:absolute;top:-2px;right:-2px;width:20px;height:20px;border-radius:5px;background:var(--shu);color:var(--shu-fg);font:700 11px/20px "Zen Kaku Gothic New";text-align:center;font-style:normal;transform:rotate(-4deg)}
+.band{margin:0 16px;padding:10px 14px;border-radius:10px;background:var(--fg);color:var(--ink);font-weight:500;display:flex;justify-content:space-between}
+.band b{font-weight:700}
+nav{display:flex;gap:22px;padding:18px 16px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+nav a{padding-bottom:12px;color:var(--muted);font-weight:500}
+nav a.on{color:var(--fg);font-weight:700;box-shadow:inset 0 -2px 0 var(--fg)}
+h2{font:700 30px/1.1 "Zen Maru Gothic";padding:22px 16px 4px}
+.sub{padding:0 16px 10px;color:var(--muted)}
+.row{display:grid;grid-template-columns:84px 1fr 44px;gap:12px;padding:14px 16px;border-top:1px solid var(--line)}
+.ph{width:84px;height:84px;border-radius:10px;background:radial-gradient(circle at 50% 55%,#3a2c25 0 32%,#26201c 33% 60%,#1f1b18 61%)}
+.nm{font:700 18px/1.2 "Zen Maru Gothic"}
+.ds{color:var(--muted);font-size:13px}
+.sz{display:flex;gap:6px;margin-top:8px}
+.sz span{flex:1;border:1px solid var(--line);border-radius:8px;padding:6px 8px;text-align:center;font-size:12px;line-height:1.25;font-variant-numeric:tabular-nums}
+.sz span b{display:block;font-size:13px}
+.sz span.on{border-color:var(--fg);background:var(--s1)}
+.seal{width:44px;height:44px;border-radius:9px;align-self:start;display:grid;place-items:center;font:700 18px "Zen Maru Gothic"}
+.seal.full{background:var(--shu);color:var(--shu-fg);transform:rotate(-5deg)}
+.seal.add{border:1px solid var(--line);color:var(--fg);font-size:24px}
+.plate{position:absolute;left:16px;right:16px;bottom:20px;height:58px;border-radius:14px;background:var(--fg);color:var(--ink);display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-weight:700;font-size:16px}
+.plate em{font-style:normal;width:28px;height:28px;border-radius:7px;background:var(--shu);color:var(--shu-fg);display:inline-grid;place-items:center;margin-right:10px;font-size:13px;transform:rotate(-4deg)}
+</style></head><body>
+<header><span class="logo">EnSushi</span><span class="cartbtn">🛍<i>3</i></span></header>
+<div class="band"><span><b>Abierto hoy</b> hasta las 23:30</span><span>Rolls hasta 20:00</span></div>
+<nav><a>Arma tu combo</a><a>Sushiburgers</a><a class="on">Combos</a><a>Salsas</a></nav>
+<h2>Combos</h2><p class="sub">Selecciones de la casa para compartir.</p>
+<div class="row"><div class="ph"></div><div><p class="nm">Combo Kanituna</p><p class="ds">Kanikama y atún.</p>
+<div class="sz"><span>15<b>$20.000</b></span><span class="on">24<b>$36.000</b></span><span>40<b>$45.000</b></span></div></div><div class="seal full">2</div></div>
+<div class="row"><div class="ph"></div><div><p class="nm">Combo Green</p><p class="ds">Mango y ciboulette.</p>
+<div class="sz"><span class="on">15<b>$22.000</b></span><span>24<b>$38.000</b></span><span>40<b>$47.000</b></span></div></div><div class="seal add">+</div></div>
+<div class="row"><div class="ph"></div><div><p class="nm">Combo Ensushi</p><p class="ds">Salmón, veggie y kanikama.</p>
+<div class="sz"><span class="on">15<b>$29.000</b></span><span>24<b>$45.000</b></span><span>40<b>$52.000</b></span></div></div><div class="seal full">1</div></div>
+<div class="row"><div class="ph"></div><div><p class="nm">Combo TunaSalm</p><p class="ds">Salmón y atún.</p>
+<div class="sz"><span class="on">15<b>$25.000</b></span><span>24<b>$42.000</b></span><span>40<b>$50.000</b></span></div></div><div class="seal add">+</div></div>
+<div class="plate"><span><em>3</em>Ver pedido</span><span>$101.000</span></div>
+</body></html>

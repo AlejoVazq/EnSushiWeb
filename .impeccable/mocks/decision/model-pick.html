@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=390">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@700&family=Figtree:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f1218;--s1:#181c25;--line:#2c3240;--fg:#efe9dd;--muted:#aab0c0;--ink:#7f93ff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:390px;height:844px;overflow:hidden;background:var(--bg);color:var(--fg);font:400 14px/1.45 Figtree,sans-serif;position:relative}
+header{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+.logo{font:700 26px "Zen Maru Gothic"}
+.st{margin:0 16px;padding:9px 12px;border:1px dashed var(--line);border-radius:8px;color:var(--fg);font:500 13px "JetBrains Mono"}
+nav{display:flex;gap:8px;padding:16px 16px 0;white-space:nowrap}
+nav a{padding:8px 12px;border-radius:8px;color:var(--muted);border:1px solid var(--line)}
+nav a.on{color:var(--fg);border-color:var(--ink)}
+h2{font:700 30px "Zen Maru Gothic";padding:20px 16px 10px}
+.row{display:grid;grid-template-columns:1fr 92px;gap:12px;padding:14px 16px;border-top:1px solid var(--line)}
+.nm{font:700 18px "Zen Maru Gothic"}
+.ds{color:var(--muted);font-size:13px}
+.pr{margin-top:8px;font:400 13px "JetBrains Mono";color:var(--fg)}
+.pr b{color:var(--ink);font-weight:600}
+.ph{width:92px;height:92px;border-radius:10px;background:radial-gradient(circle at 50% 55%,#2f3446 0 32%,#20242f 33% 60%,#191c24 61%)}
+.ticket{position:absolute;left:12px;right:12px;bottom:0;height:250px;background:var(--s1);border:1px solid var(--line);border-bottom:0;border-radius:14px 14px 0 0;padding:16px 18px;font:400 13px/1.9 "JetBrains Mono"}
+.ticket h3{font:700 20px Figtree;margin-bottom:6px;display:flex;justify-content:space-between}
+.ticket h3 small{font:500 12px "JetBrains Mono";color:var(--muted)}
+.ln{display:flex;justify-content:space-between;border-bottom:1px dashed var(--line)}
+.ln span:first-child::before{content:attr(data-n);color:var(--ink);margin-right:10px}
+.cta{margin-top:14px;height:52px;border-radius:12px;background:var(--fg);color:var(--bg);display:flex;align-items:center;justify-content:center;font:700 16px Figtree}
+</style></head><body>
+<header><span class="logo">EnSushi</span><span>🛍</span></header>
+<p class="st">Hoy · abierto hasta 23:30</p>
+<nav><a>Arma tu combo</a><a>Sushiburgers</a><a class="on">Combos</a><a>Salsas</a></nav>
+<h2>Combos</h2>
+<div class="row"><div><p class="nm">Combo Kanituna</p><p class="ds">Kanikama y atún.</p><p class="pr">15 $20.000 · <b>24 $36.000</b> · 40 $45.000</p></div><div class="ph"></div></div>
+<div class="row"><div><p class="nm">Combo Green</p><p class="ds">Mango y ciboulette.</p><p class="pr"><b>15 $22.000</b> · 24 $38.000 · 40 $47.000</p></div><div class="ph"></div></div>
+<div class="ticket"><h3>Tu pedido <small>borrador</small></h3>
+<div class="ln" data-n="01"><span>2× Combo Kanituna · 24 piezas</span><span>$72.000</span></div>
+<div class="ln" data-n="02"><span>1× SushiBurger Salmón · Crudo</span><span>$15.000</span></div>
+<div class="ln" data-n="03"><span>Subtotal</span><span>$87.000</span></div>
+<div class="cta">Seguir con el pedido</div></div>
+</body></html>

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EnSushi · decisiones del menú</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700&family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--sumi:#141210;--s1:#1d1a17;--s2:#262220;--line:#34302b;--line2:#4d463e;--washi:#f1ebe0;--muted:#b9b0a2;--shu:#c8432b;--shu-fg:#fff6ee;--salmon:#f0805a}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0b0a09;color:var(--washi);font:400 15px/1.5 Figtree,sans-serif;padding:32px 16px 80px}
+.wrap{max-width:1100px;margin:0 auto}
+h1{font:700 32px/1.15 "M PLUS Rounded 1c";margin-bottom:8px}
+.lead{color:var(--muted);max-width:680px;margin-bottom:28px}
+section{border-top:1px solid var(--line);padding:32px 0}
+h2{font:700 22px "M PLUS Rounded 1c";margin-bottom:4px}
+.q{color:var(--muted);margin-bottom:20px;max-width:720px}
+.opts{display:flex;flex-wrap:wrap;gap:28px}
+.opt{width:360px}
+.opt>b{display:block;font:700 16px "M PLUS Rounded 1c";margin-bottom:4px}
+.opt>p{color:var(--muted);font-size:13px;margin-bottom:10px;min-height:58px}
+.ph{width:360px;height:520px;background:var(--sumi);border:1px solid var(--line);border-radius:22px;overflow:hidden;position:relative}
+.shot{width:100%;display:block}
+.row{display:grid;grid-template-columns:80px 1fr;gap:14px;padding:18px 16px;border-top:1px solid var(--line)}
+.img{width:80px;height:80px;border-radius:10px;background:radial-gradient(circle at 50% 55%,#4a3a30 0 30%,#2c2520 31% 60%,#201b18 61%)}
+.nm{font:700 17px "M PLUS Rounded 1c"}.ds{font-size:13px;color:var(--muted)}
+.chips{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
+.chips span{border:1px solid var(--line);border-radius:8px;padding:5px 6px;text-align:center;font-size:11px;line-height:1.3;color:var(--muted)}
+.chips span b{display:block;font-size:13px;color:inherit}
+.chips span.on{border-color:var(--washi);background:var(--s2);color:var(--washi)}
+.act{display:flex;justify-content:flex-end;margin-top:10px}
+.plus{width:42px;height:42px;border-radius:10px;border:1px solid var(--line2);display:grid;place-items:center;font-size:22px}
+.out .img,.out .chips{opacity:.35;filter:grayscale(1)}
+.out .nm{color:var(--muted)}
+.hollow{display:inline-flex;align-items:center;height:30px;padding:0 10px;border-radius:7px;border:1.5px solid var(--muted);color:var(--washi);font-size:12px;font-weight:700;transform:rotate(-3deg)}
+.bar{position:absolute;left:12px;right:12px;bottom:14px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-weight:700}
+.bar.plate{background:var(--washi);color:var(--sumi)}
+.bar.pill{background:var(--salmon);color:#1c0f0a;border-radius:999px;font-weight:500}
+.seal{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:7px;background:var(--shu);color:var(--shu-fg);font:700 14px "M PLUS Rounded 1c";transform:rotate(-6deg);margin-right:10px}
+.note{font-size:12px;color:var(--muted);margin-top:10px}
+.gone{padding:22px 16px;border-top:1px dashed var(--line);color:var(--muted);font-size:13px;text-align:center}
+</style></head><body><div class="wrap">
+
+<h1>Menú · dos decisiones</h1>
+<p class="lead">Para cada una tenés lo que hay hoy y la alternativa del brief. La opción A de la primera es una captura real del menú nuevo; lo demás son bocetos con el mismo estilo.</p>
+
+<section><h2>1 · La barra "Ver pedido" del celu</h2>
+<p class="q">Aparece abajo cuando hay algo en el pedido y abre el carrito. Hoy sigue con el estilo viejo (pastilla salmón), que choca con el bermellón de los sellos. ¿La cambio ahora junto con el menú o espera a la Fase 7, con el carrito?</p>
+<div class="opts">
+<div class="opt"><b>A · Esperar a la Fase 7 (como está hoy)</b><p>El menú nuevo con la pastilla salmón vieja: dos rojos distintos en la misma pantalla hasta que se rehaga el carrito.</p>
+<div class="ph"><img class="shot" src="../../review/mobile-incart.png" alt="Captura del menú nuevo con la barra salmón vieja" style="margin-top:-640px"></div></div>
+<div class="opt"><b>B · Cambiarla ahora</b><p>La placa crema del brief: el sello bermellón con la cantidad, "Ver pedido" y el total. Es solo el estilo; la barra hace lo mismo. Toca un archivo más (FloatingCartBar).</p>
+<div class="ph">
+<div class="row"><div class="img"></div><div><p class="nm">Combo Kanituna</p><p class="ds">Kanikama y atún.</p><div class="chips"><span class="on">15 piezas<b>$ 20.000</b></span><span>24 piezas<b>$ 36.000</b></span><span>40 piezas<b>$ 45.000</b></span></div></div></div>
+<div class="row"><div class="img"></div><div><p class="nm">Combo Green</p><p class="ds">Mango y ciboulette.</p><div class="chips"><span class="on">15 piezas<b>$ 22.000</b></span><span>24 piezas<b>$ 38.000</b></span><span>40 piezas<b>$ 47.000</b></span></div></div></div>
+<div class="bar plate"><span><span class="seal">3</span>Ver pedido</span><span>$ 62.000</span></div></div></div>
+</div></section>
+
+<section><h2>2 · Productos agotados</h2>
+<p class="q">Hoy, si un producto se marca como no disponible en el menú, desaparece de la lista. El brief proponía que quede en su lugar, desteñido. Para eso hay que tocar <code>src/data/menu.ts</code> (la función que arma la lista), así que no lo hice sin preguntarte.</p>
+<div class="opts">
+<div class="opt"><b>A · Como hoy: desaparece</b><p>El cliente no ve el producto. Es más simple, pero alguien que siempre pide ese combo puede pensar que lo sacaron de la carta.</p>
+<div class="ph">
+<div class="row"><div class="img"></div><div><p class="nm">Combo Ensushi</p><p class="ds">Salmón, veggie y kanikama.</p><div class="chips"><span class="on">15 piezas<b>$ 29.000</b></span><span>24 piezas<b>$ 45.000</b></span><span>40 piezas<b>$ 52.000</b></span></div><div class="act"><span class="plus">+</span></div></div></div>
+<div class="gone">(Combo Salmón no aparece)</div>
+<div class="row"><div class="img"></div><div><p class="nm">Combo Ocean Duo</p><p class="ds">Salmón y langostinos.</p><div class="chips"><span class="on">15 piezas<b>$ 31.000</b></span><span>24 piezas<b>$ 50.000</b></span><span>40 piezas<b>$ 60.000</b></span></div><div class="act"><span class="plus">+</span></div></div></div></div></div>
+<div class="opt"><b>B · Queda en su lugar, desteñido</b><p>Foto y tamaños apagados, sin "+", con un sello hueco "Agotado hoy". El cliente sabe que existe y que hoy no hay. Sirve también para cuando la app del local marque agotados en vivo.</p>
+<div class="ph">
+<div class="row"><div class="img"></div><div><p class="nm">Combo Ensushi</p><p class="ds">Salmón, veggie y kanikama.</p><div class="chips"><span class="on">15 piezas<b>$ 29.000</b></span><span>24 piezas<b>$ 45.000</b></span><span>40 piezas<b>$ 52.000</b></span></div><div class="act"><span class="plus">+</span></div></div></div>
+<div class="row out"><div class="img"></div><div><p class="nm">Combo Salmón</p><p class="ds">Salmón.</p><div class="chips"><span>15 piezas<b>$ 34.000</b></span><span>24 piezas<b>$ 53.000</b></span><span>40 piezas<b>$ 64.000</b></span></div><div class="act"><span class="hollow">Agotado hoy</span></div></div></div>
+<div class="row"><div class="img"></div><div><p class="nm">Combo Ocean Duo</p><p class="ds">Salmón y langostinos.</p><div class="chips"><span class="on">15 piezas<b>$ 31.000</b></span><span>24 piezas<b>$ 50.000</b></span><span>40 piezas<b>$ 60.000</b></span></div><div class="act"><span class="plus">+</span></div></div></div></div>
+<p class="note">Los productos que no van ese día de la semana (availableDays) seguirían sin mostrarse: esto es solo para los marcados como no disponibles.</p></div>
+</div></section>
+
+</div></body></html>

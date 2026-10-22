@@ -9,7 +9,9 @@
   "buildPath": "code",
   "detector": {
     "ignoreRules": [],
-    "ignoreFiles": [],
+    "ignoreFiles": [
+      ".impeccable/mocks/**"
+    ],
     "ignoreValues": [
       {
         "rule": "overused-font",

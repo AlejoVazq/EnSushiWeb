@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=390">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#121212;--s1:#1e1e1e;--line:#2c2c2c;--fg:#f2f2f2;--muted:#a8a8a8;--br:#ff5a36}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:390px;height:844px;overflow:hidden;background:var(--bg);color:var(--fg);font:400 14px/1.4 Roboto,sans-serif;position:relative}
+header{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+.logo{font:700 22px Roboto}
+.hero{margin:0 16px;height:140px;border-radius:12px;background:linear-gradient(135deg,#3b2a24,#1e1e1e)}
+nav{display:flex;gap:8px;padding:16px;white-space:nowrap}
+nav a{padding:8px 14px;border-radius:999px;background:var(--s1);color:var(--muted)}
+nav a.on{background:var(--fg);color:var(--bg);font-weight:500}
+h2{font:700 22px Roboto;padding:4px 16px 8px}
+.row{display:grid;grid-template-columns:1fr 96px;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.nm{font:500 16px Roboto}.ds{color:var(--muted);font-size:13px}.pr{margin-top:8px;font-weight:500}
+.ph{width:96px;height:96px;border-radius:10px;background:#2a2a2a;position:relative}
+.ph::after{content:"+";position:absolute;right:-6px;bottom:-6px;width:32px;height:32px;border-radius:50%;background:var(--fg);color:var(--bg);display:grid;place-items:center;font:700 20px Roboto}
+.fab{position:absolute;left:16px;right:16px;bottom:20px;height:54px;border-radius:12px;background:var(--br);color:#1a0b06;display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-weight:700}
+</style></head><body>
+<header><span class="logo">EnSushi</span><span>🛍</span></header>
+<div class="hero"></div>
+<nav><a>Arma tu combo</a><a>Sushiburgers</a><a class="on">Combos</a><a>Salsas</a></nav>
+<h2>Combos</h2>
+<div class="row"><div><p class="nm">Combo Kanituna</p><p class="ds">Kanikama y atún.</p><p class="pr">desde $20.000</p></div><div class="ph"></div></div>
+<div class="row"><div><p class="nm">Combo Green</p><p class="ds">Mango y ciboulette.</p><p class="pr">desde $22.000</p></div><div class="ph"></div></div>
+<div class="row"><div><p class="nm">Combo Ensushi</p><p class="ds">Salmón, veggie y kanikama.</p><p class="pr">desde $29.000</p></div><div class="ph"></div></div>
+<div class="row"><div><p class="nm">Combo TunaSalm</p><p class="ds">Salmón y atún.</p><p class="pr">desde $25.000</p></div><div class="ph"></div></div>
+<div class="fab"><span>3 · Ver pedido</span><span>$87.000</span></div>
+</body></html>

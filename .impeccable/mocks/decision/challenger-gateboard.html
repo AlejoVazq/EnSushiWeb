@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=390">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Barlow:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e0f11;--s1:#17191c;--line:#2a2d32;--fg:#ece7dc;--muted:#a9a69f;--amb:#e3a13b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:390px;height:844px;overflow:hidden;background:var(--bg);color:var(--fg);font:400 14px/1.4 Barlow,sans-serif;position:relative;font-variant-numeric:tabular-nums}
+header{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--line)}
+.logo{font:700 26px "Barlow Condensed"}
+.clock{font:500 15px "Barlow Condensed";color:var(--muted)}
+nav{display:flex;padding:0 16px;border-bottom:1px solid var(--line);white-space:nowrap}
+nav a{padding:14px 10px;color:var(--muted);font:500 15px "Barlow Condensed";text-transform:uppercase;letter-spacing:.04em}
+nav a.on{color:var(--fg);box-shadow:inset 0 -3px 0 var(--fg)}
+.hd{display:grid;grid-template-columns:1fr 54px 80px;padding:14px 16px 6px;color:var(--muted);font:500 12px "Barlow Condensed";text-transform:uppercase;letter-spacing:.06em}
+.row{display:grid;grid-template-columns:56px 1fr 54px 80px;gap:10px;align-items:center;padding:12px 16px;border-top:1px solid var(--line)}
+.ph{width:56px;height:56px;border-radius:6px;background:#22252a}
+.nm{font:700 20px "Barlow Condensed"}
+.ds{font-size:12px;color:var(--muted)}
+.pz,.pr{font:500 17px "Barlow Condensed";text-align:right}
+.row.chg{box-shadow:inset 3px 0 0 var(--amb);background:var(--s1)}
+.row.chg .tag{color:var(--amb);font:700 12px "Barlow Condensed";text-transform:uppercase;letter-spacing:.06em}
+.row.chg .nm,.row.chg .pr{color:var(--muted)}
+.pass{position:absolute;left:12px;right:12px;bottom:16px;height:120px;border-radius:12px;background:var(--fg);color:var(--bg);display:grid;grid-template-columns:1fr 1fr 1fr;overflow:hidden}
+.pass div{padding:14px 12px;border-right:1px dashed #9a958b}
+.pass div:last-child{border:0;background:#d9d3c6}
+.pass small{display:block;font:500 11px "Barlow Condensed";text-transform:uppercase;letter-spacing:.08em;color:#5d5a54}
+.pass b{font:700 24px "Barlow Condensed"}
+</style></head><body>
+<header><span class="logo">EnSushi</span><span class="clock">VIE · ABIERTO → 23:30</span></header>
+<nav><a>Arma tu combo</a><a>Burgers</a><a class="on">Combos</a><a>Salsas</a></nav>
+<div class="hd" style="padding-left:82px"><span>Producto</span><span style="text-align:right">Piezas</span><span style="text-align:right">Precio</span></div>
+<div class="row"><div class="ph"></div><div><p class="nm">Combo Kanituna</p><p class="ds">Kanikama y atún.</p></div><span class="pz">24</span><span class="pr">$36.000</span></div>
+<div class="row"><div class="ph"></div><div><p class="nm">Combo Green</p><p class="ds">Mango y ciboulette.</p></div><span class="pz">15</span><span class="pr">$22.000</span></div>
+<div class="row chg"><div class="ph"></div><div><p class="nm">Combo Salmón</p><p class="tag">Agotado hoy</p></div><span class="pz">—</span><span class="pr">$34.000</span></div>
+<div class="row"><div class="ph"></div><div><p class="nm">Combo Ensushi</p><p class="ds">Salmón, veggie y kanikama.</p></div><span class="pz">40</span><span class="pr">$52.000</span></div>
+<div class="row"><div class="ph"></div><div><p class="nm">Combo Ocean Duo</p><p class="ds">Salmón y langostinos.</p></div><span class="pz">15</span><span class="pr">$31.000</span></div>
+<div class="pass"><div><small>Pedido</small><b>3 líneas</b></div><div><small>Subtotal</small><b>$87.000</b></div><div><small>Siguiente</small><b>Ver →</b></div></div>
+</body></html>

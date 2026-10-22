@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EnSushi · decisiones</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=M+PLUS+Rounded+1c:wght@500;700&family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#141210;--s1:#1d1a17;--s2:#262220;--line:#34302b;--fg:#f1ebe0;--muted:#b9b0a2;--shu:#c8432b;--shu-fg:#fff6ee;--err:#e8768f}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0b0a09;color:var(--fg);font:400 15px/1.5 "Zen Kaku Gothic New",sans-serif;padding:32px 16px 80px}
+.wrap{max-width:1100px;margin:0 auto}
+h1{font:700 34px/1.15 "Zen Maru Gothic";margin-bottom:8px}
+.lead{color:var(--muted);max-width:680px;margin-bottom:28px}
+section{border-top:1px solid var(--line);padding:32px 0}
+h2{font:700 24px "Zen Maru Gothic";margin-bottom:4px}
+.q{color:var(--muted);margin-bottom:20px;max-width:720px}
+.opts{display:flex;flex-wrap:wrap;gap:24px}
+.opt{width:340px}
+.opt>b{display:block;font:700 16px "Zen Maru Gothic";margin-bottom:4px}
+.opt>p{color:var(--muted);font-size:13px;margin-bottom:10px;min-height:40px}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;background:var(--fg);color:var(--ink);margin-left:6px;vertical-align:2px}
+.ph{width:340px;background:var(--ink);border:1px solid var(--line);border-radius:22px;overflow:hidden;position:relative}
+.hd{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 14px}
+.logo{font:700 22px "Zen Maru Gothic"}
+.cb{width:36px;height:36px;border-radius:50%;border:1px solid var(--line)}
+.band{margin:0 14px;padding:8px 12px;border-radius:9px;background:var(--fg);color:var(--ink);font-size:13px;font-weight:500}
+.nav{display:flex;gap:18px;padding:14px 14px 0;border-bottom:1px solid var(--line);font-size:13px;white-space:nowrap;overflow:hidden}
+.nav a{padding-bottom:10px;color:var(--muted)}.nav a.on{color:var(--fg);font-weight:700;box-shadow:inset 0 -2px 0 var(--fg)}
+.row{display:grid;grid-template-columns:64px 1fr auto;gap:10px;padding:12px 14px;border-top:1px solid var(--line);align-items:start}
+.img{width:64px;height:64px;border-radius:9px;background:radial-gradient(circle at 50% 55%,#3a2c25 0 32%,#26201c 33% 60%,#1f1b18 61%)}
+.nm{font:700 16px "Zen Maru Gothic"}.ds{font-size:12px;color:var(--muted)}
+.seal{width:40px;height:40px;border-radius:9px;display:grid;place-items:center;font:700 16px "Zen Maru Gothic";background:var(--shu);color:var(--shu-fg);transform:rotate(-5deg)}
+.hero1{padding:6px 14px 12px}.hero1 h3{font:700 20px/1.2 "Zen Maru Gothic"}.hero1 p{font-size:12px;color:var(--muted)}
+.foot{padding:16px 14px;border-top:1px solid var(--line)}
+.foot h3{font:700 18px/1.2 "Zen Maru Gothic"}.foot p{font-size:12px;color:var(--muted)}
+.fade{height:40px;background:linear-gradient(transparent,var(--ink))}
+.line{display:flex;justify-content:space-between;padding:10px 14px;border-top:1px solid var(--line);font-size:14px;font-variant-numeric:tabular-nums}
+.tot{padding:12px 14px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums}
+.tot .r{display:flex;justify-content:space-between;font-weight:700;font-size:17px}
+.tot small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.plate{margin:12px 14px 14px;height:48px;border-radius:12px;background:var(--fg);color:var(--ink);display:flex;align-items:center;justify-content:center;font-weight:700}
+.step{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--s1)}
+.step span{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--s2);font-weight:700}
+.step span.off{opacity:.35}
+.step em{font-style:normal;min-width:18px;text-align:center;font-weight:700}
+.trash{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font-size:15px}
+.field{padding:14px}.field label{display:block;font-size:13px;font-weight:500;margin-bottom:6px}
+.field .in{height:46px;border-radius:10px;background:var(--s1);border:1.5px solid;padding:0 12px;display:flex;align-items:center;font-size:15px}
+.field .msg{font-size:12px;margin-top:6px}
+.chosen{border-color:var(--shu)}
+.typo{padding:16px 14px}
+.typo .t{font-size:24px;line-height:1.2;margin-bottom:6px}
+.typo .b{font-size:14px;color:var(--muted)}
+.typo .n{font-size:20px;margin-top:8px;font-variant-numeric:tabular-nums}
+iframe{border:1px solid var(--line);border-radius:22px;width:390px;height:844px;display:block}
+.ref{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start}
+.ref ul{max-width:420px;color:var(--muted);padding-left:18px}.ref li{margin-bottom:8px}.ref li b{color:var(--fg)}
+</style></head><body><div class="wrap">
+
+<h1>Sello y sumi · decisiones abiertas</h1>
+<p class="lead">Así se vería la dirección elegida, con texto real. Abajo tenés las cinco decisiones, cada una con sus opciones dibujadas. Anotá la letra que preferís en cada una (por ejemplo: 1A, 2B, 3B, 4B, 5A).</p>
+
+<section><h2>Referencia: el primer viewport en el celu</h2>
+<div class="ref"><iframe src="assigned.html" title="Boceto Sello y sumi"></iframe>
+<ul>
+<li><b>Banda crema arriba:</b> si hoy se puede pedir y hasta qué hora.</li>
+<li><b>Pestañas de texto:</b> la activa va subrayada en crema.</li>
+<li><b>Filas en vez de tarjetas:</b> los tres tamaños con su precio a la vista.</li>
+<li><b>El sello:</b> el "+" pasa a sello bermellón con la cantidad cuando el producto está en tu pedido. Es el único rojo de la pantalla.</li>
+<li><b>Placa crema abajo:</b> la acción principal ("Ver pedido").</li>
+<li>Las fotos son placeholders: van las de la serie nueva.</li>
+</ul></div></section>
+
+<section><h2>1 · El texto de portada</h2>
+<p class="q">Hoy: "Pedidos online / Sushi de autor, directo a tu casa. / Elegí del menú o armá tu propio combo…", que ocupa casi todo el primer viewport. ¿Dónde va?</p>
+<div class="opts">
+<div class="opt"><b>A · Una línea arriba</b><p>El título chico arriba de la banda. Se ve al entrar y los productos arrancan igual en la primera pantalla.</p>
+<div class="ph"><div class="hd"><span class="logo">EnSushi</span><span class="cb"></span></div>
+<div class="hero1"><h3>Sushi de autor, directo a tu casa.</h3><p>Elegí del menú o armá tu propio combo, y mandanos el pedido por WhatsApp.</p></div>
+<div class="band"><b>Abierto hoy</b> hasta las 23:30</div>
+<div class="nav"><a>Arma tu combo</a><a>Sushiburgers</a><a class="on">Combos</a><a>Salsas</a></div>
+<div class="row"><div class="img"></div><div><p class="nm">Combo Kanituna</p><p class="ds">Kanikama y atún.</p></div><div class="seal">2</div></div>
+<div class="row"><div class="img"></div><div><p class="nm">Combo Green</p><p class="ds">Mango y ciboulette.</p></div><div class="seal" style="background:none;border:1px solid var(--line);color:var(--fg)">+</div></div></div></div>
+<div class="opt"><b>B · Al pie de la página</b><p>Se abre directo en el menú; el texto queda al final, después de los productos.</p>
+<div class="ph"><div class="hd"><span class="logo">EnSushi</span><span class="cb"></span></div>
+<div class="band"><b>Abierto hoy</b> hasta las 23:30</div>
+<div class="nav"><a>Arma tu combo</a><a>Sushiburgers</a><a class="on">Combos</a><a>Salsas</a></div>
+<div class="row"><div class="img"></div><div><p class="nm">Combo Kanituna</p><p class="ds">Kanikama y atún.</p></div><div class="seal">2</div></div>
+<div class="row"><div class="img"></div><div><p class="nm">Combo Green</p><p class="ds">Mango y ciboulette.</p></div><div class="seal" style="background:none;border:1px solid var(--line);color:var(--fg)">+</div></div>
+<div class="fade"></div>
+<div class="foot"><h3>Sushi de autor, directo a tu casa.</h3><p>Elegí del menú o armá tu propio combo, y mandanos el pedido por WhatsApp.</p></div></div></div>
+</div></section>
+
+<section><h2>2 · Textos del carrito</h2>
+<p class="q">Hoy el carrito dice "Total", pero si después elegís envío se suman $3.000. ¿Lo cambio?</p>
+<div class="opts">
+<div class="opt"><b>A · Como hoy</b><p>"Total" y "Continuar con el pedido". El envío aparece recién en el checkout.</p>
+<div class="ph"><div class="hd"><span class="logo" style="font-size:20px">Tu pedido</span></div>
+<div class="line"><span>2× Combo Kanituna · 24 piezas</span><span>$72.000</span></div>
+<div class="line"><span>1× SushiBurger Salmón · Crudo</span><span>$15.000</span></div>
+<div class="tot"><div class="r"><span>Total</span><span>$87.000</span></div></div>
+<div class="plate">Continuar con el pedido</div></div></div>
+<div class="opt"><b>B · Subtotal y aviso de envío <span class="tag">critique</span></b><p>"Subtotal" y debajo, en gris legible, cuánto suma el envío. Nada cambia de golpe en el checkout.</p>
+<div class="ph"><div class="hd"><span class="logo" style="font-size:20px">Tu pedido</span></div>
+<div class="line"><span>2× Combo Kanituna · 24 piezas</span><span>$72.000</span></div>
+<div class="line"><span>1× SushiBurger Salmón · Crudo</span><span>$15.000</span></div>
+<div class="tot"><div class="r"><span>Subtotal</span><span>$87.000</span></div><small>Si elegís envío a domicilio, se suman $3.000.</small></div>
+<div class="plate">Continuar con el pedido</div></div></div>
+</div></section>
+
+<section><h2>3 · El botón de menos en el menú</h2>
+<p class="q">Con 1 unidad en el pedido, ¿qué pasa con el menos en la fila del menú?</p>
+<div class="opts">
+<div class="opt"><b>A · Como hoy</b><p>En 1 el menos se vuelve tacho: un toque de más saca el producto del pedido.</p>
+<div class="ph"><div class="row" style="border:0"><div class="img"></div><div><p class="nm">Combo Kanituna</p><p class="ds">24 piezas · $36.000</p></div></div>
+<div style="padding:0 14px 16px;display:flex;justify-content:flex-end"><div class="step"><span>🗑</span><em>1</em><span>+</span></div></div></div></div>
+<div class="opt"><b>B · Borrar solo en el carrito <span class="tag">critique</span></b><p>En 1 el menos queda apagado. Para sacarlo, desde el carrito, donde el tacho va separado de la cantidad.</p>
+<div class="ph"><div class="row" style="border:0"><div class="img"></div><div><p class="nm">Combo Kanituna</p><p class="ds">24 piezas · $36.000</p></div></div>
+<div style="padding:0 14px 16px;display:flex;justify-content:flex-end"><div class="step"><span class="off">−</span><em>1</em><span>+</span></div></div>
+<div class="line" style="align-items:center"><span>En el carrito →</span><span style="display:flex;gap:8px;align-items:center"><span class="step"><span>−</span><em>1</em><span>+</span></span><span class="trash">🗑</span></span></div></div></div>
+</div></section>
+
+<section><h2>4 · Color de error en los campos</h2>
+<p class="q">Cuando falta el nombre o la dirección. El bermellón hoy significa "en tu pedido".</p>
+<div class="opts">
+<div class="opt"><b>A · Bermellón</b><p>El mismo rojo del sello. Hay un color menos, pero el rojo pasa a tener dos significados.</p>
+<div class="ph"><div class="field"><label>Nombre</label><div class="in" style="border-color:var(--shu)"></div><p class="msg" style="color:#e2694f">Escribí tu nombre para que el local sepa de quién es el pedido.</p></div>
+<div class="row"><div class="img"></div><div><p class="nm">Combo Kanituna</p><p class="ds">Kanikama y atún.</p></div><div class="seal">2</div></div></div></div>
+<div class="opt"><b>B · Rosa frío, solo para errores</b><p>Un tono aparte que no se confunde con el sello y aparece solo en el borde y el mensaje del campo.</p>
+<div class="ph"><div class="field"><label>Nombre</label><div class="in" style="border-color:var(--err)"></div><p class="msg" style="color:var(--err)">Escribí tu nombre para que el local sepa de quién es el pedido.</p></div>
+<div class="row"><div class="img"></div><div><p class="nm">Combo Kanituna</p><p class="ds">Kanikama y atún.</p></div><div class="seal">2</div></div></div></div>
+</div></section>
+
+<section><h2>5 · Tipografías</h2>
+<p class="q">Las dos son góticas redondeadas, parientes del logo. Fijate en los acentos, la ñ y las cifras.</p>
+<div class="opts">
+<div class="opt"><b>A · Zen Maru Gothic + Zen Kaku Gothic New</b><p>La del boceto. Más suave y japonesa en el ritmo.</p>
+<div class="ph"><div class="typo"><p class="t" style="font-family:'Zen Maru Gothic';font-weight:700">Arma tu combo · Salmón ñandú</p>
+<p class="b" style="font-family:'Zen Kaku Gothic New'">Rolls y nigiris hasta las 20:00. Envío a domicilio, Retiro en el local. Transferencia / Mercado Pago.</p>
+<p class="n" style="font-family:'Zen Kaku Gothic New';font-weight:700">$20.000 · $36.000 · $45.000</p></div></div></div>
+<div class="opt"><b>B · M PLUS Rounded 1c + Figtree</b><p>Más redonda en los títulos y más occidental y neutra en el texto.</p>
+<div class="ph"><div class="typo"><p class="t" style="font-family:'M PLUS Rounded 1c';font-weight:700">Arma tu combo · Salmón ñandú</p>
+<p class="b" style="font-family:Figtree">Rolls y nigiris hasta las 20:00. Envío a domicilio, Retiro en el local. Transferencia / Mercado Pago.</p>
+<p class="n" style="font-family:Figtree;font-weight:700">$20.000 · $36.000 · $45.000</p></div></div></div>
+</div></section>
+
+</div></body></html>
