@@ -44,6 +44,36 @@ export const BagIcon = (props: IconProps) => (
   </svg>
 );
 
+/** Retiro en el local */
+export const StoreIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M4 9 5.5 4h13L20 9M4 9h16M5 9v11h14V9M10 20v-5h4v5" />
+  </svg>
+);
+
+/** Envío a domicilio */
+export const HomeIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="m4 11 8-7 8 7M6 9.5V20h12V9.5M10 20v-5h4v5" />
+  </svg>
+);
+
+/** Efectivo */
+export const CashIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <rect x="3" y="6.5" width="18" height="11" rx="1.5" />
+    <circle cx="12" cy="12" r="2.5" />
+  </svg>
+);
+
+/** Transferencia / Mercado Pago */
+export const PhoneIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <rect x="7" y="3" width="10" height="18" rx="2" />
+    <path d="M11 17.5h2" />
+  </svg>
+);
+
 export const CheckIcon = (props: IconProps) => (
   <svg {...base} {...props}>
     <path d="m5 12 5 5L20 7" />

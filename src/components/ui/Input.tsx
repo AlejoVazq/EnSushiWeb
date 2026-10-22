@@ -18,7 +18,7 @@ export function Input({ label, hint, error, id, className, ...props }: InputProp
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={inputId} className="text-sm font-medium text-fg">
+      <label htmlFor={inputId} className="text-sm font-bold text-washi">
         {label}
       </label>
       <input
@@ -27,15 +27,15 @@ export function Input({ label, hint, error, id, className, ...props }: InputProp
         aria-describedby={message ? messageId : undefined}
         className={cn(
           // text-base keeps iOS from zooming in on focus
-          'h-12 rounded-xl border bg-surface px-4 text-base text-fg transition-colors placeholder:text-muted',
-          'focus:border-accent focus:outline-none',
-          error ? 'border-danger' : 'border-line',
+          'h-12 rounded-xl border bg-sumi-1 px-4 text-base text-washi caret-washi transition-colors placeholder:text-washi-muted',
+          'focus:border-washi focus:outline-2 focus:outline-offset-2 focus:outline-washi',
+          error ? 'border-error' : 'border-field-edge',
           className,
         )}
         {...props}
       />
       {message && (
-        <p id={messageId} className={cn('text-sm', error ? 'text-danger' : 'text-muted')}>
+        <p id={messageId} className={cn('text-sm', error ? 'font-medium text-error' : 'text-washi-muted')}>
           {message}
         </p>
       )}

@@ -43,7 +43,7 @@ export function Shop() {
 
   return (
     <>
-      <div className="flex flex-1 flex-col bg-sumi font-ui text-washi selection:bg-washi selection:text-sumi">
+      <div className="flex flex-1 flex-col">
         <SiteHeader onOpenCart={() => setCartOpen(true)} />
 
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-16 sm:px-6">

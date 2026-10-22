@@ -11,6 +11,8 @@ colors:
   washi-muted: "#b9b0a2"
   shu: "#c8432b"
   shu-fg: "#fff6ee"
+  field-edge: "#7a7268"
+  error: "#e8768f"
 typography:
   headline:
     fontFamily: "M PLUS Rounded 1c, ui-rounded, system-ui, sans-serif"
@@ -160,17 +162,21 @@ Una paleta de tinta y papel: negros cálidos con un dejo marrón, crema de papel
 - **Bermellón de Sello** (`shu`): el sello. Contador del carrito en el header, sello con la cantidad en el stepper de cada fila, sello chico con la cantidad sobre cada chip de tamaño u opción que está en el pedido, y sello de la placa "Ver pedido". Nada más: ni botones, ni avisos, ni foco, ni texto suelto. Sobre la tinta llega a 3.8:1, así que nunca se usa para texto sobre `sumi`.
 - **Papel sobre Sello** (`shu-fg`): la cifra dentro del sello (4.6:1 sobre `shu`).
 
+### Secondary
+- **Rosa Frío** (`error`): solo errores de campos: el borde del campo o de las opciones sin elegir y el mensaje debajo (6.6:1 sobre `sumi`). Es frío a propósito, para que nunca se confunda con el sello.
+
 ### Neutral
 - **Tinta Sumi** (`sumi`): fondo de la página, del header y de la barra de pestañas (estas dos al 90% con desenfoque) y del degradado detrás de la placa flotante.
 - **Sumi Lavada** (`sumi-1`): hover del botón "+" y del botón del carrito; esqueletos de carga.
 - **Sumi Cargada** (`sumi-2`): fondo del chip seleccionado, de la foto mientras carga y hover de los botones del stepper.
 - **Filete** (`hairline`): borde de 1px de header, pestañas, divisores entre filas, chips en reposo y etiquetas.
-- **Filete Marcado** (`hairline-strong`): borde del botón "+" en reposo y hover de los chips.
+- **Filete Marcado** (`hairline-strong`): borde del botón "+" en reposo, de los botones contorneados, de las opciones de Entrega y Pago, y hover de los chips.
+- **Borde de Campo** (`field-edge`): borde de los campos de texto (3.95:1 sobre `sumi`, por encima del 3:1 que pide un control). Solo bordes, nunca texto.
 - **Papel Washi** (`washi`): texto principal, nombres, precios, pestaña activa y su subrayado, borde del chip seleccionado, foco visible. Es también el fondo de la banda de estado y de la placa "Ver pedido".
 - **Papel Gastado** (`washi-muted`): descripciones, pestañas inactivas, chips en reposo, etiquetas, botones del stepper y todo lo agotado. Pasa AA en las tres capas (8.7:1 sobre `sumi`, 7.4:1 sobre `sumi-2`).
 
 ### Named Rules
-**La Regla del Sello.** El bermellón significa "en tu pedido" y solo eso. Si algo es rojo y no muestra una cantidad que está en el pedido, está mal. No hay un segundo color saturado.
+**La Regla del Sello.** El bermellón significa "en tu pedido" y solo eso. Si algo es rojo y no muestra una cantidad que está en el pedido, está mal. El único otro color saturado es el rosa frío de los errores de campos.
 
 **La Regla de los Dos Papeles.** Hay dos niveles de texto, `washi` y `washi-muted`, y los dos pasan AA sobre todas las superficies. No existe un tercer gris para texto: los filetes son para bordes, nunca para letras.
 
@@ -259,8 +265,16 @@ El armado de la caja, dentro de la pestaña. Arriba, el selector de caja: cinco 
 - **Barra del armado:** es la placa crema de esta pantalla y reemplaza a "Ver pedido" mientras hay una caja en curso. Va pegada al pie (en escritorio, hasta 576px y a la derecha) y muestra "Caja de 20 · 15 de 20", el total y una barrita de progreso `sumi` sobre `sumi` al 15%. Su botón es `sumi` lleno cuando hay una acción ("Agregar · $ X", "Guardar · $ X", "Ver pedido") y contorneado con texto `sumi` a contraste completo cuando informa ("Faltan 5 piezas", "Hasta las 20:00"): deshabilitado no quiere decir ilegible.
 - **Pasado el corte:** rolls y nigiris desteñidos con el sello hueco "Hasta las 20:00", chips de caja apagados y un aviso con filete `hairline-strong` arriba del selector.
 
-### Transición
-El carrito y el checkout todavía usan el sistema anterior hasta la Fase 7 (el carrito ya suma el botón "Editar" de las cajas en ese estilo): en `src/app/globals.css` siguen `canvas`, `surface`, `surface-2`, `line`, `line-strong`, `fg`, `muted`, `subtle`, `accent`, `accent-strong`, `accent-fg` y `danger`, con Geist (`font-sans`) y Cormorant Garamond (`font-display`). Son legado: no se usan en trabajo nuevo y se borran cuando esas pantallas pasen a Sello y sumi. Para los errores de campos ya está decidido un rosa frío propio, distinto del bermellón; todavía no existe como token.
+### Checkout
+Una sola columna en el celular y dos desde `lg` (formulario a la izquierda, resumen pegado a la derecha). El orden es: Tus datos, "¿Cómo lo recibís?", "¿Cómo pagás?", la línea "Para hoy", y al final el total y la placa "Enviar pedido por WhatsApp".
+- **Opciones de Entrega y Pago:** dos opciones grandes del mismo tamaño, lado a lado también en el celular (128px de alto como mínimo, 12px de radio): ícono de línea, nombre en 700 y una ayuda en `washi-muted`. Seleccionada: borde `washi`, fondo `sumi-2` y un tilde arriba a la derecha (la selección no es solo color). Con error, borde rosa frío.
+- **Total arriba del botón (celular):** un bloque con filete que muestra Subtotal / Envío / Total cuando hay envío, solo Total con retiro, y "Si elegís envío a domicilio, se suman $ X." si todavía no eligió.
+- **Retiro:** la dirección del local en un bloque con filete. **Transferencia:** el aviso de no transferir todavía, con filete `hairline-strong` y texto `washi`.
+
+### Inputs / Fields
+- **Style:** 48px de alto, fondo `sumi-1`, borde `field-edge`, 12px de radio y texto de 16px (para que iOS no haga zoom). El label va arriba en 14px/700 y la ayuda abajo en `washi-muted`.
+- **Focus:** borde `washi` y contorno de 2px en `washi`, separado 2px.
+- **Error:** borde y mensaje en `error`, con `aria-invalid` y el mensaje vinculado por `aria-describedby`.
 
 ## Do's and Don'ts
 
@@ -282,4 +296,4 @@ El carrito y el checkout todavía usan el sistema anterior hasta la Fase 7 (el c
 - **Don't** usar sombras en filas, chips o bandas (La Regla de lo que Flota).
 - **Don't** usar blanco puro para texto ni fondos; el texto es `washi`.
 - **Don't** agregar una variante clara del tema.
-- **Don't** usar los tokens del sistema anterior (`accent`, `canvas`, `subtle`…) ni Cormorant o Geist en pantallas nuevas.
+- **Don't** usar el rosa frío fuera de los errores de campos, ni el bermellón para errores.

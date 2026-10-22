@@ -6,6 +6,7 @@ interface ScheduleNoticesProps {
   className?: string;
 }
 
+/** Schedule notices as crema bands, like the menu's status band; the blocking one is an alert */
 export function ScheduleNotices({ notices, className }: ScheduleNoticesProps) {
   if (notices.length === 0) return null;
 
@@ -16,8 +17,8 @@ export function ScheduleNotices({ notices, className }: ScheduleNoticesProps) {
           key={notice.message}
           role={notice.tone === 'error' ? 'alert' : 'status'}
           className={cn(
-            'rounded-xl border p-3 text-sm leading-relaxed',
-            notice.tone === 'error' ? 'border-danger/40 bg-danger/10' : 'border-accent/40 bg-accent/10',
+            'rounded-xl bg-washi px-4 py-3 text-sm leading-relaxed text-pretty text-sumi',
+            notice.tone === 'error' ? 'font-bold' : 'font-medium',
           )}
         >
           {notice.message}

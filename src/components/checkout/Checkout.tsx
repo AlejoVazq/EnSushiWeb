@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ComponentType, type FormEvent, type ReactNode, type SVGProps } from 'react';
 
-import { Button, buttonClassName } from '@/components/ui/Button';
 import { ScheduleNotices } from '@/components/shop/ScheduleNotices';
+import { Button, buttonClassName } from '@/components/ui/Button';
+import { CashIcon, CheckIcon, HomeIcon, PhoneIcon, StoreIcon } from '@/components/ui/icons';
 import { Input } from '@/components/ui/Input';
 import { BUSINESS, DELIVERY_METHOD_LABELS, PAYMENT_METHOD_LABELS } from '@/config/business';
 import { useCartHydrated } from '@/hooks/useCartHydration';
@@ -30,20 +31,22 @@ import type { DeliveryMethod, PaymentMethod } from '@/types';
 import { OrderSummary } from './OrderSummary';
 
 const DELIVERY_OPTIONS: readonly ChoiceOption<DeliveryMethod>[] = [
-  { value: 'pickup', label: DELIVERY_METHOD_LABELS.pickup, description: 'Lo pasás a buscar por el local.' },
+  { value: 'pickup', label: DELIVERY_METHOD_LABELS.pickup, description: 'Lo pasás a buscar por el local.', icon: StoreIcon },
   {
     value: 'delivery',
     label: DELIVERY_METHOD_LABELS.delivery,
     description: `Te lo llevamos a tu dirección. Envío: ${formatPrice(BUSINESS.delivery.fee)}.`,
+    icon: HomeIcon,
   },
 ];
 
 const PAYMENT_OPTIONS: readonly ChoiceOption<PaymentMethod>[] = [
-  { value: 'cash', label: PAYMENT_METHOD_LABELS.cash, description: 'Pagás al recibir o retirar el pedido.' },
+  { value: 'cash', label: PAYMENT_METHOD_LABELS.cash, description: 'Pagás al recibir o retirar el pedido.', icon: CashIcon },
   {
     value: 'transfer',
     label: PAYMENT_METHOD_LABELS.transfer,
     description: `Por ${BUSINESS.transfer.provider}.`,
+    icon: PhoneIcon,
   },
 ];
 
@@ -51,6 +54,7 @@ interface ChoiceOption<T extends string> {
   value: T;
   label: string;
   description: string;
+  icon: ComponentType<SVGProps<SVGSVGElement>>;
 }
 
 interface ChoiceCardsProps<T extends string> {
@@ -63,22 +67,28 @@ interface ChoiceCardsProps<T extends string> {
   children?: ReactNode;
 }
 
-/** Radio group rendered as selectable cards */
+/** A question with two big, equal options side by side (also on the phone) */
 function ChoiceCards<T extends string>({ name, legend, options, value, onChange, error, children }: ChoiceCardsProps<T>) {
   const errorId = `${name}-error`;
 
   return (
     <fieldset aria-describedby={error ? errorId : undefined} className="space-y-4">
-      <legend className="mb-4 font-display text-2xl font-medium">{legend}</legend>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <legend className="mb-3 font-title text-xl text-washi sm:text-2xl">{legend}</legend>
+      <div className="grid grid-cols-2 gap-3">
         {options.map((option) => {
           const selected = value === option.value;
+          const Icon = option.icon;
           return (
             <label
               key={option.value}
               className={cn(
-                'cursor-pointer rounded-2xl border p-4 transition-colors has-focus-visible:outline-2 has-focus-visible:outline-accent',
-                selected ? 'border-accent bg-accent/10' : 'border-line bg-surface hover:border-line-strong',
+                'relative flex min-h-32 cursor-pointer flex-col gap-2 rounded-xl border p-4 transition-colors',
+                'has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-washi',
+                selected
+                  ? 'border-washi bg-sumi-2'
+                  : error
+                    ? 'border-error'
+                    : 'border-hairline-strong hover:border-washi-muted',
               )}
             >
               <input
@@ -89,14 +99,17 @@ function ChoiceCards<T extends string>({ name, legend, options, value, onChange,
                 onChange={() => onChange(option.value)}
                 className="sr-only"
               />
-              <span className="block font-medium">{option.label}</span>
-              <span className="mt-1 block text-sm text-muted">{option.description}</span>
+              <Icon width={24} height={24} className={selected ? 'text-washi' : 'text-washi-muted'} />
+              {/* Selection isn't color alone: the check marks it too */}
+              {selected && <CheckIcon width={18} height={18} className="absolute top-3.5 right-3.5 text-washi" />}
+              <span className="text-[15px] leading-tight font-bold text-washi">{option.label}</span>
+              <span className="text-sm leading-snug text-pretty text-washi-muted">{option.description}</span>
             </label>
           );
         })}
       </div>
       {error && (
-        <p id={errorId} className="text-sm text-danger">
+        <p id={errorId} className="text-sm font-medium text-error">
           {error}
         </p>
       )}
@@ -108,7 +121,7 @@ function ChoiceCards<T extends string>({ name, legend, options, value, onChange,
 /** Account data is never shown on the site: it's sent by WhatsApp once the order is confirmed */
 function TransferNotice() {
   return (
-    <p role="note" className="rounded-xl border border-accent/40 bg-accent/10 p-4 text-left text-sm leading-relaxed">
+    <p role="note" className="rounded-xl border border-hairline-strong p-4 text-left text-sm leading-relaxed text-washi">
       No transfieras todavía: cuando confirmemos tu pedido por WhatsApp te pasamos el alias y el total. Después
       mandás el comprobante por el mismo chat.
     </p>
@@ -117,8 +130,11 @@ function TransferNotice() {
 
 function PageShell({ children }: { children: ReactNode }) {
   return (
-    <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-6 sm:py-12">
-      <Link href="/" className="text-sm text-muted transition-colors hover:text-fg">
+    <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
+      <Link
+        href="/"
+        className="-ml-2 inline-flex h-11 items-center rounded-[10px] px-2 text-sm font-bold text-washi-muted transition-colors hover:bg-sumi-2 hover:text-washi focus-visible:outline-2 focus-visible:outline-washi"
+      >
         ← Volver al menú
       </Link>
       {children}
@@ -134,9 +150,9 @@ function SentScreen({ url, isTransfer, onEdit, onNewOrder }: {
 }) {
   return (
     <div className="mx-auto mt-10 max-w-md space-y-6 text-center">
-      <h1 className="font-display text-4xl font-medium">Terminá de enviarlo en WhatsApp</h1>
-      <p className="text-muted">
-        Tu pedido ya está escrito en WhatsApp: solo tenés que tocar <strong className="text-fg">Enviar</strong>. Si no se
+      <h1 className="font-title text-3xl text-balance sm:text-4xl">Terminá de enviarlo en WhatsApp</h1>
+      <p className="text-washi-muted">
+        Tu pedido ya está escrito en WhatsApp: solo tenés que tocar <strong className="text-washi">Enviar</strong>. Si no se
         abrió, tocá Abrir WhatsApp.
       </p>
       {isTransfer && <TransferNotice />}
@@ -198,7 +214,7 @@ export function Checkout() {
   if (!hydrated) {
     return (
       <PageShell>
-        <div className="mt-10 h-96 animate-pulse rounded-3xl border border-line bg-surface" aria-hidden="true" />
+        <div className="mt-8 h-96 animate-pulse rounded-2xl bg-sumi-1" aria-hidden="true" />
       </PageShell>
     );
   }
@@ -224,8 +240,8 @@ export function Checkout() {
     return (
       <PageShell>
         <div className="mx-auto mt-16 max-w-sm space-y-4 text-center">
-          <h1 className="font-display text-4xl font-medium">Tu pedido está vacío</h1>
-          <p className="text-muted">Sumá algo del menú para poder finalizar el pedido.</p>
+          <h1 className="font-title text-3xl">Tu pedido está vacío</h1>
+          <p className="text-washi-muted">Sumá algo del menú para poder finalizar el pedido.</p>
           <Link href="/" className={buttonClassName({ variant: 'secondary', className: 'mt-2' })}>
             Ver el menú
           </Link>
@@ -236,12 +252,12 @@ export function Checkout() {
 
   return (
     <PageShell>
-      <h1 className="mt-6 mb-8 font-display text-4xl font-medium sm:text-5xl">Finalizar pedido</h1>
+      <h1 className="mt-4 mb-6 font-title text-3xl sm:mb-8 sm:text-4xl">Finalizar pedido</h1>
 
       <div className="grid gap-8 lg:grid-cols-[1fr_380px] lg:items-start">
-        <form ref={formRef} onSubmit={handleSubmit} noValidate className="space-y-10">
+        <form ref={formRef} onSubmit={handleSubmit} noValidate className="space-y-9">
           <fieldset>
-            <legend className="mb-4 font-display text-2xl font-medium">Tus datos</legend>
+            <legend className="mb-3 font-title text-xl text-washi sm:text-2xl">Tus datos</legend>
             <Input
               label="Nombre"
               name="name"
@@ -255,7 +271,7 @@ export function Checkout() {
 
           <ChoiceCards
             name="deliveryMethod"
-            legend="Entrega"
+            legend="¿Cómo lo recibís?"
             options={DELIVERY_OPTIONS}
             value={form.deliveryMethod}
             onChange={(method) => update('deliveryMethod', method)}
@@ -274,16 +290,16 @@ export function Checkout() {
               />
             )}
             {form.deliveryMethod === 'pickup' && (
-              <div className="rounded-2xl border border-line bg-surface-2 p-4 text-sm">
-                <p className="text-muted">Retirás en</p>
-                <p className="mt-0.5 font-medium">{BUSINESS.pickup.address}</p>
+              <div className="rounded-xl border border-hairline p-4 text-sm">
+                <p className="text-washi-muted">Retirás en</p>
+                <p className="mt-0.5 font-bold text-washi">{BUSINESS.pickup.address}</p>
               </div>
             )}
           </ChoiceCards>
 
           <ChoiceCards
             name="paymentMethod"
-            legend="Método de pago"
+            legend="¿Cómo pagás?"
             options={PAYMENT_OPTIONS}
             value={form.paymentMethod}
             onChange={(method) => update('paymentMethod', method)}
@@ -292,26 +308,38 @@ export function Checkout() {
             {form.paymentMethod === 'transfer' && <TransferNotice />}
           </ChoiceCards>
 
-          <p className="text-sm text-muted">Para hoy · el horario lo coordinamos por WhatsApp</p>
+          <p className="text-sm text-washi-muted">Para hoy · el horario lo coordinamos por WhatsApp</p>
 
           <div className="space-y-3">
-            {/* On mobile the summary sits below the button, so the delivery fee is repeated right above it */}
-            {deliveryFee > 0 && (
-              <dl className="space-y-1 rounded-2xl border border-line bg-surface p-4 text-sm lg:hidden">
-                <div className="flex justify-between">
-                  <dt className="text-muted">Subtotal</dt>
-                  <dd className="tabular-nums">{formatPrice(subtotal)}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-muted">Envío</dt>
-                  <dd className="tabular-nums">{formatPrice(deliveryFee)}</dd>
-                </div>
-                <div className="flex justify-between border-t border-line pt-2 font-semibold">
-                  <dt>Total</dt>
-                  <dd className="tabular-nums">{formatPrice(subtotal + deliveryFee)}</dd>
-                </div>
-              </dl>
-            )}
+            {/* On the phone the summary sits below the button: the total (and the delivery fee) shows right above it */}
+            <dl className="space-y-1 rounded-xl border border-hairline p-4 text-sm lg:hidden">
+              {deliveryFee > 0 && (
+                <>
+                  <div className="flex justify-between">
+                    <dt className="text-washi-muted">Subtotal</dt>
+                    <dd className="tabular-nums">{formatPrice(subtotal)}</dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-washi-muted">Envío</dt>
+                    <dd className="tabular-nums">{formatPrice(deliveryFee)}</dd>
+                  </div>
+                </>
+              )}
+              <div
+                className={cn(
+                  'flex items-baseline justify-between',
+                  deliveryFee > 0 && 'mt-1 border-t border-hairline pt-2',
+                )}
+              >
+                <dt className="font-bold">Total</dt>
+                <dd className="text-lg font-bold tabular-nums">{formatPrice(subtotal + deliveryFee)}</dd>
+              </div>
+              {form.deliveryMethod === null && (
+                <p className="text-washi-muted">
+                  Si elegís envío a domicilio, se suman {formatPrice(BUSINESS.delivery.fee)}.
+                </p>
+              )}
+            </dl>
             <ScheduleNotices notices={schedule.notices} />
             {whatsappUrl && schedule.canCheckout ? (
               <a
@@ -328,11 +356,11 @@ export function Checkout() {
                 {submitLabel}
               </Button>
             )}
-            <p className="text-center text-sm text-muted">Se abre WhatsApp con tu pedido listo para enviar.</p>
+            <p className="text-center text-sm text-washi-muted">Se abre WhatsApp con tu pedido listo para enviar.</p>
           </div>
         </form>
 
-        <div className="lg:sticky lg:top-8">
+        <div className="lg:sticky lg:top-6">
           <OrderSummary items={items} deliveryFee={deliveryFee} />
         </div>
       </div>

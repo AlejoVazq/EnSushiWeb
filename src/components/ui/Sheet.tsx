@@ -46,28 +46,28 @@ export function Sheet({ open, onClose, title, side = 'right', children, footer }
         if (event.target === event.currentTarget) onClose();
       }}
       className={cn(
-        'fixed overflow-hidden border border-line bg-surface p-0 text-fg shadow-2xl shadow-black/60',
+        'fixed overflow-hidden border border-hairline bg-sumi p-0 font-ui text-washi shadow-2xl shadow-black/60',
         'backdrop:bg-black/70 backdrop:backdrop-blur-sm open:backdrop:animate-fade-in',
         SIDES[side],
       )}
     >
       <div className={cn('flex flex-col', side === 'right' ? 'h-full' : 'max-h-[inherit]')}>
-        <header className="flex items-center justify-between gap-4 border-b border-line px-5 py-4">
-          <h2 id={titleId} className="font-display text-2xl font-medium">
+        <header className="flex items-center justify-between gap-4 border-b border-hairline px-5 py-3">
+          <h2 id={titleId} className="font-title text-2xl">
             {title}
           </h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Cerrar"
-            className="grid size-10 place-items-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-fg"
+            className="grid size-11 place-items-center rounded-full text-washi-muted transition-colors hover:bg-sumi-2 hover:text-washi focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi"
           >
             <CloseIcon />
           </button>
         </header>
         <div className="flex-1 overflow-y-auto overscroll-contain px-5">{children}</div>
         {footer && (
-          <div className="border-t border-line px-5 pt-4 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+          <div className="border-t border-hairline px-5 pt-4 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
             {footer}
           </div>
         )}
