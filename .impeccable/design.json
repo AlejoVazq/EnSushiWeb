@@ -1,397 +1,138 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-21T23:07:07+00:00",
+  "generatedAt": "2026-10-22T04:30:00Z",
   "title": "Design System: EnSushi",
   "extensions": {
     "colorMeta": {
-      "canvas": {
-        "role": "neutral",
-        "displayName": "Noche de Barra",
-        "canonical": "oklch(14.5% 0.002 286)",
-        "tonalRamp": [
-          "oklch(15% 0.003 286)",
-          "oklch(26.5% 0.003 286)",
-          "oklch(38% 0.003 286)",
-          "oklch(49.5% 0.003 286)",
-          "oklch(61% 0.003 286)",
-          "oklch(72.5% 0.003 286)",
-          "oklch(84% 0.003 286)",
-          "oklch(95% 0.003 286)"
-        ]
-      },
-      "surface": {
-        "role": "neutral",
-        "displayName": "Mesada",
-        "canonical": "oklch(18.5% 0.004 286)",
-        "tonalRamp": [
-          "oklch(15% 0.005 286)",
-          "oklch(26.5% 0.005 286)",
-          "oklch(38% 0.005 286)",
-          "oklch(49.5% 0.005 286)",
-          "oklch(61% 0.005 286)",
-          "oklch(72.5% 0.005 286)",
-          "oklch(84% 0.005 286)",
-          "oklch(95% 0.005 286)"
-        ]
-      },
-      "surface-2": {
-        "role": "neutral",
-        "displayName": "Mesada Alta",
-        "canonical": "oklch(22% 0.006 286)",
-        "tonalRamp": [
-          "oklch(15% 0.006 286)",
-          "oklch(26.5% 0.006 286)",
-          "oklch(38% 0.006 286)",
-          "oklch(49.5% 0.006 286)",
-          "oklch(61% 0.006 286)",
-          "oklch(72.5% 0.006 286)",
-          "oklch(84% 0.006 286)",
-          "oklch(95% 0.006 286)"
-        ]
-      },
-      "line": {
-        "role": "neutral",
-        "displayName": "Filo",
-        "canonical": "oklch(27.5% 0.007 286)",
-        "tonalRamp": [
-          "oklch(15% 0.007 286)",
-          "oklch(26.5% 0.007 286)",
-          "oklch(38% 0.007 286)",
-          "oklch(49.5% 0.007 286)",
-          "oklch(61% 0.007 286)",
-          "oklch(72.5% 0.007 286)",
-          "oklch(84% 0.007 286)",
-          "oklch(95% 0.007 286)"
-        ]
-      },
-      "line-strong": {
-        "role": "neutral",
-        "displayName": "Filo Marcado",
-        "canonical": "oklch(34% 0.01 286)",
-        "tonalRamp": [
-          "oklch(15% 0.01 286)",
-          "oklch(26.5% 0.01 286)",
-          "oklch(38% 0.01 286)",
-          "oklch(49.5% 0.01 286)",
-          "oklch(61% 0.01 286)",
-          "oklch(72.5% 0.01 286)",
-          "oklch(84% 0.01 286)",
-          "oklch(95% 0.01 286)"
-        ]
-      },
-      "fg": {
-        "role": "neutral",
-        "displayName": "Crema de Arroz",
-        "canonical": "oklch(95.4% 0.012 82)",
-        "tonalRamp": [
-          "oklch(15% 0.012 82)",
-          "oklch(26.5% 0.012 82)",
-          "oklch(38% 0.012 82)",
-          "oklch(49.5% 0.012 82)",
-          "oklch(61% 0.012 82)",
-          "oklch(72.5% 0.012 82)",
-          "oklch(84% 0.012 82)",
-          "oklch(95% 0.012 82)"
-        ]
-      },
-      "muted": {
-        "role": "neutral",
-        "displayName": "Piedra",
-        "canonical": "oklch(71% 0.014 80)",
-        "tonalRamp": [
-          "oklch(15% 0.014 80)",
-          "oklch(26.5% 0.014 80)",
-          "oklch(38% 0.014 80)",
-          "oklch(49.5% 0.014 80)",
-          "oklch(61% 0.014 80)",
-          "oklch(72.5% 0.014 80)",
-          "oklch(84% 0.014 80)",
-          "oklch(95% 0.014 80)"
-        ]
-      },
-      "subtle": {
-        "role": "neutral",
-        "displayName": "Piedra Oscura",
-        "canonical": "oklch(55% 0.012 80)",
-        "tonalRamp": [
-          "oklch(15% 0.012 80)",
-          "oklch(26.5% 0.012 80)",
-          "oklch(38% 0.012 80)",
-          "oklch(49.5% 0.012 80)",
-          "oklch(61% 0.012 80)",
-          "oklch(72.5% 0.012 80)",
-          "oklch(84% 0.012 80)",
-          "oklch(95% 0.012 80)"
-        ]
-      },
-      "accent": {
-        "role": "primary",
-        "displayName": "Salmón de Barra",
-        "canonical": "oklch(72% 0.14 40)",
-        "tonalRamp": [
-          "oklch(15% 0.14 40)",
-          "oklch(26.5% 0.14 40)",
-          "oklch(38% 0.14 40)",
-          "oklch(49.5% 0.14 40)",
-          "oklch(61% 0.14 40)",
-          "oklch(72.5% 0.14 40)",
-          "oklch(84% 0.14 40)",
-          "oklch(95% 0.14 40)"
-        ]
-      },
-      "accent-strong": {
-        "role": "primary",
-        "displayName": "Salmón Encendido",
-        "canonical": "oklch(77% 0.125 42)",
-        "tonalRamp": [
-          "oklch(15% 0.125 42)",
-          "oklch(26.5% 0.125 42)",
-          "oklch(38% 0.125 42)",
-          "oklch(49.5% 0.125 42)",
-          "oklch(61% 0.125 42)",
-          "oklch(72.5% 0.125 42)",
-          "oklch(84% 0.125 42)",
-          "oklch(95% 0.125 42)"
-        ]
-      },
-      "accent-fg": {
-        "role": "primary",
-        "displayName": "Tinta sobre Salmón",
-        "canonical": "oklch(18% 0.025 45)",
-        "tonalRamp": [
-          "oklch(15% 0.025 45)",
-          "oklch(26.5% 0.025 45)",
-          "oklch(38% 0.025 45)",
-          "oklch(49.5% 0.025 45)",
-          "oklch(61% 0.025 45)",
-          "oklch(72.5% 0.025 45)",
-          "oklch(84% 0.025 45)",
-          "oklch(95% 0.025 45)"
-        ]
-      },
-      "danger": {
-        "role": "error",
-        "displayName": "Alerta",
-        "canonical": "oklch(69% 0.16 22)",
-        "tonalRamp": [
-          "oklch(15% 0.16 22)",
-          "oklch(26.5% 0.16 22)",
-          "oklch(38% 0.16 22)",
-          "oklch(49.5% 0.16 22)",
-          "oklch(61% 0.16 22)",
-          "oklch(72.5% 0.16 22)",
-          "oklch(84% 0.16 22)",
-          "oklch(95% 0.16 22)"
-        ]
-      }
+      "sumi": { "role": "neutral", "displayName": "Tinta Sumi", "canonical": "#141210", "tonalRamp": ["#0b0a09", "#141210", "#1d1a17", "#262220", "#34302b", "#4d463e", "#8a8174", "#d6cdbf"] },
+      "sumi-1": { "role": "neutral", "displayName": "Sumi Lavada", "canonical": "#1d1a17", "tonalRamp": ["#0b0a09", "#141210", "#1d1a17", "#262220", "#34302b", "#4d463e", "#8a8174", "#d6cdbf"] },
+      "sumi-2": { "role": "neutral", "displayName": "Sumi Cargada", "canonical": "#262220", "tonalRamp": ["#0b0a09", "#141210", "#1d1a17", "#262220", "#34302b", "#4d463e", "#8a8174", "#d6cdbf"] },
+      "hairline": { "role": "neutral", "displayName": "Filete", "canonical": "#34302b", "tonalRamp": ["#141210", "#1d1a17", "#262220", "#34302b", "#4d463e", "#6b6359", "#8a8174", "#b9b0a2"] },
+      "hairline-strong": { "role": "neutral", "displayName": "Filete Marcado", "canonical": "#4d463e", "tonalRamp": ["#141210", "#1d1a17", "#262220", "#34302b", "#4d463e", "#6b6359", "#8a8174", "#b9b0a2"] },
+      "washi": { "role": "neutral", "displayName": "Papel Washi", "canonical": "#f1ebe0", "tonalRamp": ["#3a352e", "#5c554b", "#7f776b", "#a0978a", "#b9b0a2", "#d2c9bb", "#e4ddd0", "#f1ebe0"] },
+      "washi-muted": { "role": "neutral", "displayName": "Papel Gastado", "canonical": "#b9b0a2", "tonalRamp": ["#3a352e", "#5c554b", "#7f776b", "#a0978a", "#b9b0a2", "#d2c9bb", "#e4ddd0", "#f1ebe0"] },
+      "shu": { "role": "primary", "displayName": "Bermellón de Sello", "canonical": "#c8432b", "tonalRamp": ["#3d120b", "#621d12", "#8c2a1a", "#b03522", "#c8432b", "#dd6a53", "#ec9c8b", "#f8d3ca"] },
+      "shu-fg": { "role": "primary", "displayName": "Papel sobre Sello", "canonical": "#fff6ee", "tonalRamp": ["#c8432b", "#dd6a53", "#ec9c8b", "#f4b9ab", "#f8d3ca", "#fbe4dc", "#fdeee6", "#fff6ee"] }
     },
     "typographyMeta": {
-      "display": {
-        "displayName": "Display",
-        "purpose": "Solo el titular de la portada (48px, 60px desde sm). Dudoso como escala general."
-      },
-      "headline": {
-        "displayName": "Headline",
-        "purpose": "Títulos de página del checkout y estados vacíos; títulos de categoría a 30–36px."
-      },
-      "title": {
-        "displayName": "Title",
-        "purpose": "Nombre del producto, título de sheet, leyendas del checkout."
-      },
-      "body": {
-        "displayName": "Body",
-        "purpose": "Párrafos y campos de texto (16px evita el zoom de iOS)."
-      },
-      "body-sm": {
-        "displayName": "Body chico",
-        "purpose": "Tamaño de trabajo: descripciones, botones, pestañas, avisos, labels."
-      },
-      "label": {
-        "displayName": "Label",
-        "purpose": "Chips sobre la foto, badge de reserva, 'en tu pedido'."
-      },
-      "price": {
-        "displayName": "Precio",
-        "purpose": "Importes; 24px en el total. Siempre tabular."
-      }
+      "headline": { "displayName": "Headline", "purpose": "Título de categoría (30/36px) y título del pie (24/30px)." },
+      "title": { "displayName": "Title", "purpose": "Nombre del producto en la fila (18/20px)." },
+      "body": { "displayName": "Body", "purpose": "Descripción de categoría y bajada del pie." },
+      "body-sm": { "displayName": "Body small", "purpose": "Descripción del producto y banda de estado." },
+      "tab": { "displayName": "Tab", "purpose": "Pestañas de categoría; 500 inactiva, 700 activa." },
+      "label": { "displayName": "Label", "purpose": "Piezas dentro del chip y etiquetas." },
+      "price": { "displayName": "Price", "purpose": "Todos los importes, tabulares; 14px dentro del chip." },
+      "seal": { "displayName": "Seal", "purpose": "Cifra del sello: 18px stepper, 14px placa, 12px header, 11px chip." }
     },
     "shadows": [
-      {
-        "name": "flotante",
-        "value": "0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4)",
-        "purpose": "Barra 'Ver pedido' en mobile. Uso único; dudoso."
-      },
-      {
-        "name": "modal",
-        "value": "0 25px 50px -12px rgb(0 0 0 / 0.6)",
-        "purpose": "Panel del sheet. Uso único; dudoso."
-      }
+      { "name": "floating-plate", "value": "0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5)", "purpose": "Solo la placa 'Ver pedido' flotante del celular." }
     ],
     "motion": [
-      {
-        "name": "ease-sheet",
-        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
-        "purpose": "Entrada de sheets y diálogos."
-      },
-      {
-        "name": "sheet-in",
-        "value": "300ms",
-        "purpose": "Drawer derecho y bottom sheet."
-      },
-      {
-        "name": "dialog-in",
-        "value": "200ms",
-        "purpose": "Diálogo centrado (escala desde 0.96) y fade del fondo."
-      },
-      {
-        "name": "state",
-        "value": "150ms",
-        "purpose": "transition-colors por defecto en hover, selección y foco."
-      },
-      {
-        "name": "image-zoom",
-        "value": "500ms, scale(1.03)",
-        "purpose": "Foto de la tarjeta en hover. Uso único; dudoso."
-      }
+      { "name": "stamp", "value": "220ms cubic-bezier(0.22, 1, 0.36, 1); from scale(1.3) rotate(-14deg) opacity 0.4", "purpose": "El sello se vuelve a estampar cada vez que cambia la cantidad." },
+      { "name": "ease-out-expo", "value": "cubic-bezier(0.22, 1, 0.36, 1)", "purpose": "Curva de todas las entradas." },
+      { "name": "reduced-motion", "value": "1ms", "purpose": "Con prefers-reduced-motion, animaciones y transiciones bajan a 1ms." }
     ],
     "breakpoints": [
-      {
-        "name": "sm",
-        "value": "640px"
-      },
-      {
-        "name": "lg",
-        "value": "1024px"
-      }
+      { "name": "sm", "value": "640px" },
+      { "name": "lg", "value": "1024px" }
     ]
   },
   "components": [
     {
-      "name": "Botón primario",
-      "kind": "button",
-      "refersTo": "button-primary",
-      "description": "Acción principal: Agregar, Ir al checkout, Enviar pedido.",
-      "html": "<button class=\"ds-btn-primary\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M12 5v14M5 12h14\"/></svg>Agregar</button>",
-      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 20px; border-radius: 9999px; font-family: Geist, ui-sans-serif, system-ui, sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: background-color .15s, border-color .15s, color .15s; background: var(--color-accent, #f0805a); color: var(--color-accent-fg, #1c0f0a); border: none; } .ds-btn-primary:hover { background: var(--color-accent-strong, #f6966f); } .ds-btn-primary:focus-visible { outline: 2px solid var(--color-accent, #f0805a); outline-offset: 2px; } .ds-btn-primary:disabled { opacity: .4; pointer-events: none; }"
+      "name": "Status Band",
+      "kind": "custom",
+      "refersTo": "status-band",
+      "description": "Banda crema bajo el header: si hoy se puede pedir y hasta qué hora.",
+      "html": "<div class=\"ds-band\" role=\"status\"><p class=\"ds-band-lead\">Abierto hoy hasta las 23:30</p><p>Rolls y nigiris hasta las 20:00</p></div>",
+      "css": ".ds-band { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 2px 16px; min-height: 44px; padding: 10px 16px; border-radius: 12px; background: var(--color-washi); color: var(--color-sumi); font: 500 14px/1.625 var(--font-figtree), system-ui, sans-serif; } .ds-band p { margin: 0; } .ds-band-lead { font-weight: 700; }"
     },
     {
-      "name": "Botón secundario",
-      "kind": "button",
-      "refersTo": "button-secondary",
-      "description": "Acción alternativa sobre superficie, ej. Seguir eligiendo.",
-      "html": "<button class=\"ds-btn-secondary\">Seguir eligiendo</button>",
-      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 20px; border-radius: 9999px; font-family: Geist, ui-sans-serif, system-ui, sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: background-color .15s, border-color .15s, color .15s; background: var(--color-surface-2, #1c1c1f); color: var(--color-fg, #f4efe6); border: 1px solid var(--color-line, #29292d); } .ds-btn-secondary:hover { border-color: var(--color-line-strong, #3b3b41); } .ds-btn-secondary:focus-visible { outline: 2px solid var(--color-accent, #f0805a); outline-offset: 2px; }"
-    },
-    {
-      "name": "Botón fantasma",
-      "kind": "button",
-      "refersTo": "button-ghost",
-      "description": "Acción terciaria de bajo peso, ej. Vaciar pedido.",
-      "html": "<button class=\"ds-btn-ghost\">Vaciar pedido</button>",
-      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 20px; border-radius: 9999px; font-family: Geist, ui-sans-serif, system-ui, sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: background-color .15s, border-color .15s, color .15s; background: transparent; color: var(--color-muted, #a8a39a); border: none; } .ds-btn-ghost:hover { background: var(--color-surface-2, #1c1c1f); color: var(--color-fg, #f4efe6); } .ds-btn-ghost:focus-visible { outline: 2px solid var(--color-accent, #f0805a); outline-offset: 2px; }"
-    },
-    {
-      "name": "Campo de texto",
-      "kind": "input",
-      "refersTo": "input",
-      "description": "Input con label arriba y hint o error abajo.",
-      "html": "<div class=\"ds-field\"><label class=\"ds-field-label\" for=\"ds-name\">Nombre</label><input id=\"ds-name\" class=\"ds-input\" placeholder=\"¿A nombre de quién?\"><p class=\"ds-field-hint\">Lo usamos para identificar tu pedido.</p></div>",
-      "css": ".ds-field { display: flex; flex-direction: column; gap: 6px; font-family: Geist, ui-sans-serif, system-ui, sans-serif; } .ds-field-label { font-size: 14px; font-weight: 500; color: var(--color-fg, #f4efe6); } .ds-input { height: 48px; padding: 0 16px; border-radius: 12px; border: 1px solid var(--color-line, #29292d); background: var(--color-surface, #141416); color: var(--color-fg, #f4efe6); font: inherit; font-size: 16px; transition: border-color .15s; } .ds-input::placeholder { color: var(--color-subtle, #75716a); } .ds-input:focus { outline: none; border-color: var(--color-accent, #f0805a); } .ds-input[aria-invalid=true] { border-color: var(--color-danger, #f26d6d); } .ds-field-hint { margin: 0; font-size: 14px; color: var(--color-subtle, #75716a); }"
-    },
-    {
-      "name": "Pestañas de categoría",
+      "name": "Category Tabs",
       "kind": "nav",
       "refersTo": "tab-active",
-      "description": "Fila de pastillas; la activa en salmón sólido.",
-      "html": "<div class=\"ds-tabs\" role=\"tablist\"><button class=\"ds-tab\" role=\"tab\" aria-selected=\"true\">Arma tu combo</button><button class=\"ds-tab\" role=\"tab\" aria-selected=\"false\">Sushiburgers</button><button class=\"ds-tab\" role=\"tab\" aria-selected=\"false\">Combos</button></div>",
-      "css": ".ds-tabs { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; font-family: Geist, ui-sans-serif, system-ui, sans-serif; } .ds-tab { flex-shrink: 0; height: 36px; padding: 0 16px; border-radius: 9999px; border: 1px solid var(--color-line, #29292d); background: transparent; color: var(--color-muted, #a8a39a); font-size: 14px; cursor: pointer; transition: background-color .15s, border-color .15s, color .15s; } .ds-tab:hover { border-color: var(--color-line-strong, #3b3b41); color: var(--color-fg, #f4efe6); } .ds-tab[aria-selected=true] { background: var(--color-accent, #f0805a); border-color: var(--color-accent, #f0805a); color: var(--color-accent-fg, #1c0f0a); } .ds-tab:focus-visible { outline: 2px solid var(--color-accent, #f0805a); outline-offset: 2px; }"
+      "description": "Pestañas de texto; la activa en crema 700 con subrayado de 2px.",
+      "html": "<div class=\"ds-tabs\" role=\"tablist\"><button class=\"ds-tab\" role=\"tab\" aria-selected=\"false\">Sushiburgers</button><button class=\"ds-tab\" role=\"tab\" aria-selected=\"true\">Combos</button><button class=\"ds-tab\" role=\"tab\" aria-selected=\"false\">Salsas &amp; complementos</button></div>",
+      "css": ".ds-tabs { display: flex; gap: 12px; border-bottom: 1px solid var(--color-hairline); background: var(--color-sumi); padding: 0 8px; } .ds-tab { height: 48px; padding: 0 8px; border: 0; background: none; color: var(--color-washi-muted); font: 500 15px var(--font-figtree), system-ui, sans-serif; cursor: pointer; transition: color .15s; } .ds-tab:hover { color: var(--color-washi); } .ds-tab[aria-selected=true] { color: var(--color-washi); font-weight: 700; box-shadow: inset 0 -2px 0 currentColor; } .ds-tab:focus-visible { outline: 2px solid var(--color-washi); outline-offset: -2px; }"
     },
     {
-      "name": "Tarjeta de producto",
-      "kind": "card",
-      "refersTo": "card-product",
-      "description": "Foto 4:3 (acá, el placeholder), nombre en serif, descripción, selector de tamaño, precio y acción.",
-      "html": "<article class=\"ds-card\"><div class=\"ds-card-media\"><svg viewBox=\"0 0 64 64\" width=\"56\" height=\"56\" aria-hidden=\"true\"><circle cx=\"32\" cy=\"32\" r=\"26\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"/><circle cx=\"32\" cy=\"32\" r=\"15\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"/><circle cx=\"32\" cy=\"32\" r=\"6\" class=\"ds-card-dot\"/></svg></div><div class=\"ds-card-body\"><h3 class=\"ds-card-title\">Combo de ejemplo</h3><p class=\"ds-card-desc\">Descripción corta del combo.</p><div class=\"ds-seg\"><label class=\"ds-seg-opt is-on\"><b>15</b> piezas</label><label class=\"ds-seg-opt\"><b>24</b> piezas</label><label class=\"ds-seg-opt\"><b>40</b> piezas</label></div><div class=\"ds-card-foot\"><p class=\"ds-card-price\">$ 00.000</p><button class=\"ds-card-add\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M12 5v14M5 12h14\"/></svg>Agregar</button></div></div></article>",
-      "css": ".ds-card { width: 320px; display: flex; flex-direction: column; overflow: hidden; border-radius: 24px; border: 1px solid var(--color-line, #29292d); background: var(--color-surface, #141416); color: var(--color-fg, #f4efe6); font-family: Geist, ui-sans-serif, system-ui, sans-serif; transition: border-color .15s; } .ds-card:hover { border-color: var(--color-line-strong, #3b3b41); } .ds-card-media { aspect-ratio: 4/3; display: grid; place-items: center; color: var(--color-line-strong, #3b3b41); background: radial-gradient(ellipse at 30% 20%, #2b2320, transparent 60%), radial-gradient(ellipse at 80% 90%, #201b1a, transparent 55%), var(--color-surface-2, #1c1c1f); } .ds-card-dot { fill: color-mix(in srgb, var(--color-accent, #f0805a) 40%, transparent); } .ds-card-body { display: flex; flex-direction: column; gap: 16px; padding: 20px; } .ds-card-title { margin: 0; font-family: 'Cormorant Garamond', ui-serif, Georgia, serif; font-size: 24px; font-weight: 500; line-height: 1.25; } .ds-card-desc { margin: -10px 0 0; font-size: 14px; line-height: 1.625; color: var(--color-muted, #a8a39a); } .ds-seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; } .ds-seg-opt { padding: 8px; border-radius: 12px; border: 1px solid var(--color-line, #29292d); text-align: center; font-size: 14px; color: var(--color-muted, #a8a39a); cursor: pointer; transition: border-color .15s; } .ds-seg-opt:hover { border-color: var(--color-line-strong, #3b3b41); } .ds-seg-opt b { font-weight: 500; font-variant-numeric: tabular-nums; } .ds-seg-opt.is-on { border-color: var(--color-accent, #f0805a); background: color-mix(in srgb, var(--color-accent, #f0805a) 10%, transparent); color: var(--color-fg, #f4efe6); } .ds-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; } .ds-card-price { margin: 0; font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; } .ds-card-add { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 20px; border-radius: 9999px; font-family: Geist, ui-sans-serif, system-ui, sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: background-color .15s, border-color .15s, color .15s; background: var(--color-accent, #f0805a); color: var(--color-accent-fg, #1c0f0a); border: none; } .ds-card-add:hover { background: var(--color-accent-strong, #f6966f); } .ds-card-add:focus-visible { outline: 2px solid var(--color-accent, #f0805a); outline-offset: 2px; }"
+      "name": "Size Chips",
+      "kind": "chip",
+      "refersTo": "choice-chip-selected",
+      "description": "Tamaños con precio a la vista; el sello chico marca cuántos de ese tamaño hay en el pedido.",
+      "html": "<div class=\"ds-chips\"><label class=\"ds-chip ds-chip-on\"><span class=\"ds-chip-pz\">15 piezas</span><b>$ 20.000</b><span class=\"ds-chip-seal\">2</span></label><label class=\"ds-chip\"><span class=\"ds-chip-pz\">24 piezas</span><b>$ 36.000</b></label><label class=\"ds-chip\"><span class=\"ds-chip-pz\">40 piezas</span><b>$ 45.000</b></label></div>",
+      "css": ".ds-chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 320px; font-family: var(--font-figtree), system-ui, sans-serif; font-variant-numeric: tabular-nums; } .ds-chip { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 44px; padding: 6px 8px; border: 1px solid var(--color-hairline); border-radius: 8px; color: var(--color-washi-muted); font-size: 14px; line-height: 1.25; cursor: pointer; transition: border-color .15s, color .15s; } .ds-chip:hover { border-color: var(--color-hairline-strong); color: var(--color-washi); } .ds-chip-on { border-color: var(--color-washi); background: var(--color-sumi-2); color: var(--color-washi); } .ds-chip-pz { font-size: 12px; } .ds-chip-seal { position: absolute; top: -8px; right: -6px; display: grid; place-items: center; height: 20px; min-width: 20px; padding: 0 4px; border-radius: 6px; background: var(--color-shu); color: var(--color-shu-fg); font: 700 11px var(--font-mplus-rounded), sans-serif; transform: rotate(-6deg); }"
     },
     {
-      "name": "Opción seleccionable",
+      "name": "Add Button",
+      "kind": "button",
+      "refersTo": "add-button",
+      "description": "El '+' de cada fila antes de que la línea esté en el pedido.",
+      "html": "<button class=\"ds-add\" aria-label=\"Agregar Combo Kanituna · 15 piezas al pedido\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\"><path d=\"M12 5v14M5 12h14\"/></svg></button>",
+      "css": ".ds-add { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--color-hairline-strong); border-radius: 10px; background: transparent; color: var(--color-washi); cursor: pointer; transition: border-color .15s, background .15s; } .ds-add:hover { border-color: var(--color-washi); background: var(--color-sumi-1); } .ds-add:focus-visible { outline: 2px solid var(--color-washi); outline-offset: 2px; }"
+    },
+    {
+      "name": "Seal Stepper",
       "kind": "custom",
-      "refersTo": "choice-tile",
-      "description": "Radio en forma de tarjeta (entrega, pago, armado de combo): seleccionado con borde salmón y velo al 10%.",
-      "html": "<div class=\"ds-choices\"><label class=\"ds-choice is-on\"><span class=\"ds-choice-t\">Retiro en el local</span><span class=\"ds-choice-d\">Puerto Rico 248</span></label><label class=\"ds-choice\"><span class=\"ds-choice-t\">Envío a domicilio</span><span class=\"ds-choice-d\">Suma el costo de envío</span></label></div>",
-      "css": ".ds-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-family: Geist, ui-sans-serif, system-ui, sans-serif; color: var(--color-fg, #f4efe6); } .ds-choice { display: block; padding: 16px; border-radius: 16px; border: 1px solid var(--color-line, #29292d); background: var(--color-surface, #141416); cursor: pointer; transition: border-color .15s, background-color .15s; } .ds-choice:hover { border-color: var(--color-line-strong, #3b3b41); } .ds-choice.is-on { border-color: var(--color-accent, #f0805a); background: color-mix(in srgb, var(--color-accent, #f0805a) 10%, transparent); } .ds-choice:focus-within { outline: 2px solid var(--color-accent, #f0805a); outline-offset: 2px; } .ds-choice-t { display: block; font-weight: 500; } .ds-choice-d { display: block; margin-top: 4px; font-size: 14px; color: var(--color-muted, #a8a39a); }"
+      "refersTo": "seal",
+      "description": "Menos, sello bermellón con la cantidad y más. El menos se apaga en 1: borrar es del carrito.",
+      "html": "<div class=\"ds-step\"><button class=\"ds-step-btn\" disabled aria-label=\"Quitar uno\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\"><path d=\"M5 12h14\"/></svg></button><span class=\"ds-seal\">1</span><button class=\"ds-step-btn\" aria-label=\"Agregar uno más\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\"><path d=\"M12 5v14M5 12h14\"/></svg></button></div>",
+      "css": ".ds-step { display: flex; align-items: center; gap: 4px; } .ds-step-btn { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 9999px; background: transparent; color: var(--color-washi-muted); cursor: pointer; transition: background .15s, color .15s; } .ds-step-btn:hover { background: var(--color-sumi-2); color: var(--color-washi); } .ds-step-btn:focus-visible { outline: 2px solid var(--color-washi); } .ds-step-btn:disabled { opacity: .35; pointer-events: none; } .ds-seal { display: grid; place-items: center; width: 40px; height: 40px; margin: 2px; border-radius: 6px; background: var(--color-shu); color: var(--color-shu-fg); font: 700 18px var(--font-mplus-rounded), sans-serif; font-variant-numeric: tabular-nums; transform: rotate(-6deg); animation: ds-stamp 220ms cubic-bezier(0.22, 1, 0.36, 1); } @keyframes ds-stamp { from { transform: scale(1.3) rotate(-14deg); opacity: .4; } }"
     },
     {
-      "name": "Stepper de cantidad",
-      "kind": "custom",
-      "refersTo": "quantity-stepper",
-      "description": "Reemplaza a Agregar cuando la línea está en el carrito; con 1, el menos es un tacho.",
-      "html": "<div class=\"ds-stepper\"><button class=\"ds-step\" aria-label=\"Quitar del pedido\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3\"/></svg></button><span class=\"ds-step-n\">1</span><button class=\"ds-step\" aria-label=\"Agregar uno más\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M12 5v14M5 12h14\"/></svg></button></div>",
-      "css": ".ds-stepper { display: inline-flex; align-items: center; border-radius: 9999px; border: 1px solid var(--color-line, #29292d); background: var(--color-surface-2, #1c1c1f); color: var(--color-fg, #f4efe6); font-family: Geist, ui-sans-serif, system-ui, sans-serif; } .ds-step { display: grid; place-items: center; width: 36px; height: 36px; border: none; border-radius: 9999px; background: transparent; color: var(--color-muted, #a8a39a); cursor: pointer; transition: background-color .15s, color .15s; } .ds-step:hover { background: var(--color-surface, #141416); color: var(--color-fg, #f4efe6); } .ds-step:focus-visible { outline: 2px solid var(--color-accent, #f0805a); } .ds-step-n { min-width: 28px; text-align: center; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }"
+      "name": "Sold-out Seal",
+      "kind": "chip",
+      "refersTo": "sold-out-seal",
+      "description": "Sello hueco que reemplaza la acción de un producto agotado.",
+      "html": "<span class=\"ds-soldout\">Agotado hoy</span>",
+      "css": ".ds-soldout { display: inline-flex; align-items: center; height: 36px; padding: 0 10px; border: 1.5px solid var(--color-washi-muted); border-radius: 6px; color: var(--color-washi); font: 700 14px var(--font-figtree), system-ui, sans-serif; transform: rotate(-3deg); }"
     },
     {
-      "name": "Aviso de horario",
-      "kind": "custom",
-      "refersTo": "",
-      "description": "Aviso informativo (velo salmón) o bloqueante (velo de alerta).",
-      "html": "<ul class=\"ds-notices\"><li class=\"ds-notice\">Aviso informativo de horario.</li><li class=\"ds-notice is-error\" role=\"alert\">Aviso que bloquea el checkout.</li></ul>",
-      "css": ".ds-notices { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-family: Geist, ui-sans-serif, system-ui, sans-serif; color: var(--color-fg, #f4efe6); } .ds-notice { padding: 12px; border-radius: 12px; font-size: 14px; line-height: 1.625; border: 1px solid color-mix(in srgb, var(--color-accent, #f0805a) 40%, transparent); background: color-mix(in srgb, var(--color-accent, #f0805a) 10%, transparent); } .ds-notice.is-error { border-color: color-mix(in srgb, var(--color-danger, #f26d6d) 40%, transparent); background: color-mix(in srgb, var(--color-danger, #f26d6d) 10%, transparent); }"
+      "name": "Order Plate",
+      "kind": "button",
+      "refersTo": "order-plate",
+      "description": "Placa crema 'Ver pedido' del celular: la única placa invertida de acción.",
+      "html": "<button class=\"ds-plate\"><span class=\"ds-plate-l\"><span class=\"ds-plate-seal\">3</span>Ver pedido</span><span>$ 62.000</span></button>",
+      "css": ".ds-plate { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 360px; height: 56px; padding: 0 16px; border: 0; border-radius: 16px; background: var(--color-washi); color: var(--color-sumi); font: 700 16px var(--font-figtree), system-ui, sans-serif; font-variant-numeric: tabular-nums; box-shadow: 0 10px 15px -3px rgb(0 0 0 / .5), 0 4px 6px -4px rgb(0 0 0 / .5); cursor: pointer; } .ds-plate:focus-visible { outline: 2px solid var(--color-washi); outline-offset: 2px; } .ds-plate-l { display: flex; align-items: center; gap: 12px; } .ds-plate-seal { display: grid; place-items: center; height: 32px; min-width: 32px; padding: 0 6px; border-radius: 6px; background: var(--color-shu); color: var(--color-shu-fg); font: 700 14px var(--font-mplus-rounded), sans-serif; transform: rotate(-6deg); }"
     }
   ],
   "narrative": {
-    "northStar": "La barra de noche",
-    "overview": "El sistema está pensado como sentarse en la barra de un sushi bar de noche: el ambiente es casi negro y una sola luz cálida, el Salmón de Barra, marca lo que se puede tocar y lo que ya elegiste. Todo lo demás se queda en penumbra para que mande el producto: las fotos reales de los platos y sus nombres, escritos en una serif de carta de restaurante.\n\nLa densidad es de app de pedidos, no de revista. Una categoría por vez, tarjetas grandes con la foto arriba, precios en números tabulares y controles del tamaño del pulgar. Los componentes son táctiles y cálidos: pastillas redondeadas, superficies en capas apenas distintas entre sí y estados que se notan al tocarlos (el borde se enciende en salmón y el fondo toma un velo del mismo color). El tema es oscuro y no tiene variante clara (`color-scheme: dark`).\n\nLa profundidad viene del tono y de bordes finos, no de sombras. La luz cálida también vive en los neutros: el texto es crema (no blanco puro) y los grises secundarios tiran a piedra, lo que evita el frío de un dark mode genérico.",
+    "northStar": "Sello y sumi",
+    "overview": "El sistema sale del hanko, el sello de pasta bermellón, apoyado sobre papel y tinta sumi. La página es tinta: un negro cálido en tres capas apenas distintas, con texto crema del mismo tono que el logo. Sobre esa tinta hay una sola marca de color, el sello bermellón, y significa siempre lo mismo: esto está en tu pedido, y cuántos. Lo que elegís queda sellado.\n\nEs una pantalla para usar, no una vidriera. El menú es una lista de filas comparables (foto cuadrada, nombre, descripción, tamaños con su precio a la vista y la acción a la derecha), no una grilla de tarjetas grandes. La jerarquía sale de la escala y el peso de dos familias redondeadas, parientes del lettering blando del logo; no hay ornamento, porque el sello es el único dibujo de la página. Los avisos de horario van en una banda crema y la acción principal en una placa crema invertida: el rojo nunca avisa ni manda, solo marca lo elegido.\n\nEl tema es solo oscuro (`color-scheme: dark`): se pide de noche, desde el celular, muchas veces con poca luz.",
     "keyCharacteristics": [
-      "Fondo casi negro en tres capas tonales (canvas → surface → surface-2) separadas por bordes de 1px.",
-      "Un único color de acento, el Salmón de Barra, para acciones, selección y avisos.",
-      "Serif Cormorant Garamond para nombres de platos y títulos; Geist para todo lo funcional.",
-      "Formas muy redondeadas: pastillas para acciones, tarjetas de 24px.",
-      "Precios siempre en números tabulares y en semibold."
+      "Tinta sumi en tres capas (sumi → sumi-1 → sumi-2) separadas por filetes de 1px.",
+      "Un solo color saturado, el bermellón, con un solo trabajo: \"en tu pedido\".",
+      "Crema invertida para lo que hay que leer o tocar primero: la banda de estado y la placa \"Ver pedido\".",
+      "M PLUS Rounded 1c para nombres y títulos; Figtree para todo lo funcional.",
+      "Filas en vez de tarjetas; precios siempre a la vista y en números tabulares.",
+      "Lleno se tiene, hueco no: sello lleno con la cantidad, sello hueco \"Agotado hoy\"."
     ],
     "rules": [
-      {
-        "name": "La Regla de la Única Luz",
-        "body": "El salmón es el único color con saturación en la interfaz. Si algo lo usa, se toca, está elegido o es un aviso de horario. No hay un segundo acento.",
-        "section": "colors"
-      },
-      {
-        "name": "La Regla del Velo",
-        "body": "Lo seleccionado o lo destacado en tono informativo lleva el borde en `accent` (o `accent/40` en los avisos) y el fondo en `accent/10`. No se usa un fondo salmón sólido para seleccionar, salvo en la pestaña activa.",
-        "section": "colors"
-      },
-      {
-        "name": "La Regla de la Carta",
-        "body": "La serif es para nombres: platos, secciones, títulos de pantalla. Nunca para precios, botones, labels ni texto de ayuda.",
-        "section": "typography"
-      },
-      {
-        "name": "La Regla del Precio Alineado",
-        "body": "Todo número que el cliente compara (precios, cantidades, totales, piezas) va con `tabular-nums`.",
-        "section": "typography"
-      },
-      {
-        "name": "La Regla de lo que Flota",
-        "body": "Solo lleva sombra lo que flota por encima de la página (barra flotante, sheets). Las tarjetas y los campos se separan con tono y borde, nunca con sombra.",
-        "section": "elevation"
-      }
+      { "name": "La Regla del Sello", "body": "El bermellón significa \"en tu pedido\" y solo eso. Si algo es rojo y no muestra una cantidad que está en el pedido, está mal. No hay un segundo color saturado.", "section": "colors" },
+      { "name": "La Regla de los Dos Papeles", "body": "Hay dos niveles de texto, `washi` y `washi-muted`, y los dos pasan AA sobre todas las superficies. No existe un tercer gris para texto: los filetes son para bordes, nunca para letras.", "section": "colors" },
+      { "name": "La Regla de la Placa", "body": "Lo que hay que leer o tocar primero va en crema invertida (`washi` de fondo, `sumi` de texto): la banda de estado arriba y una sola placa de acción abajo. Una placa invertida por pantalla.", "section": "colors" },
+      { "name": "La Regla del Nombre", "body": "M PLUS Rounded es para nombres: platos, categorías, el título del pie y la cifra del sello. Nunca para precios, botones, avisos ni descripciones.", "section": "typography" },
+      { "name": "La Regla del Precio Alineado", "body": "Todo número que el cliente compara (precios, piezas, cantidades, totales) va con `tabular-nums`.", "section": "typography" },
+      { "name": "La Regla de lo que Flota", "body": "Solo lleva sombra lo que flota sobre la página. Filas, chips y bandas se separan con tono y filete.", "section": "elevation" }
     ],
     "dos": [
-      "**Do** leer los colores de los tokens semánticos (`canvas`, `surface`, `line`, `fg`, `muted`, `accent`…) de `src/app/globals.css`; nunca escribir un hex en un componente.",
-      "**Do** marcar la selección con borde `accent` y velo `accent/10` (La Regla del Velo).",
-      "**Do** usar pastillas para controles chicos y 24px para tarjetas y paneles.",
-      "**Do** poner `tabular-nums` en todo precio, cantidad y total.",
-      "**Do** dar foco visible en `accent` con 2px de contorno a todo control interactivo.",
-      "**Do** usar Cormorant Garamond 500 para nombres de platos y títulos, y Geist para lo demás.",
-      "**Do** respetar `prefers-reduced-motion`: el sistema ya baja animaciones y transiciones a 1ms."
+      "Do leer los colores de los tokens de `src/app/globals.css` (`sumi`, `sumi-1`, `sumi-2`, `hairline`, `washi`, `washi-muted`, `shu`…); nunca escribir un hex en un componente.",
+      "Do usar el sello bermellón solo para mostrar una cantidad que está en el pedido (La Regla del Sello).",
+      "Do marcar la selección con borde `washi` y fondo `sumi-2`.",
+      "Do dar a todo control 44px de alto como mínimo y foco visible de 2px en `washi`.",
+      "Do poner `tabular-nums` en todo precio, cantidad, pieza y total.",
+      "Do dejar un producto agotado en su lugar, desteñido y con el sello hueco \"Agotado hoy\".",
+      "Do mostrar una fila sin foto como texto, sin placeholder.",
+      "Do respetar `prefers-reduced-motion`: el sistema baja animaciones y transiciones a 1ms, incluido el estampado del sello."
     ],
     "donts": [
-      "**Don't** agregar un segundo color de acento ni usar el salmón como decoración (La Regla de la Única Luz).",
-      "**Don't** usar sombras en tarjetas, campos o superficies en reposo (La Regla de lo que Flota).",
-      "**Don't** usar blanco puro para texto ni para fondos; el texto es Crema de Arroz.",
-      "**Don't** usar la serif en precios, botones, labels o texto de ayuda (La Regla de la Carta).",
-      "**Don't** usar `subtle` para información que el cliente necesita para completar el pedido: no llega a AA para texto chico.",
-      "**Don't** agregar una variante clara del tema; el sistema es solo oscuro."
+      "Don't usar el bermellón para botones, avisos, errores, foco o decoración.",
+      "Don't escribir texto en `hairline` o `hairline-strong`, ni volver a un tercer gris de texto que no llegue a AA (La Regla de los Dos Papeles).",
+      "Don't usar M PLUS Rounded en precios, botones, avisos o descripciones (La Regla del Nombre).",
+      "Don't poner más de una placa crema invertida de acción por pantalla.",
+      "Don't usar sombras en filas, chips o bandas (La Regla de lo que Flota).",
+      "Don't usar blanco puro para texto ni fondos; el texto es `washi`.",
+      "Don't agregar una variante clara del tema.",
+      "Don't usar los tokens del sistema anterior (`accent`, `canvas`, `subtle`…) ni Cormorant o Geist en pantallas nuevas."
     ]
   }
 }

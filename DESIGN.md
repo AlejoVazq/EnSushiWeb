@@ -2,277 +2,277 @@
 name: EnSushi
 description: Pedidos online de sushi de autor, en dark mode, para el celular y de noche.
 colors:
-  canvas: "#0b0b0c"
-  surface: "#141416"
-  surface-2: "#1c1c1f"
-  line: "#29292d"
-  line-strong: "#3b3b41"
-  fg: "#f4efe6"
-  muted: "#a8a39a"
-  subtle: "#75716a"
-  accent: "#f0805a"
-  accent-strong: "#f6966f"
-  accent-fg: "#1c0f0a"
-  danger: "#f26d6d"
+  sumi: "#141210"
+  sumi-1: "#1d1a17"
+  sumi-2: "#262220"
+  hairline: "#34302b"
+  hairline-strong: "#4d463e"
+  washi: "#f1ebe0"
+  washi-muted: "#b9b0a2"
+  shu: "#c8432b"
+  shu-fg: "#fff6ee"
 typography:
-  display:
-    fontFamily: "Cormorant Garamond, ui-serif, Georgia, serif"
-    fontSize: "3rem"
-    fontWeight: 500
-    lineHeight: 1.05
   headline:
-    fontFamily: "Cormorant Garamond, ui-serif, Georgia, serif"
-    fontSize: "2.25rem"
-    fontWeight: 500
-    lineHeight: 1.1
-  title:
-    fontFamily: "Cormorant Garamond, ui-serif, Georgia, serif"
-    fontSize: "1.5rem"
-    fontWeight: 500
+    fontFamily: "M PLUS Rounded 1c, ui-rounded, system-ui, sans-serif"
+    fontSize: "1.875rem"
+    fontWeight: 700
     lineHeight: 1.25
+  title:
+    fontFamily: "M PLUS Rounded 1c, ui-rounded, system-ui, sans-serif"
+    fontSize: "1.125rem"
+    fontWeight: 700
+    lineHeight: 1.375
   body:
-    fontFamily: "Geist, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Figtree, ui-sans-serif, system-ui, sans-serif"
     fontSize: "1rem"
     fontWeight: 400
     lineHeight: 1.5
   body-sm:
-    fontFamily: "Geist, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Figtree, ui-sans-serif, system-ui, sans-serif"
     fontSize: "0.875rem"
     fontWeight: 400
     lineHeight: 1.625
+  tab:
+    fontFamily: "Figtree, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "0.9375rem"
+    fontWeight: 500
+    lineHeight: 1.5
   label:
-    fontFamily: "Geist, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Figtree, ui-sans-serif, system-ui, sans-serif"
     fontSize: "0.75rem"
     fontWeight: 500
     lineHeight: 1.33
   price:
-    fontFamily: "Geist, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "Figtree, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "1rem"
+    fontWeight: 700
+    lineHeight: 1.5
+    fontFeature: "tnum"
+  seal:
+    fontFamily: "M PLUS Rounded 1c, ui-rounded, system-ui, sans-serif"
     fontSize: "1.125rem"
-    fontWeight: 600
-    lineHeight: 1.55
+    fontWeight: 700
+    lineHeight: 1
     fontFeature: "tnum"
 rounded:
+  md: "6px"
+  lg: "8px"
+  add: "10px"
   xl: "12px"
   2xl: "16px"
-  3xl: "24px"
   full: "9999px"
 spacing:
+  "1": "4px"
   "2": "8px"
   "3": "12px"
   "4": "16px"
   "5": "20px"
   "6": "24px"
 components:
-  button-primary:
-    backgroundColor: "{colors.accent}"
-    textColor: "{colors.accent-fg}"
-    rounded: "{rounded.full}"
-    padding: "0 20px"
-    height: "44px"
-  button-primary-hover:
-    backgroundColor: "{colors.accent-strong}"
-  button-secondary:
-    backgroundColor: "{colors.surface-2}"
-    textColor: "{colors.fg}"
-    rounded: "{rounded.full}"
-    padding: "0 20px"
-    height: "44px"
-  button-ghost:
-    textColor: "{colors.muted}"
-    rounded: "{rounded.full}"
-    padding: "0 20px"
-    height: "44px"
-  button-ghost-hover:
-    backgroundColor: "{colors.surface-2}"
-    textColor: "{colors.fg}"
-  input:
-    backgroundColor: "{colors.surface}"
-    textColor: "{colors.fg}"
+  status-band:
+    backgroundColor: "{colors.washi}"
+    textColor: "{colors.sumi}"
+    typography: "{typography.body-sm}"
     rounded: "{rounded.xl}"
-    padding: "0 16px"
-    height: "48px"
-  card-product:
-    backgroundColor: "{colors.surface}"
-    textColor: "{colors.fg}"
-    rounded: "{rounded.3xl}"
-    padding: "20px"
+    padding: "10px 16px"
+    height: "44px"
   tab-active:
-    backgroundColor: "{colors.accent}"
-    textColor: "{colors.accent-fg}"
-    rounded: "{rounded.full}"
-    padding: "0 16px"
-    height: "36px"
+    textColor: "{colors.washi}"
+    typography: "{typography.tab}"
+    padding: "0 8px"
+    height: "48px"
   tab-inactive:
-    textColor: "{colors.muted}"
+    textColor: "{colors.washi-muted}"
+    typography: "{typography.tab}"
+    padding: "0 8px"
+    height: "48px"
+  choice-chip:
+    textColor: "{colors.washi-muted}"
+    rounded: "{rounded.lg}"
+    padding: "6px 8px"
+    height: "44px"
+  choice-chip-selected:
+    backgroundColor: "{colors.sumi-2}"
+    textColor: "{colors.washi}"
+    rounded: "{rounded.lg}"
+  add-button:
+    textColor: "{colors.washi}"
+    rounded: "{rounded.add}"
+    size: "44px"
+  add-button-hover:
+    backgroundColor: "{colors.sumi-1}"
+  step-button:
+    textColor: "{colors.washi-muted}"
     rounded: "{rounded.full}"
-    padding: "0 16px"
+    size: "44px"
+  step-button-hover:
+    backgroundColor: "{colors.sumi-2}"
+    textColor: "{colors.washi}"
+  seal:
+    backgroundColor: "{colors.shu}"
+    textColor: "{colors.shu-fg}"
+    typography: "{typography.seal}"
+    rounded: "{rounded.md}"
+    size: "40px"
+  sold-out-seal:
+    textColor: "{colors.washi}"
+    rounded: "{rounded.md}"
+    padding: "0 10px"
     height: "36px"
-  choice-tile:
-    backgroundColor: "{colors.surface}"
-    textColor: "{colors.fg}"
+  tag:
+    textColor: "{colors.washi-muted}"
+    typography: "{typography.label}"
+    rounded: "{rounded.md}"
+    padding: "2px 8px"
+  order-plate:
+    backgroundColor: "{colors.washi}"
+    textColor: "{colors.sumi}"
     rounded: "{rounded.2xl}"
-    padding: "16px"
-  quantity-stepper:
-    backgroundColor: "{colors.surface-2}"
-    textColor: "{colors.fg}"
-    rounded: "{rounded.full}"
-    height: "36px"
+    padding: "0 16px"
+    height: "56px"
 ---
 
 # Design System: EnSushi
 
 ## Overview
 
-**Creative North Star: "La barra de noche"**
+**Creative North Star: "Sello y sumi"**
 
-El sistema está pensado como sentarse en la barra de un sushi bar de noche: el ambiente es casi negro y una sola luz cálida, el Salmón de Barra, marca lo que se puede tocar y lo que ya elegiste. Todo lo demás se queda en penumbra para que mande el producto: las fotos reales de los platos y sus nombres, escritos en una serif de carta de restaurante.
+El sistema sale del hanko, el sello de pasta bermellón, apoyado sobre papel y tinta sumi. La página es tinta: un negro cálido en tres capas apenas distintas, con texto crema del mismo tono que el logo. Sobre esa tinta hay una sola marca de color, el sello bermellón, y significa siempre lo mismo: esto está en tu pedido, y cuántos. Lo que elegís queda sellado.
 
-La densidad es de app de pedidos, no de revista. Una categoría por vez, tarjetas grandes con la foto arriba, precios en números tabulares y controles del tamaño del pulgar. Los componentes son táctiles y cálidos: pastillas redondeadas, superficies en capas apenas distintas entre sí y estados que se notan al tocarlos (el borde se enciende en salmón y el fondo toma un velo del mismo color). El tema es oscuro y no tiene variante clara (`color-scheme: dark`).
+Es una pantalla para usar, no una vidriera. El menú es una lista de filas comparables (foto cuadrada, nombre, descripción, tamaños con su precio a la vista y la acción a la derecha), no una grilla de tarjetas grandes. La jerarquía sale de la escala y el peso de dos familias redondeadas, parientes del lettering blando del logo; no hay ornamento, porque el sello es el único dibujo de la página. Los avisos de horario van en una banda crema y la acción principal en una placa crema invertida: el rojo nunca avisa ni manda, solo marca lo elegido.
 
-La profundidad viene del tono y de bordes finos, no de sombras. La luz cálida también vive en los neutros: el texto es crema (no blanco puro) y los grises secundarios tiran a piedra, lo que evita el frío de un dark mode genérico.
+El tema es solo oscuro (`color-scheme: dark`): se pide de noche, desde el celular, muchas veces con poca luz.
 
 **Key Characteristics:**
-- Fondo casi negro en tres capas tonales (canvas → surface → surface-2) separadas por bordes de 1px.
-- Un único color de acento, el Salmón de Barra, para acciones, selección y avisos.
-- Serif Cormorant Garamond para nombres de platos y títulos; Geist para todo lo funcional.
-- Formas muy redondeadas: pastillas para acciones, tarjetas de 24px.
-- Precios siempre en números tabulares y en semibold.
+- Tinta sumi en tres capas (sumi → sumi-1 → sumi-2) separadas por filetes de 1px.
+- Un solo color saturado, el bermellón, con un solo trabajo: "en tu pedido".
+- Crema invertida para lo que hay que leer o tocar primero: la banda de estado y la placa "Ver pedido".
+- M PLUS Rounded 1c para nombres y títulos; Figtree para todo lo funcional.
+- Filas en vez de tarjetas; precios siempre a la vista y en números tabulares.
+- Lleno se tiene, hueco no: sello lleno con la cantidad, sello hueco "Agotado hoy".
 
 ## Colors
 
-Una paleta de penumbra cálida: neutros casi negros con un dejo violeta, texto crema y un solo acento salmón.
+Una paleta de tinta y papel: negros cálidos con un dejo marrón, crema de papel washi y una sola pasta bermellón.
 
 ### Primary
-- **Salmón de Barra** (`accent`): la única luz de la barra. Fondo del botón primario, pestaña activa del menú, barra flotante "Ver pedido" y contador del carrito; borde y velo (10% de opacidad) de toda opción seleccionada; texto de los avisos de reserva ("Rolls y nigiris hasta las 20:00") y del "en tu pedido". También es el color del foco visible.
-- **Salmón Encendido** (`accent-strong`): solo el hover del botón primario.
-- **Tinta sobre Salmón** (`accent-fg`): texto e íconos sobre el acento. Nunca blanco sobre salmón.
+- **Bermellón de Sello** (`shu`): el sello. Contador del carrito en el header, sello con la cantidad en el stepper de cada fila, sello chico con la cantidad sobre cada chip de tamaño u opción que está en el pedido, y sello de la placa "Ver pedido". Nada más: ni botones, ni avisos, ni foco, ni texto suelto. Sobre la tinta llega a 3.8:1, así que nunca se usa para texto sobre `sumi`.
+- **Papel sobre Sello** (`shu-fg`): la cifra dentro del sello (4.6:1 sobre `shu`).
 
 ### Neutral
-- **Noche de Barra** (`canvas`): fondo de la página, del header y de la barra de categorías (estas dos al 85% con desenfoque). También es el `theme-color` del navegador.
-- **Mesada** (`surface`): tarjetas de producto, sheets, campos de texto y resumen del pedido.
-- **Mesada Alta** (`surface-2`): una capa por encima de la mesada. Fondo del placeholder de foto, del botón secundario, del stepper y del hover de los botones fantasma.
-- **Filo** (`line`): bordes de 1px de tarjetas, campos, pestañas inactivas y divisores. Al 60% en el header y en la barra de categorías.
-- **Filo Marcado** (`line-strong`): borde en hover de tarjetas, pestañas y opciones, y trazo del ícono del placeholder.
-- **Crema de Arroz** (`fg`): texto principal.
-- **Piedra** (`muted`): descripciones, texto secundario, pestañas inactivas y botones fantasma.
-- **Piedra Oscura** (`subtle`): placeholders, hints de campos, "c/u" y pie de página. Contraste aproximado de 4:1 sobre `canvas` y de 3.8:1 sobre `surface`, por debajo de AA para texto chico.
-- **Alerta** (`danger`): bordes y texto de error en campos, y avisos que bloquean el checkout (borde al 40% y velo al 10%).
+- **Tinta Sumi** (`sumi`): fondo de la página, del header y de la barra de pestañas (estas dos al 90% con desenfoque) y del degradado detrás de la placa flotante.
+- **Sumi Lavada** (`sumi-1`): hover del botón "+" y del botón del carrito; esqueletos de carga.
+- **Sumi Cargada** (`sumi-2`): fondo del chip seleccionado, de la foto mientras carga y hover de los botones del stepper.
+- **Filete** (`hairline`): borde de 1px de header, pestañas, divisores entre filas, chips en reposo y etiquetas.
+- **Filete Marcado** (`hairline-strong`): borde del botón "+" en reposo y hover de los chips.
+- **Papel Washi** (`washi`): texto principal, nombres, precios, pestaña activa y su subrayado, borde del chip seleccionado, foco visible. Es también el fondo de la banda de estado y de la placa "Ver pedido".
+- **Papel Gastado** (`washi-muted`): descripciones, pestañas inactivas, chips en reposo, etiquetas, botones del stepper y todo lo agotado. Pasa AA en las tres capas (8.7:1 sobre `sumi`, 7.4:1 sobre `sumi-2`).
 
 ### Named Rules
-**La Regla de la Única Luz.** El salmón es el único color con saturación en la interfaz. Si algo lo usa, se toca, está elegido o es un aviso de horario. No hay un segundo acento.
+**La Regla del Sello.** El bermellón significa "en tu pedido" y solo eso. Si algo es rojo y no muestra una cantidad que está en el pedido, está mal. No hay un segundo color saturado.
 
-**La Regla del Velo.** Lo seleccionado o lo destacado en tono informativo lleva el borde en `accent` (o `accent/40` en los avisos) y el fondo en `accent/10`. No se usa un fondo salmón sólido para seleccionar, salvo en la pestaña activa.
+**La Regla de los Dos Papeles.** Hay dos niveles de texto, `washi` y `washi-muted`, y los dos pasan AA sobre todas las superficies. No existe un tercer gris para texto: los filetes son para bordes, nunca para letras.
+
+**La Regla de la Placa.** Lo que hay que leer o tocar primero va en crema invertida (`washi` de fondo, `sumi` de texto): la banda de estado arriba y una sola placa de acción abajo. Una placa invertida por pantalla.
 
 ## Typography
 
-**Display Font:** Cormorant Garamond, pesos 500 y 600 (con ui-serif y Georgia como respaldo)
-**Body Font:** Geist (con ui-sans-serif y system-ui como respaldo)
+**Display Font:** M PLUS Rounded 1c, peso 700 (con ui-rounded y system-ui de respaldo)
+**Body Font:** Figtree, pesos 400, 500 y 700 (con ui-sans-serif y system-ui de respaldo)
 
-**Character:** La serif con contraste fino le da a cada plato el peso de una carta impresa. La sans neutra se ocupa de precios, controles y formularios sin competir con ella.
+**Character:** Una gótica redondeada y firme para los nombres, de la familia del lettering blando del logo, sobre una sans occidental neutra que se ocupa de precios, controles y textos sin competir. Las dos se cargan con `next/font/google`, solo latin.
 
 ### Hierarchy
-- **Display** (500, 48px / 60px desde `sm`, interlineado 1.05): solo el titular de la portada. Se usa una sola vez; es dudoso como escala general.
-- **Headline** (500, 36px; 48px en `sm` para "Finalizar pedido"): títulos de página del checkout y de estados vacíos. Los títulos de categoría usan 30px y pasan a 36px desde `sm`.
-- **Title** (500, 24px): nombre del producto en la tarjeta, título del sheet, leyendas de los grupos del checkout y título del resumen.
-- **Body** (400, 16px): párrafos de portada (18px en el bajador del hero), campos de texto (16px para que iOS no haga zoom).
-- **Body-sm** (400 a 500, 14px, interlineado relajado): el tamaño de trabajo de la interfaz. Descripciones, botones, pestañas, avisos y labels de campos.
-- **Label** (500, 12px): chips de etiquetas sobre la foto, badge de reserva y "en tu pedido".
-- **Price** (600, 18px en tarjeta y 24px en el total, números tabulares): todos los importes.
-
-Valores dudosos (aparecen una sola vez): el eyebrow "Pedidos online" en mayúsculas con espaciado de 0.2em y el contador del carrito a 11px.
+- **Headline** (700, 30px y 36px desde `sm`, interlineado 1.25): título de categoría. El título del pie ("Sushi de autor, directo a tu casa.") usa el mismo estilo a 24px y 30px desde `sm`.
+- **Title** (700, 18px y 20px desde `sm`, interlineado 1.375, `text-balance`): nombre del producto en la fila.
+- **Body** (400, 16px, interlineado 1.5): descripción de la categoría y bajada del pie.
+- **Body-sm** (400, 14px, interlineado 1.625, `text-pretty`): descripción del producto y texto de la banda de estado (la primera frase en 700, la segunda en 500).
+- **Tab** (15px; 500 inactiva, 700 activa): pestañas de categoría.
+- **Label** (500, 12px): cantidad de piezas dentro del chip de tamaño y etiquetas (Más pedido, Picante, Veggie).
+- **Price** (700, 16px; 14px dentro del chip; tabular): todos los importes.
+- **Seal** (M PLUS Rounded 700, tabular): 18px en el stepper, 14px en la placa, 12px en el header y 11px sobre los chips.
 
 ### Named Rules
-**La Regla de la Carta.** La serif es para nombres: platos, secciones, títulos de pantalla. Nunca para precios, botones, labels ni texto de ayuda.
+**La Regla del Nombre.** M PLUS Rounded es para nombres: platos, categorías, el título del pie y la cifra del sello. Nunca para precios, botones, avisos ni descripciones.
 
-**La Regla del Precio Alineado.** Todo número que el cliente compara (precios, cantidades, totales, piezas) va con `tabular-nums`.
+**La Regla del Precio Alineado.** Todo número que el cliente compara (precios, piezas, cantidades, totales) va con `tabular-nums`.
 
 ## Layout
 
-Mobile-first, una sola columna con márgenes laterales de 16px (24px desde `sm`) dentro de un contenedor de hasta 1152px (`max-w-6xl`). El checkout usa un contenedor de 1024px (`max-w-5xl`).
+Mobile-first, una columna con márgenes laterales de 16px (24px desde `sm`) dentro de un contenedor de hasta 1152px (`max-w-6xl`).
 
-La portada es un hero corto (48px de padding vertical; 80px desde `sm`), seguido de la barra de categorías pegajosa (debajo del header de 64px) y de una sola categoría visible. Los productos van en una grilla de 1 columna, 2 desde `sm` (640px) y 3 desde `lg` (1024px), con 20px de separación.
+El menú arranca sin hero: header pegajoso de 56px; banda de estado con 16px arriba y 8px abajo; barra de pestañas pegajosa de 48px debajo del header; una sola categoría visible. El texto de portada vive al pie de la página, después de los productos, con 48px arriba y 128px abajo en el celular (lugar para la placa flotante; 56px desde `sm`).
 
-El ritmo interno sale de la escala de 4px de Tailwind: 12–16px entre elementos relacionados, 16–20px de padding en tarjetas, 24–40px entre bloques. En mobile, el contenido deja 128px abajo para la barra flotante del carrito, que desaparece desde `sm`. Los sheets respetan `safe-area-inset-bottom`.
+Las filas forman una lista con un filete arriba de la primera y uno debajo de cada fila. Cada fila tiene 20px de padding vertical y una columna de foto de 88px (104px desde `sm`) con 16px de separación; sin foto, el texto ocupa todo el ancho. Dentro del texto: 4px entre nombre y descripción, 12px entre bloques (texto, chips, acción). Los chips van en 2 o 3 columnas iguales con 8px de separación. Desde `lg` (1024px) las filas pasan a dos columnas con 48px de separación. La sección hace scroll con un margen de 112px para no quedar bajo las barras pegajosas.
 
-El sheet de abajo pasa a ser un diálogo centrado desde `sm`; el drawer del carrito entra desde la derecha con un ancho máximo de 448px.
+En el celular las pestañas hacen scroll horizontal sin barra visible y se desvanecen en los últimos 32px para avisar que hay más.
 
 ## Elevation & Depth
 
-El sistema es plano y en capas tonales: la profundidad se lee por el paso de `canvas` a `surface` y a `surface-2`, y por bordes de 1px. Las superficies en reposo no tienen sombra. Las barras pegajosas (header y categorías) usan `canvas` al 85% con `backdrop-blur-md` para que el menú pase por debajo sin perder legibilidad. Los modales oscurecen todo con un fondo negro al 70% y un desenfoque leve.
+Plano y en capas de tinta: la profundidad se lee por el paso de `sumi` a `sumi-1` y `sumi-2` y por filetes de 1px. Nada en reposo tiene sombra. El header y la barra de pestañas usan `sumi` al 90% con `backdrop-blur-md` para que el menú pase por debajo sin perder legibilidad.
 
 ### Shadow Vocabulary
-- **Flotante** (`box-shadow` de `shadow-lg` en negro al 40%): la barra "Ver pedido" en mobile. Se usa una sola vez; dudoso.
-- **Modal** (`box-shadow` de `shadow-2xl` en negro al 60%): el panel del sheet. Se usa una sola vez; dudoso.
+- **Placa flotante** (`box-shadow` de `shadow-lg` en negro al 50%): la placa "Ver pedido" del celular, sobre un degradado que sale de `sumi`. Es la única sombra del menú.
 
 ### Named Rules
-**La Regla de lo que Flota.** Solo lleva sombra lo que flota por encima de la página (barra flotante, sheets). Las tarjetas y los campos se separan con tono y borde, nunca con sombra.
+**La Regla de lo que Flota.** Solo lleva sombra lo que flota sobre la página. Filas, chips y bandas se separan con tono y filete.
 
 ## Shapes
 
-La forma es blanda y redonda. Las pastillas (`rounded-full`) son para todo lo que se toca y es chico: botones, pestañas, stepper, chips, botón del carrito y contador. Las tarjetas grandes y los sheets usan 24px (`rounded-3xl`). Las opciones seleccionables grandes del checkout y del armado de combo usan 16px (`rounded-2xl`). Los campos, avisos y el selector de tamaño dentro de la tarjeta usan 12px (`rounded-xl`).
+Formas firmes con las esquinas apenas redondeadas, como un sello o una tablilla, no pastillas. 6px para el sello, las etiquetas y el sello hueco de agotado; 8px para los chips de tamaño u opción; 10px para el botón "+"; 12px para la foto y la banda de estado; 16px para la placa flotante. Solo los botones del stepper y el botón del carrito son círculos.
 
-Los bordes son siempre de 1px. El único borde punteado es el estado vacío de una categoría (una sola vez; dudoso). Las fotos se recortan dentro de la tarjeta con proporción 4:3.
+El sello se apoya inclinado (-6° el lleno, -3° el hueco), como estampado a mano. Es la única forma girada del sistema. Las fotos van cuadradas y recortadas (`object-cover`). Los bordes son siempre de 1px, salvo el sello hueco (1.5px).
 
 ## Components
 
 ### Buttons
-Pastillas cálidas y firmes al pulgar.
-- **Shape:** pastilla completa (9999px).
-- **Primary:** fondo Salmón de Barra con Tinta sobre Salmón, peso 500. Tamaños: 36px de alto (`sm`), 44px (`md`, por defecto) y 52px (`lg`, el de enviar el pedido), con 16–24px de padding lateral.
-- **Hover / Focus:** el hover pasa a Salmón Encendido con `transition-colors`; el foco es un contorno de 2px en `accent`, separado 2px. Deshabilitado baja al 40% de opacidad y no recibe clics.
-- **Secondary:** fondo `surface-2`, borde `line` que pasa a `line-strong` en hover y texto crema.
-- **Ghost:** texto Piedra sin fondo; en hover toma `surface-2` y texto crema.
-- **Icon:** círculo de 40px; los botones de cerrar usan el mismo patrón.
+Directos y del tamaño del pulgar; ninguno es rojo.
+- **Agregar ("+")**: cuadrado de 44px, 10px de radio, borde `hairline-strong` y signo `washi`. En hover, borde `washi` y fondo `sumi-1`.
+- **Stepper**: menos, sello con la cantidad y más, cada uno de 44px. Los botones son círculos con el signo en `washi-muted`; en hover toman fondo `sumi-2` y signo `washi`. En el menú el menos se deshabilita en 1 (35% de opacidad): borrar una línea es trabajo del carrito.
+- **Carrito (header)**: círculo de 44px con borde `hairline`, ícono de bolsa y el sello contador arriba a la derecha.
+- **Foco**: contorno de 2px en `washi`, separado 2px. Nunca bermellón.
+
+### Seal (componente propio)
+El gesto que define el sistema. Un cuadrado de pasta bermellón (`shu`) con la cantidad en M PLUS Rounded tabular, 6px de radio, girado -6°. Cada vez que cambia la cantidad se vuelve a estampar: entra desde 1.3× de escala, -14° y 40% de opacidad, y se asienta en 220ms con `cubic-bezier(0.22, 1, 0.36, 1)`. Viene en cuatro escalas: 40px en el stepper, 32px en la placa, 24px en el header y 20px sobre los chips. Siempre va con texto para lectores de pantalla ("2 en tu pedido").
+- **Sello hueco "Agotado hoy"**: 36px de alto, borde de 1.5px en `washi-muted`, texto `washi` en 700, girado -3°. Reemplaza la acción de un producto agotado.
 
 ### Chips
-- **Etiquetas sobre la foto:** pastilla negra al 60% con desenfoque y texto crema de 12px, arriba a la izquierda de la imagen.
-- **Badge de reserva:** pastilla con borde `accent/40`, fondo `accent/10` y texto salmón de 12px ("Rolls y nigiris hasta las 20:00").
+- **De tamaño u opción**: radios nativos ocultos dentro de un label. 44px de alto como mínimo y 8px de radio. Los de tamaño llevan "15 piezas" en label y el precio en 700 debajo. En reposo: borde `hairline` y texto `washi-muted`. Seleccionado: borde `washi`, fondo `sumi-2` y texto `washi`. Si esa línea está en el pedido, el sello chico va en la esquina superior derecha. Foco: contorno `washi` sobre el label.
+- **Etiquetas**: 6px de radio, borde `hairline`, texto `washi-muted` de 12px.
 
-### Cards / Containers
-- **Corner Style:** 24px.
-- **Background:** `surface`; la zona de la foto tiene `surface-2` de fondo mientras carga.
-- **Shadow Strategy:** ninguna (ver Elevation & Depth).
-- **Border:** 1px `line`, que pasa a `line-strong` en hover. En hover la foto se agranda un 3% en 500ms (una sola vez; dudoso).
-- **Internal Padding:** 20px (24px en el resumen del checkout desde `sm`).
-- **Placeholder de foto:** dos degradados radiales marrón oscuro sobre `surface-2` y un ícono de rollo de sushi (tres círculos concéntricos, el centro en `accent/40`). Los colores del degradado (#2b2320 y #201b1a) están escritos a mano fuera de los tokens.
+### Product Row
+La unidad del menú. Foto cuadrada de 88/104px con 12px de radio a la izquierda (o nada si no hay foto o falla la carga), nombre, descripción, etiquetas, chips y una línea de acción de 44px: precio a la izquierda (vacío en los combos, que llevan el precio en cada chip) y acción a la derecha. **Agotado:** foto en gris al 40%, nombre y precio en `washi-muted`, chips deshabilitados al 40% y el sello hueco en lugar de la acción.
 
-### Inputs / Fields
-- **Style:** 48px de alto, fondo `surface`, borde 1px `line`, 12px de radio y texto de 16px. El label va arriba en 14px/500 y el hint abajo en `subtle`.
-- **Focus:** el borde pasa a `accent`, sin contorno extra.
-- **Error / Disabled:** borde y mensaje en `danger`, con `aria-invalid` y el mensaje vinculado por `aria-describedby`.
+### Status Band
+Banda crema de 44px como mínimo, 12px de radio, texto `sumi` de 14px. La primera frase va en 700 y el detalle en 500, a los costados (o apilados si no entran). Lee el horario del local y usa las mismas frases que los avisos del carrito y el checkout ("Hoy no abrimos. / Abrimos mañana a las 17:00.", "Abierto hoy hasta las 23:30 / Rolls y nigiris hasta las 20:00"). Mientras no se sabe la hora del visitante, reserva el lugar vacío. `role="status"`.
 
 ### Navigation
-- **Header:** pegajoso, 64px, logo a la izquierda (32px de alto) y botón circular del carrito (44px) con contador salmón.
-- **Pestañas de categoría:** fila de pastillas de 36px con scroll horizontal y sin barra visible. La activa va con fondo salmón sólido; las inactivas, con borde `line` y texto Piedra (en hover, `line-strong` y crema). Se navegan con las flechas (patrón de pestañas WAI-ARIA).
-- **Mobile:** barra flotante de 56px a todo el ancho con la cantidad, "Ver pedido" y el total, sobre un degradado que sale de `canvas`.
+- **Header:** pegajoso, 56px, logo de 28px de alto a la izquierda y botón del carrito a la derecha; filete abajo.
+- **Pestañas:** botones de texto de 48px de alto, 15px, con 12px entre sí. La inactiva va en `washi-muted` (en hover, `washi`); la activa en `washi` 700 con un subrayado interno de 2px del mismo color. Patrón de pestañas WAI-ARIA con flechas.
+- **Placa "Ver pedido" (celular):** placa `washi` de 56px a todo el ancho, 16px de radio, con el sello y "Ver pedido" a la izquierda y el total a la derecha, en `sumi` 700. Desaparece desde `sm`.
 
-### Opciones seleccionables (componente propio)
-Es el patrón que más se repite y el que define el tacto del sistema. Se trata de radios nativos ocultos dentro de un label-tarjeta. En reposo: borde `line` (sobre `surface` en el checkout) y texto Piedra. Seleccionado: borde `accent` y velo `accent/10`. Foco: contorno de 2px en `accent` sobre el label (`has-focus-visible`). Viene en dos escalas: el segmentado chico dentro de la tarjeta (12px de radio, 2–3 columnas, para tamaños de 15/24/40 piezas o Crudo/Cocido) y la tarjeta grande de opción (16px de radio y 16px de padding, para entrega, pago y armado de combo).
-
-### Stepper de cantidad
-Pastilla `surface-2` con borde `line`, dos botones circulares de 36px y la cantidad en el centro (14px semibold tabular, `aria-live`). Con cantidad 1, el menos se convierte en tacho de basura. En la tarjeta reemplaza al botón "Agregar" una vez que esa línea está en el carrito.
-
-### Sheet
-Panel modal sobre `<dialog>` nativo. Fondo `surface`, borde `line` y título en serif de 24px con un divisor abajo. Viene en dos variantes: drawer derecho (entra en 300ms) y bottom sheet en mobile, que pasa a diálogo centrado desde `sm` (300ms al subir, 200ms al escalar). Todas las entradas usan la curva `cubic-bezier(0.22, 1, 0.36, 1)`.
-
-### Avisos de horario
-Bloques de 12px de radio con texto de 14px e interlineado relajado. Los informativos usan borde `accent/40` y fondo `accent/10`; los que bloquean usan `danger/40` y `danger/10` con `role="alert"`.
+### Transición
+El carrito, el checkout, el modal de Arma tu combo y su tarjeta todavía usan el sistema anterior hasta la Fase 7 y el Paso 10: en `src/app/globals.css` siguen `canvas`, `surface`, `surface-2`, `line`, `line-strong`, `fg`, `muted`, `subtle`, `accent`, `accent-strong`, `accent-fg` y `danger`, con Geist (`font-sans`) y Cormorant Garamond (`font-display`). Son legado: no se usan en trabajo nuevo y se borran cuando esas pantallas pasen a Sello y sumi. Para los errores de campos ya está decidido un rosa frío propio, distinto del bermellón; todavía no existe como token.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** leer los colores de los tokens semánticos (`canvas`, `surface`, `line`, `fg`, `muted`, `accent`…) de `src/app/globals.css`; nunca escribir un hex en un componente.
-- **Do** marcar la selección con borde `accent` y velo `accent/10` (La Regla del Velo).
-- **Do** usar pastillas para controles chicos y 24px para tarjetas y paneles.
-- **Do** poner `tabular-nums` en todo precio, cantidad y total.
-- **Do** dar foco visible en `accent` con 2px de contorno a todo control interactivo.
-- **Do** usar Cormorant Garamond 500 para nombres de platos y títulos, y Geist para lo demás.
-- **Do** respetar `prefers-reduced-motion`: el sistema ya baja animaciones y transiciones a 1ms.
+- **Do** leer los colores de los tokens de `src/app/globals.css` (`sumi`, `sumi-1`, `sumi-2`, `hairline`, `washi`, `washi-muted`, `shu`…); nunca escribir un hex en un componente.
+- **Do** usar el sello bermellón solo para mostrar una cantidad que está en el pedido (La Regla del Sello).
+- **Do** marcar la selección con borde `washi` y fondo `sumi-2`.
+- **Do** dar a todo control 44px de alto como mínimo y foco visible de 2px en `washi`.
+- **Do** poner `tabular-nums` en todo precio, cantidad, pieza y total.
+- **Do** dejar un producto agotado en su lugar, desteñido y con el sello hueco "Agotado hoy".
+- **Do** mostrar una fila sin foto como texto, sin placeholder.
+- **Do** respetar `prefers-reduced-motion`: el sistema baja animaciones y transiciones a 1ms, incluido el estampado del sello.
 
 ### Don't:
-- **Don't** agregar un segundo color de acento ni usar el salmón como decoración (La Regla de la Única Luz).
-- **Don't** usar sombras en tarjetas, campos o superficies en reposo (La Regla de lo que Flota).
-- **Don't** usar blanco puro para texto ni para fondos; el texto es Crema de Arroz.
-- **Don't** usar la serif en precios, botones, labels o texto de ayuda (La Regla de la Carta).
-- **Don't** usar `subtle` para información que el cliente necesita para completar el pedido: no llega a AA para texto chico.
-- **Don't** agregar una variante clara del tema; el sistema es solo oscuro.
+- **Don't** usar el bermellón para botones, avisos, errores, foco o decoración.
+- **Don't** escribir texto en `hairline` o `hairline-strong`, ni volver a un tercer gris de texto que no llegue a AA (La Regla de los Dos Papeles).
+- **Don't** usar M PLUS Rounded en precios, botones, avisos o descripciones (La Regla del Nombre).
+- **Don't** poner más de una placa crema invertida de acción por pantalla.
+- **Don't** usar sombras en filas, chips o bandas (La Regla de lo que Flota).
+- **Don't** usar blanco puro para texto ni fondos; el texto es `washi`.
+- **Don't** agregar una variante clara del tema.
+- **Don't** usar los tokens del sistema anterior (`accent`, `canvas`, `subtle`…) ni Cormorant o Geist en pantallas nuevas.
