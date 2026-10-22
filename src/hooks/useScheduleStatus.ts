@@ -5,6 +5,7 @@ import { useMemo, useSyncExternalStore } from 'react';
 import {
   checkSchedule,
   getCartNotices,
+  getNow,
   getScheduleStatus,
   type CartScheduleCheck,
   type CartScheduleNotice,
@@ -19,7 +20,8 @@ const subscribe = (onChange: () => void) => {
   const id = setInterval(onChange, MINUTE / 2);
   return () => clearInterval(id);
 };
-const getSnapshot = () => Math.floor(Date.now() / MINUTE);
+// getNow() is the simulated time when ?ahora is set in development
+const getSnapshot = () => Math.floor(getNow().getTime() / MINUTE);
 const getServerSnapshot = () => null;
 
 /** null during SSR and hydration: the status depends on the visitor's clock */

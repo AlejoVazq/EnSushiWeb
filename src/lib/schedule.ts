@@ -63,6 +63,58 @@ const shopTime = (date: Date): { day: string; minutes: number } => {
   };
 };
 
+// ─── Simulated clock (development only) ───────────────────────────────────────
+
+/** URL parameter: ?ahora=AAAA-MM-DDTHH:MM (shop time); ?ahora= with no value clears it */
+export const SIMULATED_NOW_PARAM = 'ahora';
+const SIMULATED_NOW_KEY = 'ensushi:ahora';
+const SIMULATED_NOW_PATTERN = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/;
+
+/** "AAAA-MM-DDTHH:MM" read as wall-clock time in the shop's time zone → the matching instant; null if invalid */
+const parseShopDateTime = (value: string): Date | null => {
+  const match = SIMULATED_NOW_PATTERN.exec(value);
+  if (!match) return null;
+  const [year, month, day, hours, minutes] = match.slice(1).map(Number) as [number, number, number, number, number];
+  const wallClock = Date.UTC(year, month - 1, day, hours, minutes);
+  // Read that instant back in the shop's zone: the gap is the zone's offset (exact unless it falls on a DST change)
+  const shown = shopTime(new Date(wallClock));
+  const shownWallClock = Date.parse(`${shown.day}T00:00:00Z`) + shown.minutes * 60_000;
+  const date = new Date(wallClock - (shownWallClock - wallClock));
+  // Rejects impossible dates such as 2026-02-31
+  const check = shopTime(date);
+  return check.day === `${match[1]}-${match[2]}-${match[3]}` && check.minutes === hours * 60 + minutes ? date : null;
+};
+
+let simulatedNow: Date | null | undefined;
+
+/** Reads ?ahora once per page load and keeps it in sessionStorage so it survives navigation */
+const readSimulatedNow = (): Date | null => {
+  const params = new URLSearchParams(window.location.search);
+  const fromUrl = params.get(SIMULATED_NOW_PARAM);
+  try {
+    if (fromUrl === '') sessionStorage.removeItem(SIMULATED_NOW_KEY);
+    else if (fromUrl !== null) {
+      if (parseShopDateTime(fromUrl)) sessionStorage.setItem(SIMULATED_NOW_KEY, fromUrl);
+      else console.warn(`[EnSushi] ?${SIMULATED_NOW_PARAM}=${fromUrl} no es AAAA-MM-DDTHH:MM válido; se ignora.`);
+    }
+    const stored = sessionStorage.getItem(SIMULATED_NOW_KEY);
+    return stored ? parseShopDateTime(stored) : null;
+  } catch {
+    // Storage blocked: honour the URL for this page only
+    return fromUrl ? parseShopDateTime(fromUrl) : null;
+  }
+};
+
+/** The simulated time from ?ahora, or null. Always null in production and on the server. */
+export const getSimulatedNow = (): Date | null => {
+  if (process.env.NODE_ENV === 'production' || typeof window === 'undefined') return null;
+  if (simulatedNow === undefined) simulatedNow = readSimulatedNow();
+  return simulatedNow;
+};
+
+/** "Now" for every schedule decision: the simulated time in development, the real clock otherwise */
+export const getNow = (): Date => getSimulatedNow() ?? new Date();
+
 /** The calendar day `offset` days after `day`, at UTC noon so weekday math ignores time zones */
 const addDays = (day: string, offset: number): Date => new Date(Date.parse(`${day}T12:00:00Z`) + offset * DAY_MS);
 
@@ -75,7 +127,7 @@ const isOpeningDay = (date: Date): boolean => {
 };
 
 /** Opening and preorder status at `date` (the visitor's clock, read in the shop's time zone) */
-export const getScheduleStatus = (date: Date = new Date()): ScheduleStatus => {
+export const getScheduleStatus = (date: Date = getNow()): ScheduleStatus => {
   const { day: today, minutes } = shopTime(date);
   const isOpenToday = isOpeningDay(addDays(today, 0));
 

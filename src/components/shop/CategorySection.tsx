@@ -2,6 +2,7 @@
 
 import { getMenuByCategory, hasDayRestrictions } from '@/data/menu';
 import { useIsClient } from '@/hooks/useIsClient';
+import { getNow } from '@/lib/schedule';
 import type { Category, CustomComboProduct, Product } from '@/types';
 
 import { categoryTabId } from './CategoryNav';
@@ -39,7 +40,7 @@ export function CategorySection({ category, onCustomize }: CategorySectionProps)
   // Day-dependent categories must use the visitor's clock, never the server's/build's
   const waitForClient = hasDayRestrictions(category.id) && !isClient;
   // Sold-out products stay listed (greyed out) so regulars know they're only out for today
-  const listed = waitForClient ? [] : getMenuByCategory(category.id, isClient ? new Date() : PRERENDER_DATE);
+  const listed = waitForClient ? [] : getMenuByCategory(category.id, isClient ? getNow() : PRERENDER_DATE);
   const rows = listed.filter(isRowProduct);
   // The previous Arma tu combo card has no sold-out state: it keeps hiding them until Paso 10
   const builders = listed.filter(

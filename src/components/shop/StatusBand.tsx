@@ -2,9 +2,20 @@
 
 import { BUSINESS } from '@/config/business';
 import { useScheduleStatus } from '@/hooks/useScheduleStatus';
-import type { ScheduleStatus } from '@/lib/schedule';
+import { getSimulatedNow, type ScheduleStatus } from '@/lib/schedule';
 
-const { operatingHours, preorderCutoff } = BUSINESS.schedule;
+const { operatingHours, preorderCutoff, timeZone } = BUSINESS.schedule;
+
+/** "vie 23/10 21:30", in the shop's time zone */
+const simulatedFormatter = new Intl.DateTimeFormat(BUSINESS.locale, {
+  timeZone,
+  weekday: 'short',
+  day: '2-digit',
+  month: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  hourCycle: 'h23',
+});
 
 interface BandCopy {
   lead: string;
@@ -30,6 +41,8 @@ const getBandCopy = (status: ScheduleStatus): BandCopy => {
 export function StatusBand() {
   const status = useScheduleStatus();
   const copy = status ? getBandCopy(status) : null;
+  // Only read once the clock is known (after hydration), like the status itself; always null in production
+  const simulated = status ? getSimulatedNow() : null;
 
   return (
     <div
@@ -41,6 +54,12 @@ export function StatusBand() {
           <p className="font-bold">{copy.lead}</p>
           {copy.detail && <p className="font-medium">{copy.detail}</p>}
         </>
+      )}
+      {simulated && (
+        <p className="basis-full pt-1 text-xs font-medium">
+          <span className="rounded-md border border-sumi/50 px-1.5 py-0.5 font-bold">Hora simulada</span>{' '}
+          {simulatedFormatter.format(simulated)} · solo en desarrollo
+        </p>
       )}
     </div>
   );
