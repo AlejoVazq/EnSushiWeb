@@ -23,7 +23,7 @@ export const CATEGORIES: readonly Category[] = [
   {
     id: 'arma-tu-combo',
     name: 'Arma tu combo',
-    description: `Rolls de autor, nigiris y acompañamientos, a tu gusto. Para el mismo día, pedilo hasta las ${BUSINESS.schedule.preorderCutoff}.`,
+    description: `Rolls de autor, nigiris y acompañamientos, a tu gusto. Rolls y nigiris, hasta las ${BUSINESS.schedule.preorderCutoff}.`,
   },
   { id: 'sushiburgers', name: 'Sushiburgers', description: 'Nuestra fusión: arroz crocante en formato burger.' },
   { id: 'combos', name: 'Combos', description: 'Selecciones de la casa para compartir.' },

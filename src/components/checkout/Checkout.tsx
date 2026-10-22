@@ -2,25 +2,27 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 
 import { Button, buttonClassName } from '@/components/ui/Button';
 import { ScheduleNotices } from '@/components/shop/ScheduleNotices';
 import { Input } from '@/components/ui/Input';
 import { BUSINESS, DELIVERY_METHOD_LABELS, PAYMENT_METHOD_LABELS } from '@/config/business';
 import { useCartHydrated } from '@/hooks/useCartHydration';
-import { useOrderSchedule } from '@/hooks/useScheduleStatus';
+import { useCheckoutSchedule } from '@/hooks/useScheduleStatus';
 import {
   CHECKOUT_FIELDS,
+  clearCheckoutDraft,
   createOrder,
   deliveryFeeFor,
+  loadCheckoutDraft,
+  saveCheckoutDraft,
   validateCheckout,
   type CheckoutErrors,
   type CheckoutForm,
 } from '@/lib/checkout';
 import { cn } from '@/lib/cn';
 import { formatPrice } from '@/lib/format';
-import type { OrderDay } from '@/lib/schedule';
 import { buildWhatsAppUrl } from '@/services/whatsappService';
 import { selectCartTotal, useCartStore } from '@/store/useCartStore';
 import type { DeliveryMethod, PaymentMethod } from '@/types';
@@ -44,14 +46,6 @@ const PAYMENT_OPTIONS: readonly ChoiceOption<PaymentMethod>[] = [
     description: `Por ${BUSINESS.transfer.provider}. Te pasamos el alias cuando confirmemos el pedido.`,
   },
 ];
-
-const { open, close } = BUSINESS.schedule.operatingHours;
-
-const toDayOption = ({ date, label }: OrderDay): ChoiceOption<string> => ({
-  value: date,
-  label,
-  description: `De ${open} a ${close}`,
-});
 
 interface ChoiceOption<T extends string> {
   value: T;
@@ -141,12 +135,13 @@ function SentScreen({ url, isTransfer, onEdit, onNewOrder }: {
     <div className="mx-auto mt-10 max-w-md space-y-6 text-center">
       <h1 className="font-display text-4xl font-medium">Terminá de enviarlo en WhatsApp</h1>
       <p className="text-muted">
-        Abrimos WhatsApp con tu pedido ya escrito. Solo tenés que tocar <strong className="text-fg">Enviar</strong>.
+        Tu pedido ya está escrito en WhatsApp: solo tenés que tocar <strong className="text-fg">Enviar</strong>. Si no se
+        abrió, tocá Abrir WhatsApp.
       </p>
       {isTransfer && <TransferNotice />}
       <div className="space-y-3">
         <a href={url} target="_blank" rel="noopener noreferrer" className={buttonClassName({ size: 'lg', fullWidth: true })}>
-          Abrir WhatsApp de nuevo
+          Abrir WhatsApp
         </a>
         <Button variant="secondary" size="lg" fullWidth onClick={onNewOrder}>
           Ya lo envié · Hacer otro pedido
@@ -167,40 +162,37 @@ export function Checkout() {
   const clearCart = useCartStore((state) => state.clearCart);
 
   const formRef = useRef<HTMLFormElement>(null);
-  const [form, setForm] = useState<CheckoutForm>({
-    name: '',
-    orderDate: null,
-    deliveryMethod: null,
-    address: '',
-    paymentMethod: null,
-  });
-  const { orderDays, check: schedule } = useOrderSchedule(items, form.orderDate);
+  // Only read on the client: until the cart hydrates the page renders a skeleton, so the server's empty form never shows
+  const [form, setForm] = useState<CheckoutForm>(loadCheckoutDraft);
+  const schedule = useCheckoutSchedule(items);
   const [errors, setErrors] = useState<CheckoutErrors>({});
-  const [whatsappUrl, setWhatsappUrl] = useState<string | null>(null);
+  const [sent, setSent] = useState(false);
   const deliveryFee = deliveryFeeFor(form.deliveryMethod);
+
+  useEffect(() => saveCheckoutDraft(form), [form]);
+
+  // A complete form turns the main button into a plain link to wa.me: in-app browsers (Instagram, Facebook) block window.open
+  const isComplete = !CHECKOUT_FIELDS.some((field) => validateCheckout(form)[field]);
+  const order = isComplete ? createOrder(form, items) : null;
+  const whatsappUrl = order ? buildWhatsAppUrl(order) : null;
+  const submitLabel = `Enviar pedido por WhatsApp · ${formatPrice(subtotal + deliveryFee)}`;
 
   const update = <K extends keyof CheckoutForm>(key: K, value: CheckoutForm[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     setErrors((prev) => ({ ...prev, [key]: undefined }));
   };
 
+  /** Only reached while the form is incomplete (a complete one shows the WhatsApp link instead) */
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!schedule.canCheckout) return;
-    const nextErrors = validateCheckout(form, orderDays.map((day) => day.date));
+    const nextErrors = validateCheckout(form);
     setErrors(nextErrors);
-
     const firstInvalid = CHECKOUT_FIELDS.find((field) => nextErrors[field]);
-    const order = firstInvalid ? null : createOrder(form, items);
-    if (!order) {
-      formRef.current?.querySelector<HTMLElement>(`[name="${firstInvalid}"]`)?.focus();
-      return;
-    }
-
-    const url = buildWhatsAppUrl(order);
-    setWhatsappUrl(url);
-    window.open(url, '_blank', 'noopener,noreferrer');
+    if (firstInvalid) formRef.current?.querySelector<HTMLElement>(`[name="${firstInvalid}"]`)?.focus();
   };
+
+  // Deferred: a link removed from the page during its own click doesn't navigate
+  const handleOpenWhatsApp = () => window.setTimeout(() => setSent(true));
 
   if (!hydrated) {
     return (
@@ -210,14 +202,15 @@ export function Checkout() {
     );
   }
 
-  if (whatsappUrl) {
+  if (sent && whatsappUrl) {
     return (
       <PageShell>
         <SentScreen
           url={whatsappUrl}
           isTransfer={form.paymentMethod === 'transfer'}
-          onEdit={() => setWhatsappUrl(null)}
+          onEdit={() => setSent(false)}
           onNewOrder={() => {
+            clearCheckoutDraft();
             clearCart();
             router.push('/');
           }}
@@ -260,15 +253,6 @@ export function Checkout() {
           </fieldset>
 
           <ChoiceCards
-            name="orderDate"
-            legend="¿Para cuándo?"
-            options={orderDays.map(toDayOption)}
-            value={form.orderDate}
-            onChange={(date) => update('orderDate', date)}
-            error={errors.orderDate}
-          />
-
-          <ChoiceCards
             name="deliveryMethod"
             legend="Entrega"
             options={DELIVERY_OPTIONS}
@@ -307,11 +291,25 @@ export function Checkout() {
             {form.paymentMethod === 'transfer' && <TransferNotice />}
           </ChoiceCards>
 
+          <p className="text-sm text-muted">Para hoy · el horario lo coordinamos por WhatsApp</p>
+
           <div className="space-y-3">
             <ScheduleNotices notices={schedule.notices} />
-            <Button type="submit" size="lg" fullWidth disabled={!schedule.canCheckout}>
-              Enviar pedido por WhatsApp · {formatPrice(subtotal + deliveryFee)}
-            </Button>
+            {whatsappUrl && schedule.canCheckout ? (
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleOpenWhatsApp}
+                className={buttonClassName({ size: 'lg', fullWidth: true })}
+              >
+                {submitLabel}
+              </a>
+            ) : (
+              <Button type="submit" size="lg" fullWidth disabled={!schedule.canCheckout}>
+                {submitLabel}
+              </Button>
+            )}
             <p className="text-center text-sm text-subtle">Se abre WhatsApp con tu pedido listo para enviar.</p>
           </div>
         </form>

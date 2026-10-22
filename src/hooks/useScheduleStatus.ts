@@ -3,19 +3,18 @@
 import { useMemo, useSyncExternalStore } from 'react';
 
 import {
-  checkOrderDay,
+  checkSchedule,
   getCartNotices,
   getScheduleStatus,
   type CartScheduleCheck,
   type CartScheduleNotice,
-  type OrderDay,
   type ScheduleStatus,
 } from '@/lib/schedule';
 import type { CartItem } from '@/types';
 
 const MINUTE = 60_000;
 
-// Re-check often enough that crossing a boundary (opening, cutoff) shows up within the minute
+// Re-check often enough that crossing a boundary (opening, cutoff, closing) shows up within the minute
 const subscribe = (onChange: () => void) => {
   const id = setInterval(onChange, MINUTE / 2);
   return () => clearInterval(id);
@@ -37,19 +36,10 @@ export function useCartNotices(items: readonly CartItem[]): CartScheduleNotice[]
   return useMemo(() => (status ? getCartNotices(items, status) : NO_NOTICES), [items, status]);
 }
 
-export interface OrderSchedule {
-  /** Days the customer can pick; empty until the clock is known */
-  orderDays: OrderDay[];
-  check: CartScheduleCheck;
-}
+const UNKNOWN: CartScheduleCheck = { canCheckout: true, notices: [] };
 
-const UNKNOWN: OrderSchedule = { orderDays: [], check: { canCheckout: true, notices: [] } };
-
-/** Days to order for and the check for the chosen one; allows the checkout until the clock is known */
-export function useOrderSchedule(items: readonly CartItem[], orderDate: string | null): OrderSchedule {
+/** Schedule check for the checkout; allows it until the clock is known */
+export function useCheckoutSchedule(items: readonly CartItem[]): CartScheduleCheck {
   const status = useScheduleStatus();
-  return useMemo(
-    () => (status ? { orderDays: status.orderDays, check: checkOrderDay(items, status, orderDate) } : UNKNOWN),
-    [items, status, orderDate],
-  );
+  return useMemo(() => (status ? checkSchedule(items, status) : UNKNOWN), [items, status]);
 }

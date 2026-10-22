@@ -1,7 +1,6 @@
 import { BUSINESS, DELIVERY_METHOD_LABELS, PAYMENT_METHOD_LABELS } from '@/config/business';
 import { getLineFlavorNames, getLineName } from '@/lib/cartLine';
 import { formatPrice } from '@/lib/format';
-import { formatOrderDate } from '@/lib/schedule';
 import { lineSubtotal } from '@/store/useCartStore';
 import type { CartItem, OrderDetails } from '@/types';
 
@@ -24,7 +23,6 @@ export const buildOrderMessage = (order: OrderDetails): string =>
     ...order.items.map(formatLine),
     ...(order.deliveryFee > 0 ? [`Envío: ${price(order.deliveryFee)}`] : []),
     `Total: ${price(order.total)}`,
-    `Para: ${formatOrderDate(order.orderDate)}`,
     `Nombre: ${oneLine(order.customer.name)}`,
     `Entrega: ${DELIVERY_METHOD_LABELS[order.fulfillment.method]}`,
     ...(order.fulfillment.method === 'delivery' ? [`Dirección: ${oneLine(order.fulfillment.address)}`] : []),

@@ -196,7 +196,7 @@ export function ProductCard({ product, onCustomize }: ProductCardProps) {
         <div className="flex-1 space-y-1.5">
           {product.orderType === 'preorder' && (
             <p className="mb-3 inline-flex rounded-full border border-accent/40 bg-accent/10 px-2.5 py-1 text-xs font-medium text-accent">
-              Para el mismo día, hasta las {BUSINESS.schedule.preorderCutoff}
+              Rolls y nigiris hasta las {BUSINESS.schedule.preorderCutoff}
             </p>
           )}
           <h3 className="font-display text-2xl leading-tight font-medium">{product.name}</h3>

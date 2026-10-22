@@ -18,7 +18,7 @@ export type ProductTag = 'nuevo' | 'mas-pedido' | 'picante' | 'veggie' | 'sin-ta
 /**
  * Kitchen dynamic:
  * - express: made on demand during opening hours.
- * - preorder: same-day orders close at `BUSINESS.schedule.preorderCutoff`; after that, only for another day.
+ * - preorder: Arma tu combo; rolls and nigiris are taken until `BUSINESS.schedule.preorderCutoff`.
  */
 export type OrderType = 'express' | 'preorder';
 
@@ -165,8 +165,6 @@ export interface CustomerInfo {
 
 export interface OrderDetails {
   customer: CustomerInfo;
-  /** Opening day the order is for, "YYYY-MM-DD" in the shop's time zone */
-  orderDate: string;
   fulfillment: Fulfillment;
   paymentMethod: PaymentMethod;
   items: readonly CartItem[];

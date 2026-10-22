@@ -1,25 +1,16 @@
 import { BUSINESS } from '@/config/business';
 import type { CartItem } from '@/types';
 
-/** An opening day the customer can order for */
-export interface OrderDay {
-  /** "YYYY-MM-DD" in the shop's time zone */
-  date: string;
-  /** "Hoy · viernes 23/10", "Mañana · sábado 24/10" or "Domingo 25/10" */
-  label: string;
-}
-
 export interface ScheduleStatus {
-  /** Today's date, "YYYY-MM-DD" in the shop's time zone */
-  today: string;
+  isOpenToday: boolean;
+  /** Today is an opening day and the shop hasn't closed yet: orders for tonight are taken */
+  isTakingOrders: boolean;
   /** Express kitchen is taking orders */
   isStoreOpen: boolean;
   /** Today is an opening day and still before its preorder cutoff */
   isPreorderAvailable: boolean;
   /** When the shop opens next: "hoy", "mañana" or "el viernes"; null if no opening day is coming up */
   nextOpening: string | null;
-  /** Upcoming opening days, today included until it closes */
-  orderDays: OrderDay[];
 }
 
 export interface CartScheduleNotice {
@@ -46,7 +37,7 @@ const CLOSE = toMinutes(operatingHours.close);
 const CUTOFF = toMinutes(preorderCutoff);
 
 const DAY_MS = 24 * 60 * 60_000;
-/** How far ahead customers can order */
+/** How far ahead to look for the next opening day */
 const LOOKAHEAD_DAYS = 14;
 
 const clockFormatter = new Intl.DateTimeFormat('en-CA', {
@@ -59,9 +50,8 @@ const clockFormatter = new Intl.DateTimeFormat('en-CA', {
   hourCycle: 'h23',
 });
 
-// Calendar days are UTC-noon dates (see `addDays`), so these read them in UTC
+// Calendar days are UTC-noon dates (see `addDays`), so this reads them in UTC
 const weekdayFormatter = new Intl.DateTimeFormat(BUSINESS.locale, { weekday: 'long', timeZone: 'UTC' });
-const dayMonthFormatter = new Intl.DateTimeFormat(BUSINESS.locale, { day: '2-digit', month: '2-digit', timeZone: 'UTC' });
 
 /** Calendar date ("YYYY-MM-DD") and minutes since midnight in the shop's time zone, whatever the visitor's zone is */
 const shopTime = (date: Date): { day: string; minutes: number } => {
@@ -84,89 +74,53 @@ const isOpeningDay = (date: Date): boolean => {
   return extraOpenDates.includes(day) || openDays.some((weekday) => weekday === date.getUTCDay());
 };
 
-const capitalize = (text: string): string => text.charAt(0).toUpperCase() + text.slice(1);
-
-/** "YYYY-MM-DD" → "Sábado 24/10" */
-export const formatOrderDate = (day: string): string => {
-  const date = addDays(day, 0);
-  return capitalize(`${weekdayFormatter.format(date)} ${dayMonthFormatter.format(date)}`);
-};
-
 /** Opening and preorder status at `date` (the visitor's clock, read in the shop's time zone) */
 export const getScheduleStatus = (date: Date = new Date()): ScheduleStatus => {
   const { day: today, minutes } = shopTime(date);
   const isOpenToday = isOpeningDay(addDays(today, 0));
 
-  const orderDays: OrderDay[] = [];
   let nextOpening: string | null = null;
-  for (let offset = 0; offset <= LOOKAHEAD_DAYS; offset++) {
+  for (let offset = 0; offset <= LOOKAHEAD_DAYS && nextOpening === null; offset++) {
     const candidate = addDays(today, offset);
-    if (!isOpeningDay(candidate)) continue;
-
-    const relative = offset === 0 ? 'hoy' : offset === 1 ? 'mañana' : null;
-    const dateLabel = formatOrderDate(toIsoDate(candidate));
-    // Today can still be ordered for until closing, but it only "opens next" before opening time
-    if (offset > 0 || minutes < CLOSE) {
-      orderDays.push({
-        date: toIsoDate(candidate),
-        label: relative ? `${capitalize(relative)} · ${dateLabel.toLowerCase()}` : dateLabel,
-      });
-    }
-    if (nextOpening === null && (offset > 0 || minutes < OPEN)) {
-      nextOpening = relative ?? `el ${weekdayFormatter.format(candidate)}`;
-    }
+    // Today only "opens next" before opening time
+    if (!isOpeningDay(candidate) || (offset === 0 && minutes >= OPEN)) continue;
+    nextOpening = offset === 0 ? 'hoy' : offset === 1 ? 'mañana' : `el ${weekdayFormatter.format(candidate)}`;
   }
 
   return {
-    today,
+    isOpenToday,
+    isTakingOrders: isOpenToday && minutes < CLOSE,
     isStoreOpen: isOpenToday && minutes >= OPEN && minutes < CLOSE,
     isPreorderAvailable: isOpenToday && minutes < CUTOFF,
     nextOpening,
-    orderDays,
   };
 };
 
 const hasOrderType = (items: readonly CartItem[], orderType: CartItem['product']['orderType']): boolean =>
   items.some((item) => item.product.orderType === orderType);
 
-/** Heads-ups for the cart, before the customer picks a day; nothing blocks there */
-export const getCartNotices = (items: readonly CartItem[], status: ScheduleStatus): CartScheduleNotice[] => {
-  const notices: CartScheduleNotice[] = [];
-  // Only worth saying while today can still be picked; on other days the next one is the obvious choice
-  const canOrderForToday = status.orderDays[0]?.date === status.today;
-  if (hasOrderType(items, 'preorder') && canOrderForToday && !status.isPreorderAvailable) {
-    notices.push({
-      tone: 'info',
-      message: `Los combos armados para el mismo día se piden hasta las ${preorderCutoff}. Al finalizar, elegí otro día.`,
-    });
+/** Orders are only for today: closed days and after closing block the checkout; the rest are heads-ups */
+export const checkSchedule = (items: readonly CartItem[], status: ScheduleStatus): CartScheduleCheck => {
+  if (!status.isTakingOrders) {
+    const reopening = status.nextOpening ? ` Abrimos ${status.nextOpening} a las ${operatingHours.open}.` : '';
+    const closed = status.isOpenToday ? 'Ya cerramos por hoy.' : 'Hoy no abrimos.';
+    return { canCheckout: false, notices: [{ tone: 'error', message: `${closed}${reopening}` }] };
   }
-  if (hasOrderType(items, 'express') && !status.isStoreOpen && status.nextOpening) {
-    notices.push({
-      tone: 'info',
-      message: `Abrimos ${status.nextOpening} a las ${operatingHours.open}. Podés dejar tu pedido encargado.`,
-    });
-  }
-  return notices;
-};
 
-/** Checks the chosen day: same-day preorders past the cutoff block the checkout */
-export const checkOrderDay = (
-  items: readonly CartItem[],
-  status: ScheduleStatus,
-  orderDate: string | null,
-): CartScheduleCheck => {
   const notices: CartScheduleNotice[] = [];
-  if (orderDate !== status.today) return { canCheckout: true, notices };
-
-  const preorderClosed = hasOrderType(items, 'preorder') && !status.isPreorderAvailable;
-  if (preorderClosed) {
-    notices.push({
-      tone: 'error',
-      message: `Los combos armados para hoy se pedían hasta las ${preorderCutoff}. Elegí otro día o sacalos del pedido.`,
-    });
-  }
-  if (hasOrderType(items, 'express') && !status.isStoreOpen) {
+  if (!status.isStoreOpen) {
     notices.push({ tone: 'info', message: `Abrimos hoy a las ${operatingHours.open}.` });
   }
-  return { canCheckout: !preorderClosed, notices };
+  // The per-item block (rolls and nigiris) lands with the Arma tu combo builder; for now it's only a heads-up
+  if (hasOrderType(items, 'preorder') && !status.isPreorderAvailable) {
+    notices.push({
+      tone: 'info',
+      message: `Arma tu combo se pide hasta las ${preorderCutoff}. Te confirmamos por WhatsApp si todavía lo podemos preparar.`,
+    });
+  }
+  return { canCheckout: true, notices };
 };
+
+/** Heads-ups for the cart: same as the checkout, but nothing blocks there */
+export const getCartNotices = (items: readonly CartItem[], status: ScheduleStatus): CartScheduleNotice[] =>
+  checkSchedule(items, status).notices.map((notice) => ({ ...notice, tone: 'info' }));
