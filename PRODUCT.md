@@ -14,7 +14,7 @@ Del otro lado, el personal del local recibe el pedido por WhatsApp, lo confirma 
 
 ## Product Purpose
 
-Web de pedidos online de EnSushi: el cliente arma el pedido (combos, Arma tu combo, sushiburgers, salsas), elige para cuándo, entrega y pago, y la web genera el mensaje de WhatsApp listo para mandar al local. No hay pago online, cuentas de usuario ni backend.
+Web de pedidos online de EnSushi: el cliente arma el pedido para hoy (combos, Arma tu combo, sushiburgers, salsas), elige entrega y pago, y la web genera el mensaje de WhatsApp listo para mandar al local. No hay pago online, cuentas de usuario ni backend.
 
 Éxito: el cliente llega del menú al WhatsApp enviado en pocos toques y sin errores, y el local recibe un pedido completo, con el formato de siempre, que puede tomar sin repreguntar.
 
