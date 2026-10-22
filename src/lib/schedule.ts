@@ -167,7 +167,7 @@ export const checkSchedule = (items: readonly CartItem[], status: ScheduleStatus
   if (hasOrderType(items, 'preorder') && !status.isPreorderAvailable) {
     notices.push({
       tone: 'info',
-      message: `Arma tu combo se pide hasta las ${preorderCutoff}. Te confirmamos por WhatsApp si todavía lo podemos preparar.`,
+      message: `Los rolls y nigiris de Arma tu combo se piden hasta las ${preorderCutoff}.`,
     });
   }
   return { canCheckout: true, notices };

@@ -49,7 +49,7 @@
 - [x] **Paso 8** — Horario real (viernes a domingo de 17:00 a 23:30, feriados en `extraOpenDates`/`closedDates`), fotos en `public/images/menu/`, logo en el header y en la imagen para compartir, favicon e íconos.
 - [x] **Paso 9** — Corte de `preorder` a las 20:00 y Arma tu combo pasa a `preorder`. SushiBurger Salmón con opción Crudo / Cocido (`StandardProduct.option`).
 - [x] **Paso 9b** — Menú: Arma tu combo, Sushiburgers, Combos, Salsas & complementos. Se borran los combos de autor de ejemplo. Datos del armado cargados en `BUILD_ITEMS` / `BUILD_ITEM_GROUPS` (tipo `BuildItem`), todavía sin UI.
-- [ ] **Paso 10** — UI del armado de combos con `BUILD_ITEMS` (stepper por ítem, agrupado por `BUILD_ITEM_GROUPS`, total en vivo), carrito/`lineId`, persistencia y mensaje de WhatsApp. Se hace con una skill; hay imágenes de referencia de otro sitio. Es `preorder`: pasadas las 20:00 se bloquean los rolls y los nigiris, con el aviso "Se pueden pedir hasta las 20:00" al tocarlos o pasar el mouse; los acompañamientos (empanaditas, langostinos, pollo tandoori) siguen disponibles.
+- [ ] **Paso 10** — UI del armado de combos con `BUILD_ITEMS` (stepper por ítem, agrupado por `BUILD_ITEM_GROUPS`, total en vivo), carrito/`lineId`, persistencia y mensaje de WhatsApp. Se hace con una skill; hay imágenes de referencia de otro sitio. Es `preorder`: pasadas las 20:00 se bloquean los rolls y los nigiris, con el aviso "Se pueden pedir hasta las 20:00" al tocarlos o pasar el mouse; los acompañamientos (empanaditas, langostinos, pollo tandoori) siguen disponibles. Cuando exista ese bloqueo por ítem, se borra el aviso provisorio de carrito y checkout "Los rolls y nigiris de Arma tu combo se piden hasta las 20:00" (`checkSchedule` en `src/lib/schedule.ts`).
 
 ## Pendientes antes de salir a producción
 - [ ] **Arma tu combo**: precios reales de cada ítem (hoy todos usan `PRICE_TBD`), descripciones y fotos de los rolls; confirmar la lista completa de rolls. Definir cómo va en el mensaje de WhatsApp.
@@ -62,6 +62,8 @@
 ## Ideas post-V1
 - Zona de envío (costo por zona) y pedido mínimo.
 - Marcar productos como agotados sin tocar el código.
+- App de escritorio para el local.
+- Conexión entre la app del local y la web (por ejemplo, agotados y horario en vivo).
 
 ## Plantilla del mensaje de WhatsApp (exacta)
 ```
