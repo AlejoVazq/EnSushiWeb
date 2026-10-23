@@ -2,7 +2,7 @@ import { formatUnits, getLineName, stepUnits } from '@/lib/cartLine';
 import { formatPrice } from '@/lib/format';
 import type { CartItem } from '@/types';
 
-/** The line's count as the WhatsApp message writes it: acompañamientos count real units (6× Empanaditas) */
+/** The line's count as the WhatsApp message writes it: acompañamientos count real units (6× Gyosas) */
 export const lineCount = (item: CartItem): number =>
   item.kind === 'extra' ? stepUnits(item.item, item.quantity) : item.quantity;
 

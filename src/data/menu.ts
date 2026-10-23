@@ -15,7 +15,8 @@ import type {
 
 /**
  * Single source of truth for the catalog.
- * Combos, Sushiburgers and Salsas have real prices; Arma tu combo is still a placeholder (prices TBD).
+ * Combos, Sushiburgers (except Atún y ciboulette) and Salsas have real prices; Arma tu combo, the acompañamientos
+ * and SushiBurger Atún y ciboulette still use PRICE_TBD.
  */
 
 // ─── Categories (display order) ─────────────────────────────────────────────
@@ -78,7 +79,7 @@ export const getBoxSize = (id: BuildBoxSizeId): BuildBoxSize | undefined =>
 /** Groups that fill the box and stop at the preorder cutoff; the rest go to the order on their own */
 const BOX_GROUPS: readonly BuildItemGroup[] = ['rolls', 'nigiris'];
 
-/** Placeholder until the real prices are defined; every BuildItem uses it (Arma tu combo doesn't ship until then) */
+/** Placeholder until the real prices are defined: every BuildItem and SushiBurger Atún y ciboulette (none ships until then) */
 const PRICE_TBD = 1000;
 
 export const BUILD_ITEM_GROUPS: readonly { id: BuildItemGroup; name: string }[] = [
@@ -106,9 +107,15 @@ export const BUILD_ITEMS: readonly BuildItem[] = [
   roll('roll-sakana-maki', 'Sakana Maki'),
   roll('roll-tuna-spicy', 'TunaSpicy'),
   { id: 'nigiri-salmon', group: 'nigiris', name: 'Nigiri de salmón', step: 1, unitLabel: 'unidades', price: PRICE_TBD, available: true },
-  { id: 'empanaditas', group: 'acompanamientos', name: 'Empanaditas', step: 3, unitLabel: 'unidades', price: PRICE_TBD, available: true },
+  { id: 'nigiri-langostino', group: 'nigiris', name: 'Nigiri de langostino', step: 1, unitLabel: 'unidades', price: PRICE_TBD, available: true },
+  // TODO: the three flavors (names still to be defined)
+  { id: 'gyosas-1', group: 'acompanamientos', name: 'Gyosas · Sabor 1', step: 3, unitLabel: 'unidades', price: PRICE_TBD, available: true },
+  { id: 'gyosas-2', group: 'acompanamientos', name: 'Gyosas · Sabor 2', step: 3, unitLabel: 'unidades', price: PRICE_TBD, available: true },
+  { id: 'gyosas-3', group: 'acompanamientos', name: 'Gyosas · Sabor 3', step: 3, unitLabel: 'unidades', price: PRICE_TBD, available: true },
   { id: 'langostinos-empanados', group: 'acompanamientos', name: 'Langostinos empanados', step: 5, unitLabel: 'unidades', price: PRICE_TBD, available: true },
   { id: 'pollo-tandoori', group: 'acompanamientos', name: 'Pollo tandoori', step: 5, unitLabel: 'unidades', price: PRICE_TBD, available: true },
+  // TODO: confirm how many come per portion (5 for now, like langostinos and pollo)
+  { id: 'geishas', group: 'acompanamientos', name: 'Geishas', step: 5, unitLabel: 'unidades', price: PRICE_TBD, available: true },
 ];
 
 // ─── Products ───────────────────────────────────────────────────────────────
@@ -183,6 +190,14 @@ export const PRODUCTS: readonly Product[] = [
     price: 14000,
     imageUrl: '/images/menu/sb-langostinos.jpg',
   }),
+  express({
+    id: 'sb-atun-ciboulette',
+    categoryId: 'sushiburgers',
+    name: 'SushiBurger Atún y ciboulette',
+    // TODO: real price, full description (ingredients) and photo
+    description: 'Atún y ciboulette entre dos panes de arroz empanizados y fritos. Incluye nachos y guacamole.',
+    price: PRICE_TBD,
+  }),
 
   // Salsas: one product each, so the order says exactly which one
   express({
@@ -200,9 +215,21 @@ export const PRODUCTS: readonly Product[] = [
     price: 1500,
   }),
   express({ id: 'salsa-agridulce', categoryId: 'salsas', name: 'Salsa Agridulce', price: 1500 }),
+  express({
+    id: 'salsa-soja',
+    categoryId: 'salsas',
+    name: 'Salsa de soja',
+    description: 'La clásica, salada, para mojar rolls y nigiris.',
+    price: 500,
+  }),
   express({ id: 'wasabi', categoryId: 'salsas', name: 'Wasabi', price: 500 }),
-  // Free: price 0 shows as "Sin cargo"
-  express({ id: 'palitos', categoryId: 'salsas', name: 'Palitos', price: 0 }),
+  express({
+    id: 'palitos',
+    categoryId: 'salsas',
+    name: 'Palitos',
+    description: 'Par extra. Los combos y las cajas ya traen los suyos.',
+    price: 200,
+  }),
 
 ];
 

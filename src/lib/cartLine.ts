@@ -20,7 +20,7 @@ export const formatBoxContents = (box: BuildBox): string =>
 
 /**
  * Line title, shared by the cart, the checkout and the WhatsApp message:
- * "Combo Kanituna · 25 piezas", "SushiBurger Salmón · Crudo", "Arma tu combo · Caja grande", "Empanaditas".
+ * "Combo Kanituna · 25 piezas", "SushiBurger Salmón · Crudo", "Arma tu combo · Caja grande", "Gyosas · Sabor 1".
  */
 export const getLineName = (item: CartItem): string => {
   switch (item.kind) {

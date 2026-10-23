@@ -21,7 +21,7 @@
 ## Flujo de negocio
 1. **Catálogo** por categorías, en pestañas (se ve una categoría por vez): Arma tu combo, Sushiburgers, Acompañamientos, Combos, Salsas & complementos (en ese orden).
    - Los combos son productos `sized`: una tarjeta con selector de 15/25/40 piezas, cada tamaño con su precio. En el carrito cada tamaño es una línea distinta. Cada tamaño dice qué incluye (`ProductVariant.includes`): 15 → 1 salsa y 1 palito, 25 → 2 y 2, 40 (una caja chica de 15 y una grande de 25) → 3 y 3. Las salsas incluidas las elige el local; la web solo lo informa.
-   - Salsas & complementos: Teriyaki, Buenos Aires, Agridulce, Wasabi ($ 500) y Palitos (sin cargo: precio 0 se muestra "Sin cargo" con `formatItemPrice`).
+   - Salsas & complementos: Teriyaki, Buenos Aires, Agridulce, Salsa de soja ($ 500), Wasabi ($ 500) y Palitos ($ 200 el par extra; combos y cajas ya traen los suyos). Un producto con precio 0 se mostraría "Sin cargo" (`formatItemPrice`); hoy no hay ninguno.
    - Cada producto tiene `orderType`: `express` (se cocina en el momento, dentro del horario de apertura) o `preorder`. Hoy todos los productos son `express`; el corte de `BUSINESS.schedule.preorderCutoff` (19:30) se aplica por ítem en Arma tu combo (ver abajo).
    - Un producto `standard` puede tener `option` (ej. SushiBurger Salmón: Crudo / Cocido): mismo precio, elección obligatoria, cada valor es una línea distinta en el carrito y puede tener su propia foto.
    - Un producto con `availableDays` solo se muestra esos días; usar siempre `getMenuByCategory` (menú: los agotados, `available: false`, se listan desteñidos con "Agotado hoy") o `getProductsByCategory` (solo lo que se puede pedir).
@@ -30,10 +30,10 @@
      - **Caja grande** (hasta 30): 30 o 25 piezas de rolls; 20 piezas + hasta 6 nigiris; 15 piezas + 1 a 9 nigiris.
      - Cualquier otra combinación no se puede (los nigiris ocupan más lugar que las piezas de roll, por eso la lista es explícita). La chica incluye 1 salsa y 1 palito, la grande 2 y 2; el armado no lo muestra (lo agrega el local).
      - Rolls de autor, de a 5 piezas: New York, Sake, Midori, Hikaru, Sakana Maki, TunaSpicy (la lista puede crecer).
-     - Nigiris (salmón): por unidad.
+     - Nigiris (salmón y langostino): por unidad; los dos cuentan igual en las combinaciones.
      - Debajo de la caja elegida se listan sus combinaciones (`describeCombinations`). El "+" de un roll o nigiri se apaga si con un paso más ya no se llega a ninguna combinación (`canReachFill`, `src/lib/boxRules.ts`); la caja a la que ya no se llega con lo cargado queda apagada ("Para la caja chica, sacá piezas").
      - El botón de agregar está deshabilitado hasta que la caja es una combinación válida y dice lo más simple que falta (`getMissing`: "Faltan 10 piezas", "Falta 1 nigiri"). Si lo cargado ya entra en la otra caja, la barra ofrece "Así como está, entra en la caja chica".
-     - Acompañamientos: tienen su propia pestaña, después de Sushiburgers, y no aparecen en el armado. Son ítems de `BUILD_ITEMS` (grupo `acompanamientos`) que se piden solos, sin caja: empanaditas de a 3 unidades; langostinos empanados y pollo tandoori de a 5 unidades. No tienen corte: se pueden pedir también después de las 19:30. Como rolls y nigiris sí cortan a las 19:30, pasado el corte no se puede armar una caja.
+     - Acompañamientos: tienen su propia pestaña, después de Sushiburgers, y no aparecen en el armado. Son ítems de `BUILD_ITEMS` (grupo `acompanamientos`) que se piden solos, sin caja: gyosas en 3 sabores (todavía sin nombre: "Sabor 1/2/3") de a 3 unidades; langostinos empanados, pollo tandoori y geishas de a 5 unidades. No tienen corte: se pueden pedir también después de las 19:30. Como rolls y nigiris sí cortan a las 19:30, pasado el corte no se puede armar una caja.
      - Corte por ítem: pasadas las 19:30 (`isPastPreorderCutoff`) los rolls y nigiris quedan desteñidos con el sello hueco "Hasta las 19:30" (visible sin hover; `title` como tooltip en desktop), los tamaños de caja se apagan y se avisa que se pueden sumar acompañamientos. Una caja a medio armar cuando llega el corte deja de mostrar su barra. Una caja agregada antes del corte se puede mandar igual. En el carrito, la caja es una línea con su contenido y un botón "Editar" (oculto pasado el corte) que la carga en la pestaña; al guardar, reemplaza la línea.
      - Código: `BoxBuilder` (UI; el borrador vive en `Shop`), `BUILD_BOX_SIZES` / `isBoxItem` en `src/data/menu.ts`, reglas en `src/lib/boxRules.ts`, `addBox` / `replaceBox` / `addExtra` en el store (las cajas guardadas con el formato viejo de 10–30 piezas se descartan al cargar). Las líneas del carrito son una unión (`kind`: `product` | `box` | `extra`).
 2. **Carrito**: agregar/quitar ítems, ver total. En celular y tablet es un panel que se abre (`CartDrawer layout="sheet"`); desde `lg` (1024px) queda fijo a la derecha del menú (`layout="panel"`, `useMediaQuery(DESKTOP_QUERY)`). Las grillas del menú usan container queries (`@2xl`, `@max-[22rem]`), no breakpoints de pantalla. Mientras se toman pedidos, abajo de las líneas aparece "¿Le sumás algo?" con acompañamientos y salsas para agregar con un toque (`CartSuggestions`): una fila que se desliza con el dedo y, con mouse, flechas ‹ › que se apagan en cada punta. Combos con distintos tamaños, opciones o contenido de caja son líneas distintas (`lineId` estable: dos cajas iguales se juntan).
@@ -65,11 +65,11 @@
 - [x] **Paso 11** — Pulido del checkout (probado y aprobado; no se toca salvo pedido explícito): un solo aviso de transferencia sin alias/CVU, tarjeta "Por Mercado Pago.", "Te confirmamos por WhatsApp" debajo del botón, títulos a 24px en el celular, errores de campos en rosa frío (`--color-error`). `DESIGN.md` y su sidecar `.impeccable/design.json` al día. Los critiques de `.impeccable/critique/` son de antes de "Sello y sumi" y ya no aplican. El binario de impeccable (`.claude/skills/impeccable/scripts/bin/`) no se versiona: se descarga solo.
 
 ## Pendientes antes de salir a producción
-- [ ] **Arma tu combo**: precios reales de cada ítem (hoy todos usan `PRICE_TBD`, $1.000), descripciones y fotos de los rolls; confirmar la lista completa de rolls. No sale a producción hasta tenerlo completo.
+- [ ] **Arma tu combo y Acompañamientos**: precios reales de cada ítem (hoy todos usan `PRICE_TBD`, $1.000: rolls, nigiris de salmón y de langostino, gyosas, langostinos, pollo y geishas), descripciones y fotos de los rolls; confirmar la lista completa de rolls. Nombres de los 3 sabores de gyosas. Cuántas geishas trae cada porción (hoy 5). No sale a producción hasta tenerlo completo.
 - [ ] **Descuentos**: cargar los días especiales y los códigos reales en `src/config/discounts.ts` (hoy vacíos).
-- [ ] **Sushiburgers**: fotos de la versión cruda y la cocida del SushiBurger Salmón (`imageUrl` en cada valor de `option`). Agregar el SushiBurger de Atún y ciboulette (falta precio y descripción). Falta la descripción de la Salsa Agridulce.
+- [ ] **Sushiburgers**: fotos de la versión cruda y la cocida del SushiBurger Salmón (`imageUrl` en cada valor de `option`). SushiBurger Atún y ciboulette: ya está en el menú con `PRICE_TBD`; falta el precio real, la descripción completa (hoy solo "Atún y ciboulette…") y la foto. Falta la descripción de la Salsa Agridulce y la del Wasabi.
 - [ ] **Feriados**: se cargan sobre la marcha en `extraOpenDates` / `closedDates`.
-- [ ] **Fotos**: Combo TunaSalm (`hasPhoto: false` en `menu.ts` hasta tenerla), Salsas e ítems de Arma tu combo sin foto propia; se van a rehacer antes del deploy. Originales en `fotos/`.
+- [ ] **Fotos**: Combo TunaSalm (`hasPhoto: false` en `menu.ts` hasta tenerla), SushiBurger Atún y ciboulette, Salsas, Acompañamientos e ítems de Arma tu combo sin foto propia; se van a rehacer antes del deploy. Originales en `fotos/`.
 - [ ] **Prueba de punta a punta en el celular**: todas las combinaciones de entrega y pago, en un día de apertura antes de las 17:00, abierto, después de las 19:30 y cerrado, con una caja chica y una grande, en un día especial y con un código, y chequear que el mensaje de WhatsApp coincida con la plantilla.
 - [ ] **Deploy** (al final): Vercel + dominio; definir `NEXT_PUBLIC_SITE_URL` con la URL final.
 
@@ -94,10 +94,10 @@ Pago: [Efectivo / Transferencia]
 - Productos con opción: `- 1x SushiBurger Salmón · Crudo ($X)`.
 - Si hay descuento, va `Descuento (VERANO10): -$X` (o `Descuento (15% en Combos): -$X`) después de los ítems, y el total lo resta.
 - Si es Envío a domicilio, va la línea `Envío: $X` justo antes de `Total:` (y el total la incluye).
-- Productos sin cargo: `- 2x Palitos (sin cargo)`.
+- Productos sin cargo (precio 0): `- 2x Nombre (sin cargo)`.
 - Sin recordatorios internos para el personal en el mensaje: quien toma el pedido decide cómo seguir.
 - En cada línea, el precio es el subtotal de esa línea (precio × cantidad).
 - La línea `Dirección:` va solo cuando la entrega es Envío a domicilio.
 - Arma tu combo (caja): el contenido entre paréntesis, en unidades y en el orden del menú: `- 1x Arma tu combo · Caja grande (New York 10, Midori 10, Nigiri de salmón 6) ($X)`.
-- Acompañamientos de Arma tu combo: línea propia con la cantidad en unidades reales, no en porciones: `- 6x Empanaditas ($X)`.
+- Acompañamientos de Arma tu combo: línea propia con la cantidad en unidades reales, no en porciones: `- 6x Gyosas · Sabor 1 ($X)`.
 - Codificar con `encodeURIComponent` → `https://wa.me/${BUSINESS.whatsappNumber}?text=...`.

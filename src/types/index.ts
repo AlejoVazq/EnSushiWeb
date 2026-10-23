@@ -104,7 +104,7 @@ export interface BuildItem {
   name: string;
   description?: string;
   imageUrl?: string;
-  /** Units added per step: 5 pieces of a roll, 1 nigiri, 3 empanaditas, 5 sticks */
+  /** Units added per step: 5 pieces of a roll, 1 nigiri, 3 gyosas, 5 langostinos */
   step: number;
   /** Plural unit shown next to `step`, e.g. "piezas", "unidades", "palitos" */
   unitLabel: string;
@@ -176,7 +176,7 @@ export interface BoxCartItem extends CartLineBase {
   box: BuildBox;
 }
 
-/** An acompañamiento ordered on its own; `quantity` counts steps (2 × 3 empanaditas) */
+/** An acompañamiento ordered on its own; `quantity` counts steps (2 × 3 gyosas) */
 export interface ExtraCartItem extends CartLineBase {
   kind: 'extra';
   item: BuildItem;

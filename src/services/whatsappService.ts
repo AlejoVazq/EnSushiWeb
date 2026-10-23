@@ -7,7 +7,7 @@ import type { CartItem, OrderDetails } from '@/types';
 /** Intl uses a non-breaking space ("$ 12.900"); WhatsApp gets a plain one */
 const price = (amount: number): string => formatPrice(amount).replace(/ /g, ' ');
 
-/** A line's price: free lines (palitos) read "sin cargo" */
+/** A line's price: free lines (price 0) read "sin cargo" */
 const linePrice = (amount: number): string => (amount === 0 ? formatItemPrice(amount).toLowerCase() : price(amount));
 
 /** Customer input goes on a single line so it can't break the message layout */
@@ -17,7 +17,7 @@ const oneLine = (text: string): string => text.replace(/\s+/g, ' ').trim();
  * One line per cart line, subtotal last:
  * - "- 2x Combo Kanituna · 25 piezas ($ 72.000)"
  * - "- 1x Arma tu combo · Caja grande (New York 10, Midori 10, Nigiri de salmón 6) ($ 28.500)"
- * - "- 6x Empanaditas ($ 8.000)": acompañamientos count real units, not steps
+ * - "- 6x Gyosas · Sabor 1 ($ 8.000)": acompañamientos count real units, not steps
  */
 const formatLine = (item: CartItem): string => {
   const subtotal = `(${linePrice(lineSubtotal(item))})`;

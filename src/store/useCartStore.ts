@@ -36,7 +36,7 @@ export interface CartState {
   addBox: (input: BoxInput) => void;
   /** Swaps an edited box in place, keeping its quantity; merges if it now equals another line */
   replaceBox: (lineId: string, input: BoxInput) => void;
-  /** Adds one step of an acompañamiento (3 empanaditas, 5 langostinos) */
+  /** Adds one step of an acompañamiento (3 gyosas, 5 langostinos) */
   addExtra: (itemId: string) => void;
   /** Removes the whole line */
   removeItem: (lineId: string) => void;
