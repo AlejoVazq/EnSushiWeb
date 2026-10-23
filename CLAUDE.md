@@ -9,7 +9,7 @@
 - Estructura con `src/`: todo el código vive en `src/` y el alias `@/*` apunta a `src/*`.
 
 ## Reglas del proyecto
-- Todo es client-side. No hay backend ni base de datos en V1.
+- En `main` todo es client-side: no hay backend ni base de datos (el pedido sale por WhatsApp). El servidor de pedidos vive solo en la rama `app-pedidos` (ver "Pedidos por app").
 - `src/data/menu.ts` es la única fuente de verdad del catálogo. No hardcodear productos ni precios en componentes.
 - `src/config/business.ts` tiene el número de WhatsApp, la dirección del local, el costo de envío (`delivery.fee`), el horario (`schedule`) y las etiquetas de pago y entrega. Leer siempre de ahí.
 - Alias/CVU NO van en el código (todo lo de `src/` termina en el JS público): el local los manda por WhatsApp al confirmar el pedido.
@@ -57,6 +57,40 @@ En lugar de WhatsApp, el pedido va a nuestro servidor y lo recibe la app de escr
 - Guía de puesta en marcha (servidor, correo, ticketera): `docs/app-pedidos.md`.
 - Las líneas del carrito sin store viven en `src/lib/cartItems.ts`; `useCartStore` las reexporta.
 
+**Decisiones (2026-10-23, no volver a proponer otra cosa sin que lo pida):**
+- Hosting propio: un servidor (VPS alcanza) con la web Next.js + PostgreSQL. Nada de Supabase, Firebase ni otros BaaS; nada de APIs pagas ("nada de apis ni cosas extrañas"). Vercel queda solo para `main` mientras tanto.
+- Antispam del cliente: cuenta con código por correo (sin captcha). Solo hace falta una cuenta SMTP (dominio, Zoho, Brevo…), no un servidor de correo propio.
+- Mensaje al cliente: la app abre WhatsApp con el texto listo (un clic, `wa.me`) + página de estado en la web. Sin WhatsApp Business API.
+- Electron, una sola PC con Windows, ticketera Epson TM-T20 USB impresa por su driver de Windows (no ESC/POS crudo, salvo que el driver no alcance).
+- Horarios aproximados ("es una cocina"): sin cupos por franja. Stock/agotados: a futuro.
+- Pedidos que nadie responde: sin decidir ("lo veremos en el momento").
+- Versión base solo funcional, sin diseño; el diseño de la app se hace después (`/impeccable shape`).
+
+**Detalles técnicos:**
+- Next 16 con `cacheComponents`: toda ruta GET de la API llama `await connection()` antes de leer nada (si no, se prerenderiza). `params` es una Promise (`RouteContext<'/api/...'>`).
+- `src/server/db.ts`: `getDb()` (singleton en `globalThis`) con `query`, `exec` (varias sentencias, sin parámetros: lo usan las migraciones) y `transaction`. Migraciones en `src/server/schema.ts` con tabla `schema_version`: nunca se edita una que ya corrió, se agrega otra al final.
+- PGlite (desarrollo) lo abre un solo proceso: para `npm run local-usuario` hay que parar `npm run dev`. `next.config.ts` tiene `serverExternalPackages: ["@electric-sql/pglite"]`; `.data/` no se versiona.
+- Cliente: código de 6 dígitos (se guarda solo el hash, vence a los 10 min, 5 intentos, reenvío cada 60 s); cookie httpOnly `ensushi_sesion` de 60 días con el token guardado como SHA-256. Local: contraseñas con scrypt (`scrypt$sal$hash`), token Bearer de 14 días. Usuarios del local: `npm run local-usuario -- NOMBRE` (pide la contraseña oculta o la lee de `CLAVE`; si existe, la cambia).
+- Límites en memoria por IP / cliente / usuario (`src/server/rateLimit.ts`); máximo 3 pedidos sin responder por cliente. Celulares argentinos normalizados a `549XXXXXXXXXX` (`src/lib/phone.ts`).
+- Pedidos: estados `nuevo` → `confirmado` (con hora `HH:MM`) o `rechazado` (con motivo); `printed_at` al imprimir. La app lista las últimas 18 h.
+- En desarrollo el checkout manda la hora simulada (`?ahora=`) y el servidor la respeta; en producción se ignora.
+- Checkout con la bandera: `AccountSection` (correo → código → "Pedís como…"), campo Celular (se recuerda en `localStorage` `ensushi-celular`), botón "Enviar pedido · $X" → `/pedido/[id]` (`OrderStatus`, consulta cada 10 s). Llamadas del cliente en `src/lib/pedidosApp.ts`.
+- App (`desktop/`): esbuild + TypeScript 7 + Electron 45, React en el renderer. `contextIsolation` + `sandbox`; el renderer solo habla con el proceso principal por `window.ensushi` (preload), que hace los pedidos con `net.fetch` y solo permite rutas `/api/local/`. Token cifrado con `safeStorage` (async) en `userData/config.json` junto con los Ajustes (servidor, ticketera, ancho 58/80 mm, imprimir al confirmar, alias, dirección de retiro). Consulta cada 5 s y pita con pedidos nuevos. Textos de mensajes y comanda en `desktop/src/shared/textos.ts` (horas en 24 h; comanda en negro forzado). Una sola instancia. `ENSUSHI_SIN_WHATSAPP=1` (desarrollo) solo escribe el link en la consola.
+- `tsconfig.json` y ESLint de la raíz excluyen `desktop/` (tiene su propio `npm run typecheck`).
+- `.env.development.local` (no se sube) tiene las dos banderas y el usuario de prueba del local; la contraseña nunca va al chat ni a git.
+
+**Probado:** API completa con errores (código malo, día cerrado, celular inválido, producto inexistente, total recalculado), checkout en navegador de celular de punta a punta con la página de estado, la app real (ingreso, pedido nuevo, confirmar +45 min, mensaje armado) y la comanda vista a 80 mm. `tsc`, lint y `next build` pasan.
+
+**Falta (app de pedidos):**
+- [ ] Contratar el servidor y ponerlo en marcha con `docs/app-pedidos.md` (PostgreSQL real nunca se probó: solo PGlite).
+- [ ] Cuenta SMTP real y probar que los códigos lleguen (no a spam).
+- [ ] Probar la impresión real en la TM-T20 con su driver.
+- [ ] Probar que WhatsApp se abra en la PC del local.
+- [ ] Instalador `.exe` con actualización automática.
+- [ ] Decidir qué pasa con los pedidos que nadie responde.
+- [ ] Diseño de la app y del checkout con cuenta.
+- [ ] Backups diarios (`pg_dump`) en el servidor.
+
 ## Plan de implementación (un paso por vez)
 - [x] **Paso 1** — Tipos (`src/types/index.ts`), menú (`src/data/menu.ts`), config (`src/config/business.ts`).
 - [x] **Paso 2** — `src/store/useCartStore.ts`: `addItem`, `removeItem`, `clearCart`, total derivado (`cartTotal`). Manejar `quantity` y `lineId` (para custom combos: id + flavorIds ordenados). Considerar `persist` de Zustand para no perder el carrito al recargar.
@@ -84,7 +118,7 @@ En lugar de WhatsApp, el pedido va a nuestro servidor y lo recibe la app de escr
 ## Ideas post-V1
 - Zona de envío (costo por zona) y pedido mínimo.
 - Marcar productos como agotados sin tocar el código.
-- App de escritorio para el local.
+- App de escritorio para el local (versión base en la rama `app-pedidos`).
 - Conexión entre la app del local y la web (por ejemplo, agotados y horario en vivo).
 
 ## Plantilla del mensaje de WhatsApp (exacta)
