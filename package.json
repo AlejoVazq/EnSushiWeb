@@ -7,10 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "codigo": "node scripts/codigo.mjs"
+    "codigo": "node scripts/codigo.mjs",
+    "local-usuario": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/local-usuario.mjs"
   },
   "dependencies": {
+    "@electric-sql/pglite": "^0.5.11",
     "next": "16.4.2",
+    "nodemailer": "^10.2.1",
+    "pg": "^8.23.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "zustand": "^5.0.15"
@@ -18,6 +22,8 @@
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^20",
+    "@types/nodemailer": "^8.0.2",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",

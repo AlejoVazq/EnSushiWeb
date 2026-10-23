@@ -42,3 +42,6 @@ next-env.d.ts
 
 # impeccable: el binario se descarga solo la primera vez
 /.claude/skills/impeccable/scripts/bin/
+
+# development database (PGlite)
+/.data/

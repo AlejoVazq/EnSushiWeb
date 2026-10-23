@@ -1,7 +1,7 @@
 import { DISCOUNT_CODES, SPECIAL_DAYS } from '@/config/discounts';
 import { getShopDate } from '@/lib/schedule';
 import { sha256 } from '@/lib/sha256';
-import { cartTotal } from '@/store/useCartStore';
+import { cartTotal } from '@/lib/cartItems';
 import type { CartItem, DiscountCode, OrderDiscount, SpecialDay } from '@/types';
 
 /** Only these products get the special day's discount (Arma tu combo boxes don't) */

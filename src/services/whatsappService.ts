@@ -1,7 +1,7 @@
 import { BUSINESS, DELIVERY_METHOD_LABELS, PAYMENT_METHOD_LABELS } from '@/config/business';
 import { formatBoxContents, getLineName, stepUnits } from '@/lib/cartLine';
 import { formatItemPrice, formatPrice } from '@/lib/format';
-import { lineSubtotal } from '@/store/useCartStore';
+import { lineSubtotal } from '@/lib/cartItems';
 import type { CartItem, OrderDetails } from '@/types';
 
 /** Intl uses a non-breaking space ("$ 12.900"); WhatsApp gets a plain one */

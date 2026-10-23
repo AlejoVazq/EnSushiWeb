@@ -14,6 +14,8 @@ const nextConfig: NextConfig = {
   partialPrefetching: true,
   // Next blocks dev resources (JS, HMR) requested from other hosts; without this the page loads but never hydrates
   allowedDevOrigins: lanAddresses,
+  // PGlite (development database) loads its own WebAssembly files: Node runs it as is, unbundled
+  serverExternalPackages: ["@electric-sql/pglite"],
   images: {
     // AVIF first: about half the bytes of WebP for the menu photos, on phones that are often on a weak signal
     formats: ["image/avif", "image/webp"],

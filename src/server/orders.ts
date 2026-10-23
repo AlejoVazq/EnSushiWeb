@@ -1,0 +1,223 @@
+import { randomUUID } from 'node:crypto';
+
+import { restoreItems } from '@/lib/cartItems';
+import { getLineDetail, getLineName } from '@/lib/cartLine';
+import { lineSubtotal } from '@/lib/cartItems';
+import { createOrder, validateCheckout, type CheckoutForm } from '@/lib/checkout';
+import { normalizePhone } from '@/lib/phone';
+import { checkSchedule, getScheduleStatus } from '@/lib/schedule';
+import type { CustomerOrder, OrderLineSnapshot, OrderStatus, StaffOrder } from '@/types/pedidos';
+
+import { getDb } from './db';
+
+/** A customer can't have more than this many orders waiting for the shop's answer */
+const MAX_PENDING_PER_CUSTOMER = 3;
+
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null;
+const text = (value: unknown, max: number): string => (typeof value === 'string' ? value.slice(0, max) : '');
+
+/** In development the checkout sends its simulated time (?ahora) so the server judges the same hour */
+const orderDate = (body: Record<string, unknown>): Date => {
+  if (process.env.NODE_ENV !== 'production' && typeof body.ahora === 'string') {
+    const simulated = new Date(body.ahora);
+    if (!Number.isNaN(simulated.getTime())) return simulated;
+  }
+  return new Date();
+};
+
+export type CreateOrderResult = { ok: true; id: string } | { ok: false; status: number; error: string };
+
+/**
+ * POST /api/pedidos. The cart arrives as menu references (the same format the phone saves); every price,
+ * discount and the total are rebuilt here from the menu, never taken from the request.
+ */
+export const createOrderFromRequest = async (customerId: string, email: string, body: unknown): Promise<CreateOrderResult> => {
+  if (!isRecord(body) || !Array.isArray(body.items)) return { ok: false, status: 400, error: 'Pedido inválido.' };
+
+  const date = orderDate(body);
+  if (!checkSchedule(getScheduleStatus(date)).canCheckout) {
+    return { ok: false, status: 409, error: 'Ahora no estamos tomando pedidos.' };
+  }
+
+  const items = restoreItems({ items: body.items });
+  if (items.length === 0 || items.length !== body.items.length) {
+    return { ok: false, status: 409, error: 'Algo de tu pedido ya no está disponible. Revisá el carrito.' };
+  }
+
+  const form: CheckoutForm = {
+    name: text(body.name, 60),
+    deliveryMethod: body.deliveryMethod === 'pickup' || body.deliveryMethod === 'delivery' ? body.deliveryMethod : null,
+    address: text(body.address, 160),
+    paymentMethod: body.paymentMethod === 'cash' || body.paymentMethod === 'transfer' ? body.paymentMethod : null,
+    discountCode: text(body.discountCode, 40),
+  };
+  const errors = validateCheckout(form);
+  const firstError = Object.values(errors)[0];
+  if (firstError) return { ok: false, status: 400, error: firstError };
+
+  const phone = normalizePhone(text(body.phone, 40));
+  if (!phone) return { ok: false, status: 400, error: 'Revisá el celular: código de área y número.' };
+
+  const order = createOrder(form, items, date);
+  if (!order) return { ok: false, status: 400, error: 'Pedido inválido.' };
+
+  const lines: OrderLineSnapshot[] = order.items.map((item) => ({
+    quantity: item.quantity,
+    name: getLineName(item),
+    detail: getLineDetail(item),
+    subtotal: lineSubtotal(item),
+  }));
+  const subtotal = lines.reduce((sum, line) => sum + line.subtotal, 0);
+
+  const db = await getDb();
+  const [pending] = await db.query<{ count: number }>(
+    "SELECT count(*)::int AS count FROM orders WHERE customer_id = $1 AND status = 'nuevo'",
+    [customerId],
+  );
+  if ((pending?.count ?? 0) >= MAX_PENDING_PER_CUSTOMER) {
+    return { ok: false, status: 429, error: 'Ya tenés pedidos esperando confirmación. Esperá la respuesta del local.' };
+  }
+
+  const id = randomUUID();
+  await db.query(
+    `INSERT INTO orders (id, customer_id, customer_name, phone, email, delivery_method, address, payment_method,
+       lines, subtotal, discount_label, discount_amount, delivery_fee, total)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
+    [
+      id,
+      customerId,
+      order.customer.name,
+      phone,
+      email,
+      order.fulfillment.method,
+      order.fulfillment.method === 'delivery' ? order.fulfillment.address : null,
+      order.paymentMethod,
+      JSON.stringify(lines),
+      subtotal,
+      order.discount?.label ?? null,
+      order.discount?.amount ?? 0,
+      order.deliveryFee,
+      order.total,
+    ],
+  );
+  return { ok: true, id };
+};
+
+// ─── Reading ────────────────────────────────────────────────────────────────
+
+interface OrderRow {
+  id: string;
+  number: number;
+  created_at: Date | string;
+  customer_name: string;
+  phone: string;
+  email: string;
+  delivery_method: 'pickup' | 'delivery';
+  address: string | null;
+  payment_method: 'cash' | 'transfer';
+  lines: OrderLineSnapshot[] | string;
+  subtotal: number;
+  discount_label: string | null;
+  discount_amount: number;
+  delivery_fee: number;
+  total: number;
+  status: OrderStatus;
+  eta: string | null;
+  reject_reason: string | null;
+  printed_at: Date | string | null;
+}
+
+const iso = (value: Date | string): string => new Date(value).toISOString();
+
+const toStaffOrder = (row: OrderRow): StaffOrder => ({
+  id: row.id,
+  number: row.number,
+  createdAt: iso(row.created_at),
+  customerName: row.customer_name,
+  phone: row.phone,
+  email: row.email,
+  deliveryMethod: row.delivery_method,
+  address: row.address,
+  paymentMethod: row.payment_method,
+  // pg parses jsonb; keep working if a driver hands it back as text
+  lines: typeof row.lines === 'string' ? (JSON.parse(row.lines) as OrderLineSnapshot[]) : row.lines,
+  subtotal: row.subtotal,
+  discountLabel: row.discount_label,
+  discountAmount: row.discount_amount,
+  deliveryFee: row.delivery_fee,
+  total: row.total,
+  status: row.status,
+  eta: row.eta,
+  rejectReason: row.reject_reason,
+  printedAt: row.printed_at ? iso(row.printed_at) : null,
+});
+
+/** The shop app's list: everything from the last `hours` hours, newest first */
+export const listStaffOrders = async (hours = 18): Promise<StaffOrder[]> => {
+  const db = await getDb();
+  const rows = await db.query<OrderRow>(
+    'SELECT * FROM orders WHERE created_at > now() - make_interval(hours => $1) ORDER BY created_at DESC LIMIT 200',
+    [hours],
+  );
+  return rows.map(toStaffOrder);
+};
+
+/** The customer's own order, or null (also if it belongs to someone else) */
+export const getCustomerOrder = async (customerId: string, orderId: string): Promise<CustomerOrder | null> => {
+  const db = await getDb();
+  const [row] = await db.query<OrderRow>('SELECT * FROM orders WHERE id = $1 AND customer_id = $2', [orderId, customerId]);
+  if (!row) return null;
+  return {
+    id: row.id,
+    number: row.number,
+    status: row.status,
+    eta: row.eta,
+    rejectReason: row.reject_reason,
+    deliveryMethod: row.delivery_method,
+    total: row.total,
+  };
+};
+
+// ─── Shop decisions ─────────────────────────────────────────────────────────
+
+const ETA_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+export type DecisionResult = { ok: true; order: StaffOrder } | { ok: false; status: number; error: string };
+
+/** PATCH /api/local/pedidos/[id] */
+export const applyStaffAction = async (orderId: string, body: unknown): Promise<DecisionResult> => {
+  if (!isRecord(body)) return { ok: false, status: 400, error: 'Acción inválida.' };
+  const db = await getDb();
+  let rows: OrderRow[];
+
+  switch (body.action) {
+    case 'confirmar': {
+      const eta = text(body.eta, 5);
+      if (!ETA_PATTERN.test(eta)) return { ok: false, status: 400, error: 'La hora va como HH:MM.' };
+      rows = await db.query<OrderRow>(
+        `UPDATE orders SET status = 'confirmado', eta = $2, reject_reason = NULL, decided_at = now()
+         WHERE id = $1 RETURNING *`,
+        [orderId, eta],
+      );
+      break;
+    }
+    case 'rechazar': {
+      const reason = text(body.reason, 300).trim();
+      if (!reason) return { ok: false, status: 400, error: 'Falta el motivo.' };
+      rows = await db.query<OrderRow>(
+        `UPDATE orders SET status = 'rechazado', reject_reason = $2, eta = NULL, decided_at = now()
+         WHERE id = $1 RETURNING *`,
+        [orderId, reason],
+      );
+      break;
+    }
+    case 'impreso':
+      rows = await db.query<OrderRow>('UPDATE orders SET printed_at = now() WHERE id = $1 RETURNING *', [orderId]);
+      break;
+    default:
+      return { ok: false, status: 400, error: 'Acción inválida.' };
+  }
+
+  const [row] = rows;
+  return row ? { ok: true, order: toStaffOrder(row) } : { ok: false, status: 404, error: 'No existe ese pedido.' };
+};

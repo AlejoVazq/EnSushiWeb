@@ -1,7 +1,7 @@
 import { BUSINESS } from '@/config/business';
 import { getBestDiscount, lookUpCode } from '@/lib/discounts';
 import { getNow } from '@/lib/schedule';
-import { cartTotal } from '@/store/useCartStore';
+import { cartTotal } from '@/lib/cartItems';
 import type { CartItem, DeliveryMethod, OrderDetails, PaymentMethod } from '@/types';
 
 export interface CheckoutForm {
