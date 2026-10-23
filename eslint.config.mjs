@@ -14,6 +14,9 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Local Claude Code skills and settings (third-party scripts)
     ".claude/**",
+    // The shop's desktop app has its own package and checks (desktop/package.json)
+    "desktop/**",
+    ".data/**",
   ]),
 ]);
 

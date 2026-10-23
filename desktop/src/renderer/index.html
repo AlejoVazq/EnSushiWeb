@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'" />
+    <title>EnSushi Local</title>
+    <style>
+      /* Functional only: readable from a step back in a kitchen, nothing more (the visual design comes later) */
+      * { box-sizing: border-box; }
+      body { margin: 0; font: 16px/1.4 system-ui, sans-serif; background: #f4f4f4; color: #111; }
+      button, input, textarea, select { font: inherit; }
+      button { padding: 8px 14px; border: 1px solid #888; border-radius: 6px; background: #fff; cursor: pointer; }
+      button:disabled { opacity: 0.5; cursor: default; }
+      button.primary { background: #111; color: #fff; border-color: #111; }
+      button.danger { border-color: #b00; color: #b00; }
+      input, textarea, select { padding: 6px 8px; border: 1px solid #888; border-radius: 6px; width: 100%; }
+      textarea { min-height: 120px; resize: vertical; }
+      label { display: block; margin: 10px 0 4px; font-weight: 600; }
+      .error { color: #b00; }
+      .muted { color: #666; }
+      .layout { display: grid; grid-template-columns: 340px 1fr; height: 100vh; }
+      .sidebar { border-right: 1px solid #ccc; overflow-y: auto; background: #fff; }
+      .main { overflow-y: auto; padding: 16px 24px; }
+      .bar { display: flex; gap: 8px; align-items: center; padding: 10px; border-bottom: 1px solid #ccc; }
+      .order { display: block; width: 100%; text-align: left; border: 0; border-bottom: 1px solid #ddd; border-radius: 0; padding: 10px 12px; }
+      .order.selected { background: #e8eefc; }
+      .tag { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 13px; font-weight: 700; }
+      .tag.nuevo { background: #ffd54f; }
+      .tag.confirmado { background: #a5d6a7; }
+      .tag.rechazado { background: #ef9a9a; }
+      .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+      .panel { background: #fff; border: 1px solid #ccc; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+      table { border-collapse: collapse; width: 100%; }
+      td { padding: 4px 0; vertical-align: top; }
+      td.num { text-align: right; white-space: nowrap; }
+      .center { max-width: 420px; margin: 60px auto; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="renderer.js"></script>
+  </body>
+</html>

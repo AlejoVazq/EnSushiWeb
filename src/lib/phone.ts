@@ -23,9 +23,3 @@ export const normalizePhone = (input: string): string | null => {
   }
   return digits.length === NATIONAL_DIGITS ? `549${digits}` : null;
 };
-
-/** "5492478567168" → "2478 567168" (for showing it back) */
-export const formatPhone = (normalized: string): string => {
-  const national = normalized.replace(/^549/, '');
-  return `${national.slice(0, 4)} ${national.slice(4)}`;
-};

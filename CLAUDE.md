@@ -50,6 +50,13 @@
    - Si elige Transferencia: NO mostrar Alias/CVU. Avisar que no transfiera todavía: el local confirma el pedido por WhatsApp y recién ahí le pasa el alias y el total; después de transferir manda el comprobante por el mismo chat. (Así se evita cobrar pedidos que no se pueden tomar.)
 4. **Acción**: generar URL `wa.me` con el pedido.
 
+## Pedidos por app (rama `app-pedidos`)
+En lugar de WhatsApp, el pedido va a nuestro servidor y lo recibe la app de escritorio del local (`desktop/`, Electron), que confirma con horario aproximado o rechaza, abre WhatsApp con el mensaje e imprime la comanda (Epson TM-T20 por su driver de Windows). Todo detrás de `PEDIDOS_POR_APP=1` (servidor) y `NEXT_PUBLIC_PEDIDOS_POR_APP=1` (checkout); sin eso la web sigue con WhatsApp. `main` sigue desplegado en Vercel solo con WhatsApp.
+- Servidor: `src/server/` (PostgreSQL con `DATABASE_URL`; PGlite en `.data/` en desarrollo), rutas en `src/app/api/` (`cuenta/*` ingreso por código de correo, `pedidos` del cliente, `local/*` de la app con token). El servidor rearma el carrito desde el menú (`restoreItems` de `src/lib/cartItems.ts`) y recalcula todo.
+- Tipos compartidos con la app: `src/types/pedidos.ts` (sin imports).
+- Guía de puesta en marcha (servidor, correo, ticketera): `docs/app-pedidos.md`.
+- Las líneas del carrito sin store viven en `src/lib/cartItems.ts`; `useCartStore` las reexporta.
+
 ## Plan de implementación (un paso por vez)
 - [x] **Paso 1** — Tipos (`src/types/index.ts`), menú (`src/data/menu.ts`), config (`src/config/business.ts`).
 - [x] **Paso 2** — `src/store/useCartStore.ts`: `addItem`, `removeItem`, `clearCart`, total derivado (`cartTotal`). Manejar `quantity` y `lineId` (para custom combos: id + flavorIds ordenados). Considerar `persist` de Zustand para no perder el carrito al recargar.
