@@ -17,7 +17,7 @@ export function ExtraRow({ item }: { item: BuildItem }) {
 
   return (
     <div className="flex min-h-19 items-center justify-between gap-4 py-4">
-      <div className={cn('min-w-0', !item.available && 'opacity-60')}>
+      <div className="min-w-0">
         <h3 className={cn('font-title text-lg leading-snug wrap-anywhere sm:text-xl', item.available ? 'text-washi' : 'text-washi-muted')}>
           {item.name}
         </h3>

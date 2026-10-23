@@ -14,10 +14,10 @@ export function SiteHeader({ onOpenCart }: SiteHeaderProps) {
   const count = useCartStore(selectCartItemCount);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-hairline bg-sumi/90 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-hairline bg-sumi">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
-        {/* Shown 28px tall (logo.png is 900×299): its real size picks a 1920px file for a 84px logo */}
-        <Image src="/logo.png" alt={BUSINESS.name} width={84} height={28} priority className="h-7 w-auto" />
+        {/* Shown 28px tall (logo.png is 900×299): its real size picks a 1920px file for a 85px logo */}
+        <Image src="/logo.png" alt={BUSINESS.name} width={85} height={28} priority className="h-7 w-auto" />
         <button
           type="button"
           onClick={onOpenCart}

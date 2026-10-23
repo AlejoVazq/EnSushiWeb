@@ -147,7 +147,7 @@ function BoxItemRow({ item, steps, fits, blocked, closed, onChange, onNeedSize, 
 
   return (
     <div className="flex min-h-19 items-center justify-between gap-4 py-3.5">
-      <div className={cn('min-w-0', unavailable && 'opacity-60')}>
+      <div className="min-w-0">
         <h4 className={cn('font-title text-lg leading-snug wrap-anywhere', unavailable ? 'text-washi-muted' : 'text-washi')}>
           {item.name}
         </h4>
@@ -269,8 +269,8 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
                 className={cn(
                   'flex min-h-16 cursor-pointer flex-col items-center justify-center rounded-lg border px-2 text-center leading-tight transition-colors',
                   'has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-washi',
-                  selected ? 'border-washi bg-sumi-2 text-washi' : 'border-hairline text-washi-muted',
-                  !selected && !disabled && 'hover:border-hairline-strong hover:text-washi',
+                  selected ? 'border-washi bg-sumi-2 text-washi' : 'border-hairline-strong text-washi-muted',
+                  !selected && !disabled && 'hover:border-washi-muted hover:text-washi',
                   disabled && 'cursor-default opacity-40',
                 )}
               >
@@ -349,7 +349,7 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
         <div className="sticky bottom-[max(1rem,env(safe-area-inset-bottom))] z-20 @2xl:ml-auto @2xl:max-w-xl">
           <div className="grid grid-cols-[1fr_auto] items-center gap-x-3 rounded-2xl bg-washi py-3 pr-3 pl-4 text-sumi shadow-lg shadow-black/50">
             <div className="min-w-0">
-              <p className="text-[15px] leading-snug font-bold text-pretty tabular-nums">
+              <p className="text-[0.9375rem] leading-snug font-bold text-pretty tabular-nums">
                 {notice === 'added'
                   ? 'Agregaste tu caja'
                   : notice === 'saved'
@@ -399,7 +399,7 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
               <button
                 type="button"
                 onClick={() => update({ size: fitsElsewhere.id })}
-                className="col-span-2 -ml-1 mt-1 h-9 justify-self-start rounded-lg px-1 text-left text-[13px] font-bold underline underline-offset-4 hover:bg-sumi/10 focus-visible:outline-2 focus-visible:outline-sumi"
+                className="col-span-2 -ml-1 mt-1 h-9 justify-self-start rounded-lg px-1 text-left text-[0.8125rem] font-bold underline underline-offset-4 hover:bg-sumi/10 focus-visible:outline-2 focus-visible:outline-sumi"
               >
                 Así como está, entra en la {fitsElsewhere.name.toLowerCase()}
               </button>

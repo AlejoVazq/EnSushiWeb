@@ -172,8 +172,8 @@ Una paleta de tinta y papel: negros cálidos con un dejo marrón, crema de papel
 - **Tinta Sumi** (`sumi`): fondo de la página, del header y de la barra de pestañas (estas dos al 90% con desenfoque) y del degradado detrás de la placa flotante.
 - **Sumi Lavada** (`sumi-1`): hover del botón "+" y del botón del carrito; esqueletos de carga.
 - **Sumi Cargada** (`sumi-2`): fondo del chip seleccionado, de la foto mientras carga y hover de los botones del stepper.
-- **Filete** (`hairline`): borde de 1px de header, pestañas, divisores entre filas, chips en reposo y etiquetas.
-- **Filete Marcado** (`hairline-strong`): borde del botón "+" en reposo, de los botones contorneados, de las opciones de Entrega y Pago, y hover de los chips.
+- **Filete** (`hairline`): borde de 1px de header, pestañas, divisores entre filas y etiquetas.
+- **Filete Marcado** (`hairline-strong`): borde del botón "+" en reposo, de los botones contorneados, de las opciones de Entrega y Pago y de los chips en reposo (tamaño y caja; en hover pasan a `washi-muted`).
 - **Borde de Campo** (`field-edge`): borde de los campos de texto (3.95:1 sobre `sumi`, por encima del 3:1 que pide un control). Solo bordes, nunca texto.
 - **Papel Washi** (`washi`): texto principal, nombres, precios, pestaña activa y su subrayado, borde del chip seleccionado, foco visible. Es también el fondo de la banda de estado y de la placa "Ver pedido".
 - **Papel Gastado** (`washi-muted`): descripciones, pestañas inactivas, chips en reposo, etiquetas, botones del stepper y todo lo agotado. Pasa AA en las tres capas (8.7:1 sobre `sumi`, 7.4:1 sobre `sumi-2`).
@@ -223,7 +223,7 @@ En el celular las pestañas hacen scroll horizontal sin barra visible y se desva
 
 ## Elevation & Depth
 
-Plano y en capas de tinta: la profundidad se lee por el paso de `sumi` a `sumi-1` y `sumi-2` y por filetes de 1px. Nada en reposo tiene sombra. El header y la barra de pestañas usan `sumi` al 90% con `backdrop-blur-md` para que el menú pase por debajo sin perder legibilidad.
+Plano y en capas de tinta: la profundidad se lee por el paso de `sumi` a `sumi-1` y `sumi-2` y por filetes de 1px. Nada en reposo tiene sombra. El header y la barra de pestañas son `sumi` sólido, sin desenfoque: el menú pasa por debajo sin costo de scroll en celulares de gama baja.
 
 ### Shadow Vocabulary
 - **Placa flotante** (`box-shadow` de `shadow-lg` en negro al 50%): la placa "Ver pedido" del celular, sobre un degradado que sale de `sumi`. Es la única sombra del menú.
@@ -273,7 +273,7 @@ El armado de la caja, dentro de la pestaña. Arriba, el selector de caja: dos ch
 - **Dentro de la caja, sin sello:** lo que está en la caja todavía no está en el pedido, así que la cantidad va en número `washi` (M PLUS Rounded, tabular) entre el menos y el más. Los acompañamientos tienen su propia pestaña, con las mismas filas y el stepper con sello del resto del menú.
 - **Antes de elegir caja:** el "+" de un roll o nigiri no se deshabilita; lleva al selector, lo enmarca con un contorno `washi` y cambia la ayuda a "Elegí el tamaño de la caja".
 - **Barra del armado:** es la placa crema de esta pantalla y reemplaza a "Ver pedido" mientras hay una caja en curso. Va pegada al pie (en escritorio, hasta 576px y a la derecha) y muestra la caja y lo cargado ("Caja grande · 15 piezas + 3 nigiris") y el total, sin barrita de progreso (no hay un número fijo que completar). Si lo cargado ya entra en la otra caja, abajo va el link "Así como está, entra en la caja chica". Su botón es `sumi` lleno cuando hay una acción ("Agregar · $ X", "Guardar · $ X", "Ver pedido") y contorneado con texto `sumi` a contraste completo cuando informa ("Faltan 5 piezas", "Hasta las 19:30"): deshabilitado no quiere decir ilegible.
-- **Pasado el corte:** rolls y nigiris desteñidos con el sello hueco "Hasta las 19:30", chips de caja apagados y un aviso con filete `hairline-strong` arriba del selector.
+- **Pasado el corte:** rolls y nigiris con el nombre en `washi-muted` (sin bajar la opacidad del texto, que tiene que seguir leyéndose a 4,5:1) y el sello hueco "Hasta las 19:30", chips de caja apagados y un aviso con filete `hairline-strong` arriba del selector.
 
 ### Día especial
 En Combos: el sello kin "−15% hoy" junto al nombre (rotado −3°, como el sello hueco; nombre y sello cortan como dos piezas), y en cada chip de tamaño el precio de antes tachado en 12px y el de hoy en 700. Debajo de los chips, a la izquierda del "+", "Incluye 2 salsas y 2 palitos" del tamaño elegido (también los días comunes).

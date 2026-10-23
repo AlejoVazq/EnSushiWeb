@@ -42,7 +42,7 @@ function ChipSeal({ lineId }: { lineId: string }) {
   if (quantity === 0) return null;
   return (
     <>
-      <Seal quantity={quantity} className="absolute -top-2 -right-1.5 grid h-5 min-w-5 px-1 text-[11px]" />
+      <Seal quantity={quantity} className="absolute -top-2 -right-1.5 grid h-5 min-w-5 px-1 text-[0.6875rem]" />
       <span className="sr-only">, {quantity} en tu pedido</span>
     </>
   );
@@ -88,8 +88,8 @@ function ChoicePicker<T extends string | number>({
                 'has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-washi',
                 selected && !disabled
                   ? 'border-washi bg-sumi-2 text-washi'
-                  : 'border-hairline text-washi-muted',
-                !selected && !disabled && 'hover:border-hairline-strong hover:text-washi',
+                  : 'border-hairline-strong text-washi-muted',
+                !selected && !disabled && 'hover:border-washi-muted hover:text-washi',
               )}
             >
               <input

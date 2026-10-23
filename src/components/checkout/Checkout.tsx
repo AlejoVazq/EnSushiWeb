@@ -115,7 +115,7 @@ function ChoiceCards<T extends string>({ name, legend, options, value, onChange,
               <Icon width={24} height={24} className={selected ? 'text-washi' : 'text-washi-muted'} />
               {/* Selection isn't color alone: the check marks it too */}
               {selected && <CheckIcon width={18} height={18} className="absolute top-3.5 right-3.5 text-washi" />}
-              <span className="text-[15px] leading-tight font-bold text-washi">{option.label}</span>
+              <span className="text-[0.9375rem] leading-tight font-bold text-washi">{option.label}</span>
               <span className="text-sm leading-snug text-pretty text-washi-muted">{option.description}</span>
             </label>
           );

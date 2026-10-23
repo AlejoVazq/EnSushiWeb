@@ -32,7 +32,7 @@ export function CategoryNav({ active, onSelect }: CategoryNavProps) {
   return (
     <nav
       aria-label="Categorías"
-      className="sticky top-14 z-30 -mx-4 mb-8 border-b border-hairline bg-sumi/90 px-4 backdrop-blur-md sm:-mx-6 sm:px-6"
+      className="sticky top-14 z-30 -mx-4 mb-8 border-b border-hairline bg-sumi px-4 sm:-mx-6 sm:px-6"
     >
       <div
         ref={listRef}
@@ -54,7 +54,7 @@ export function CategoryNav({ active, onSelect }: CategoryNavProps) {
               tabIndex={selected ? 0 : -1}
               onClick={() => onSelect(category.id)}
               className={cn(
-                'inline-flex h-12 shrink-0 items-center px-2 text-[15px] transition-colors',
+                'inline-flex h-12 shrink-0 items-center px-2 text-[0.9375rem] transition-colors',
                 'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-washi',
                 selected
                   ? 'font-bold text-washi shadow-[inset_0_-2px_0_currentColor]'
