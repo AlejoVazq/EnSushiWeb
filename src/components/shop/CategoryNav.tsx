@@ -2,7 +2,7 @@
 
 import { useRef, type KeyboardEvent } from 'react';
 
-import { CATEGORIES } from '@/data/menu';
+import { MENU_CATEGORIES } from '@/data/menu';
 import { cn } from '@/lib/cn';
 import type { CategoryId } from '@/types';
 
@@ -22,8 +22,8 @@ export function CategoryNav({ active, onSelect }: CategoryNavProps) {
     const step = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
     if (step === 0) return;
     event.preventDefault();
-    const index = CATEGORIES.findIndex((c) => c.id === active);
-    const next = CATEGORIES[(index + step + CATEGORIES.length) % CATEGORIES.length];
+    const index = MENU_CATEGORIES.findIndex((c) => c.id === active);
+    const next = MENU_CATEGORIES[(index + step + MENU_CATEGORIES.length) % MENU_CATEGORIES.length];
     if (!next) return;
     onSelect(next.id);
     listRef.current?.querySelector<HTMLElement>(`#${categoryTabId(next.id)}`)?.focus();
@@ -41,7 +41,7 @@ export function CategoryNav({ active, onSelect }: CategoryNavProps) {
         onKeyDown={handleKeyDown}
         className="scrollbar-none -mx-2 flex gap-3 overflow-x-auto max-sm:mask-r-from-[calc(100%-2rem)]"
       >
-        {CATEGORIES.map((category) => {
+        {MENU_CATEGORIES.map((category) => {
           const selected = category.id === active;
           return (
             <button

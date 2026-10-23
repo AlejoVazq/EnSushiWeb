@@ -11,6 +11,8 @@ export interface Category {
   id: CategoryId;
   name: string;
   description: string;
+  /** Left out of the menu (no tab) and of the cart's suggestions, without deleting its items */
+  hidden?: boolean;
 }
 
 export type ProductTag = 'nuevo' | 'mas-pedido' | 'picante' | 'veggie' | 'sin-tacc';

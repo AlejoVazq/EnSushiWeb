@@ -4,7 +4,16 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 import { MinusIcon, PlusIcon } from '@/components/ui/icons';
 import { BUSINESS } from '@/config/business';
-import { BUILD_BOX_SIZES, BUILD_ITEM_GROUPS, getBoxSize, getBuildItemById, getBuildItemsByGroup, isBoxItem } from '@/data/menu';
+import {
+  BUILD_BOX_SIZES,
+  BUILD_ITEM_GROUPS,
+  EXTRAS_CATEGORY_ID,
+  getBoxSize,
+  getBuildItemById,
+  getBuildItemsByGroup,
+  isBoxItem,
+  isCategoryShown,
+} from '@/data/menu';
 import { useCanOrder, useScheduleStatus } from '@/hooks/useScheduleStatus';
 import { useSettled } from '@/hooks/useSettled';
 import {
@@ -243,7 +252,8 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
 
       {blocked && (
         <p className="rounded-xl border border-hairline-strong px-4 py-3 text-sm leading-relaxed text-washi">
-          Los rolls y nigiris se piden hasta las {preorderCutoff}. Los acompañamientos siguen disponibles en su pestaña.
+          Los rolls y nigiris se piden hasta las {preorderCutoff}.
+          {isCategoryShown(EXTRAS_CATEGORY_ID) && ' Los acompañamientos siguen disponibles en su pestaña.'}
         </p>
       )}
 

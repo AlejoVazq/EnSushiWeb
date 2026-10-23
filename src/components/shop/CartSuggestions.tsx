@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { ChevronLeftIcon, ChevronRightIcon } from '@/components/ui/icons';
-import { getBuildItemsByGroup, getProductsByCategory } from '@/data/menu';
+import { EXTRAS_CATEGORY_ID, getBuildItemsByGroup, getProductsByCategory, isCategoryShown } from '@/data/menu';
 import { getNow } from '@/lib/schedule';
 import { formatUnits } from '@/lib/cartLine';
 import { formatItemPrice, formatPrice } from '@/lib/format';
@@ -90,7 +90,9 @@ export function CartSuggestions() {
   const addItem = useCartStore((state) => state.addItem);
   const { rowRef, edges, scroll } = useRowScroll();
 
-  const extras = getBuildItemsByGroup('acompanamientos').filter((item) => item.available);
+  // Only while their tab is on the menu
+  const extrasShown = isCategoryShown(EXTRAS_CATEGORY_ID);
+  const extras = extrasShown ? getBuildItemsByGroup('acompanamientos').filter((item) => item.available) : [];
   // Salsas without a required option can be added straight away
   const salsas = getProductsByCategory('salsas', getNow()).filter(isPlainProduct).filter((product) => !product.option);
   if (extras.length + salsas.length === 0) return null;
@@ -102,7 +104,7 @@ export function CartSuggestions() {
           <h3 id="cart-suggestions" className="font-title text-lg text-washi">
             ¿Le sumás algo?
           </h3>
-          <p className="text-sm text-washi-muted">Acompañamientos y salsas para tu pedido.</p>
+          <p className="text-sm text-washi-muted">{extrasShown ? 'Acompañamientos y salsas para tu pedido.' : 'Salsas y complementos para tu pedido.'}</p>
         </div>
         {(edges.back || edges.forward) && (
           <div className="hidden shrink-0 gap-2 pointer-fine:flex">

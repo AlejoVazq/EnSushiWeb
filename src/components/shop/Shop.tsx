@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { BUSINESS } from '@/config/business';
-import { BUILD_CATEGORY_ID, CATEGORIES, EXTRAS_CATEGORY_ID } from '@/data/menu';
+import { BUILD_CATEGORY_ID, EXTRAS_CATEGORY_ID, MENU_CATEGORIES } from '@/data/menu';
 import { DESKTOP_QUERY, useMediaQuery } from '@/hooks/useMediaQuery';
 import { useWarmMenuPhotos } from '@/hooks/useWarmMenuPhotos';
 import { toBoxInput } from '@/store/useCartStore';
@@ -36,7 +36,7 @@ export function Shop() {
     setCartOpen(false);
     router.push('/checkout');
   };
-  const [activeCategory, setActiveCategory] = useState<CategoryId>(CATEGORIES[0]?.id ?? BUILD_CATEGORY_ID);
+  const [activeCategory, setActiveCategory] = useState<CategoryId>(MENU_CATEGORIES[0]?.id ?? BUILD_CATEGORY_ID);
   // Lives here so the box survives switching tabs, and "Editar" in the cart can load one
   const [boxDraft, setBoxDraft] = useState<BoxDraft>(EMPTY_BOX_DRAFT);
 
@@ -73,7 +73,7 @@ export function Shop() {
 
             <CategoryNav active={activeCategory} onSelect={selectCategory} />
 
-            {CATEGORIES.filter((category) => category.id === activeCategory).map((category) => (
+            {MENU_CATEGORIES.filter((category) => category.id === activeCategory).map((category) => (
               <CategorySection key={category.id} category={category}>
                 {category.id === BUILD_CATEGORY_ID ? (
                   <BoxBuilder draft={boxDraft} onDraftChange={setBoxDraft} onOpenCart={openCart} />

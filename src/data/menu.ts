@@ -15,8 +15,7 @@ import type {
 
 /**
  * Single source of truth for the catalog.
- * Combos, Sushiburgers (except Atún y ciboulette) and Salsas have real prices; Arma tu combo, the acompañamientos
- * and SushiBurger Atún y ciboulette still use PRICE_TBD.
+ * Everything has its real price except the acompañamientos (PRICE_TBD), whose tab is hidden for now.
  */
 
 // ─── Categories (display order) ─────────────────────────────────────────────
@@ -32,10 +31,17 @@ export const CATEGORIES: readonly Category[] = [
     id: 'acompanamientos',
     name: 'Acompañamientos',
     description: 'Para sumar a tu pedido. Se piden solos, también después de las 19:30.',
+    // Hidden until their prices and the gyosas' flavors are defined
+    hidden: true,
   },
   { id: 'combos', name: 'Combos', description: 'Selecciones de la casa para compartir.' },
   { id: 'salsas', name: 'Salsas & complementos', description: 'Porciones extra para acompañar.' },
 ];
+
+/** The tabs the menu shows, in order */
+export const MENU_CATEGORIES: readonly Category[] = CATEGORIES.filter((category) => !category.hidden);
+
+export const isCategoryShown = (id: CategoryId): boolean => MENU_CATEGORIES.some((category) => category.id === id);
 
 // ─── "Arma tu combo" builder ─────────────────────────────────────────────────
 
@@ -79,7 +85,7 @@ export const getBoxSize = (id: BuildBoxSizeId): BuildBoxSize | undefined =>
 /** Groups that fill the box and stop at the preorder cutoff; the rest go to the order on their own */
 const BOX_GROUPS: readonly BuildItemGroup[] = ['rolls', 'nigiris'];
 
-/** Placeholder until the real prices are defined: every BuildItem and SushiBurger Atún y ciboulette (none ships until then) */
+/** Placeholder until the real prices are defined: the acompañamientos (their tab is hidden until then) */
 const PRICE_TBD = 1000;
 
 export const BUILD_ITEM_GROUPS: readonly { id: BuildItemGroup; name: string }[] = [
@@ -95,7 +101,7 @@ const roll = (id: string, name: string): BuildItem => ({
   name,
   step: 5,
   unitLabel: 'piezas',
-  price: PRICE_TBD,
+  price: 9000,
   available: true,
 });
 
@@ -106,8 +112,8 @@ export const BUILD_ITEMS: readonly BuildItem[] = [
   roll('roll-hikaru', 'Hikaru'),
   roll('roll-sakana-maki', 'Sakana Maki'),
   roll('roll-tuna-spicy', 'TunaSpicy'),
-  { id: 'nigiri-salmon', group: 'nigiris', name: 'Nigiri de salmón', step: 1, unitLabel: 'unidades', price: PRICE_TBD, available: true },
-  { id: 'nigiri-langostino', group: 'nigiris', name: 'Nigiri de langostino', step: 1, unitLabel: 'unidades', price: PRICE_TBD, available: true },
+  { id: 'nigiri-salmon', group: 'nigiris', name: 'Nigiri de salmón', step: 1, unitLabel: 'unidades', price: 2000, available: true },
+  { id: 'nigiri-langostino', group: 'nigiris', name: 'Nigiri de langostino', step: 1, unitLabel: 'unidades', price: 1500, available: true },
   // TODO: the three flavors (names still to be defined)
   { id: 'gyosas-1', group: 'acompanamientos', name: 'Gyosas · Sabor 1', step: 3, unitLabel: 'unidades', price: PRICE_TBD, available: true },
   { id: 'gyosas-2', group: 'acompanamientos', name: 'Gyosas · Sabor 2', step: 3, unitLabel: 'unidades', price: PRICE_TBD, available: true },
@@ -194,9 +200,9 @@ export const PRODUCTS: readonly Product[] = [
     id: 'sb-atun-ciboulette',
     categoryId: 'sushiburgers',
     name: 'SushiBurger Atún y ciboulette',
-    // TODO: real price, full description (ingredients) and photo
+    // TODO: full description (ingredients) and photo
     description: 'Atún y ciboulette entre dos panes de arroz empanizados y fritos. Incluye nachos y guacamole.',
-    price: PRICE_TBD,
+    price: 14000,
   }),
 
   // Salsas: one product each, so the order says exactly which one
@@ -214,7 +220,6 @@ export const PRODUCTS: readonly Product[] = [
     description: 'Base de teriyaki con aceite de sésamo, semillas de sésamo y ralladura de limón.',
     price: 1500,
   }),
-  express({ id: 'salsa-agridulce', categoryId: 'salsas', name: 'Salsa Agridulce', price: 1500 }),
   express({
     id: 'salsa-soja',
     categoryId: 'salsas',
@@ -222,7 +227,13 @@ export const PRODUCTS: readonly Product[] = [
     description: 'La clásica, salada, para mojar rolls y nigiris.',
     price: 500,
   }),
-  express({ id: 'wasabi', categoryId: 'salsas', name: 'Wasabi', price: 500 }),
+  express({
+    id: 'wasabi',
+    categoryId: 'salsas',
+    name: 'Wasabi',
+    description: 'Pasta picante de rábano japonés, para darle un golpe fuerte a cada pieza.',
+    price: 500,
+  }),
   express({
     id: 'palitos',
     categoryId: 'salsas',

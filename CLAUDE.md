@@ -19,9 +19,9 @@
 - Después de cada paso: correr `npx tsc --noEmit` y `npm run lint`, y que pasen antes de seguir.
 
 ## Flujo de negocio
-1. **Catálogo** por categorías, en pestañas (se ve una categoría por vez): Arma tu combo, Sushiburgers, Acompañamientos, Combos, Salsas & complementos (en ese orden).
+1. **Catálogo** por categorías, en pestañas (se ve una categoría por vez): Arma tu combo, Sushiburgers, Acompañamientos, Combos, Salsas & complementos (en ese orden). Una categoría con `hidden: true` no tiene pestaña ni aparece en "¿Le sumás algo?" (`MENU_CATEGORIES` / `isCategoryShown` en `menu.ts`); hoy Acompañamientos está oculta hasta tener precios y los sabores de las gyosas.
    - Los combos son productos `sized`: una tarjeta con selector de 15/25/40 piezas, cada tamaño con su precio. En el carrito cada tamaño es una línea distinta. Cada tamaño dice qué incluye (`ProductVariant.includes`): 15 → 1 salsa y 1 palito, 25 → 2 y 2, 40 (una caja chica de 15 y una grande de 25) → 3 y 3. Las salsas incluidas las elige el local; la web solo lo informa.
-   - Salsas & complementos: Teriyaki, Buenos Aires, Agridulce, Salsa de soja ($ 500), Wasabi ($ 500) y Palitos ($ 200 el par extra; combos y cajas ya traen los suyos). Un producto con precio 0 se mostraría "Sin cargo" (`formatItemPrice`); hoy no hay ninguno.
+   - Salsas & complementos: Teriyaki ($ 1.500), Buenos Aires ($ 1.500), Salsa de soja ($ 500), Wasabi ($ 500) y Palitos ($ 200 el par extra; combos y cajas ya traen los suyos). Un producto con precio 0 se mostraría "Sin cargo" (`formatItemPrice`); hoy no hay ninguno.
    - Cada producto tiene `orderType`: `express` (se cocina en el momento, dentro del horario de apertura) o `preorder`. Hoy todos los productos son `express`; el corte de `BUSINESS.schedule.preorderCutoff` (19:30) se aplica por ítem en Arma tu combo (ver abajo).
    - Un producto `standard` puede tener `option` (ej. SushiBurger Salmón: Crudo / Cocido): mismo precio, elección obligatoria, cada valor es una línea distinta en el carrito y puede tener su propia foto.
    - Un producto con `availableDays` solo se muestra esos días; usar siempre `getMenuByCategory` (menú: los agotados, `available: false`, se listan desteñidos con "Agotado hoy") o `getProductsByCategory` (solo lo que se puede pedir).
@@ -29,8 +29,8 @@
      - **Caja chica** (hasta 15): 15 piezas de rolls; 10 piezas + hasta 3 nigiris; 6 a 8 nigiris solos.
      - **Caja grande** (hasta 30): 30 o 25 piezas de rolls; 20 piezas + hasta 6 nigiris; 15 piezas + 1 a 9 nigiris.
      - Cualquier otra combinación no se puede (los nigiris ocupan más lugar que las piezas de roll, por eso la lista es explícita). La chica incluye 1 salsa y 1 palito, la grande 2 y 2; el armado no lo muestra (lo agrega el local).
-     - Rolls de autor, de a 5 piezas: New York, Sake, Midori, Hikaru, Sakana Maki, TunaSpicy (la lista puede crecer).
-     - Nigiris (salmón y langostino): por unidad; los dos cuentan igual en las combinaciones.
+     - Rolls de autor, de a 5 piezas, $ 9.000 cada 5: New York, Sake, Midori, Hikaru, Sakana Maki, TunaSpicy (la lista puede crecer).
+     - Nigiris, por unidad: salmón $ 2.000, langostino $ 1.500; los dos cuentan igual en las combinaciones.
      - Debajo de la caja elegida se listan sus combinaciones (`describeCombinations`). El "+" de un roll o nigiri se apaga si con un paso más ya no se llega a ninguna combinación (`canReachFill`, `src/lib/boxRules.ts`); la caja a la que ya no se llega con lo cargado queda apagada ("Para la caja chica, sacá piezas").
      - El botón de agregar está deshabilitado hasta que la caja es una combinación válida y dice lo más simple que falta (`getMissing`: "Faltan 10 piezas", "Falta 1 nigiri"). Si lo cargado ya entra en la otra caja, la barra ofrece "Así como está, entra en la caja chica".
      - Acompañamientos: tienen su propia pestaña, después de Sushiburgers, y no aparecen en el armado. Son ítems de `BUILD_ITEMS` (grupo `acompanamientos`) que se piden solos, sin caja: gyosas en 3 sabores (todavía sin nombre: "Sabor 1/2/3") de a 3 unidades; langostinos empanados, pollo tandoori y geishas de a 5 unidades. No tienen corte: se pueden pedir también después de las 19:30. Como rolls y nigiris sí cortan a las 19:30, pasado el corte no se puede armar una caja.
@@ -65,9 +65,10 @@
 - [x] **Paso 11** — Pulido del checkout (probado y aprobado; no se toca salvo pedido explícito): un solo aviso de transferencia sin alias/CVU, tarjeta "Por Mercado Pago.", "Te confirmamos por WhatsApp" debajo del botón, títulos a 24px en el celular, errores de campos en rosa frío (`--color-error`). `DESIGN.md` y su sidecar `.impeccable/design.json` al día. Los critiques de `.impeccable/critique/` son de antes de "Sello y sumi" y ya no aplican. El binario de impeccable (`.claude/skills/impeccable/scripts/bin/`) no se versiona: se descarga solo.
 
 ## Pendientes antes de salir a producción
-- [ ] **Arma tu combo y Acompañamientos**: precios reales de cada ítem (hoy todos usan `PRICE_TBD`, $1.000: rolls, nigiris de salmón y de langostino, gyosas, langostinos, pollo y geishas), descripciones y fotos de los rolls; confirmar la lista completa de rolls. Nombres de los 3 sabores de gyosas. Cuántas geishas trae cada porción (hoy 5). No sale a producción hasta tenerlo completo.
+- [ ] **Acompañamientos** (pestaña oculta con `hidden: true`): precios reales (hoy `PRICE_TBD`, $1.000: gyosas, langostinos, pollo y geishas), nombres de los 3 sabores de gyosas y cuántas geishas trae cada porción (hoy 5). Con eso se saca el `hidden`.
+- [ ] **Arma tu combo**: descripciones y fotos de los rolls; confirmar la lista completa de rolls.
 - [ ] **Descuentos**: cargar los días especiales y los códigos reales en `src/config/discounts.ts` (hoy vacíos).
-- [ ] **Sushiburgers**: fotos de la versión cruda y la cocida del SushiBurger Salmón (`imageUrl` en cada valor de `option`). SushiBurger Atún y ciboulette: ya está en el menú con `PRICE_TBD`; falta el precio real, la descripción completa (hoy solo "Atún y ciboulette…") y la foto. Falta la descripción de la Salsa Agridulce y la del Wasabi.
+- [ ] **Sushiburgers**: fotos de la versión cruda y la cocida del SushiBurger Salmón (`imageUrl` en cada valor de `option`). SushiBurger Atún y ciboulette ($ 14.000): falta la descripción completa (hoy solo "Atún y ciboulette…") y la foto.
 - [ ] **Feriados**: se cargan sobre la marcha en `extraOpenDates` / `closedDates`.
 - [ ] **Fotos**: Combo TunaSalm (`hasPhoto: false` en `menu.ts` hasta tenerla), SushiBurger Atún y ciboulette, Salsas, Acompañamientos e ítems de Arma tu combo sin foto propia; se van a rehacer antes del deploy. Originales en `fotos/`.
 - [ ] **Prueba de punta a punta en el celular**: todas las combinaciones de entrega y pago, en un día de apertura antes de las 17:00, abierto, después de las 19:30 y cerrado, con una caja chica y una grande, en un día especial y con un código, y chequear que el mensaje de WhatsApp coincida con la plantilla.
