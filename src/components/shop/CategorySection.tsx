@@ -43,7 +43,7 @@ export function CategorySection({ category, children }: CategorySectionProps) {
   const products = waitForClient ? [] : getMenuByCategory(category.id, isClient ? getNow() : PRERENDER_DATE);
 
   return (
-    <section id={category.id} role="tabpanel" aria-labelledby={categoryTabId(category.id)} className="scroll-mt-28">
+    <section id={category.id} role="tabpanel" aria-labelledby={categoryTabId(category.id)} className="@container scroll-mt-28">
       <header className="mb-4 space-y-1">
         <h2 className="font-title text-3xl leading-tight text-balance text-washi sm:text-4xl">{category.name}</h2>
         <p className="text-washi-muted">{category.description}</p>
@@ -57,9 +57,9 @@ export function CategorySection({ category, children }: CategorySectionProps) {
             Hoy no hay nada disponible en esta sección. ¡Volvé mañana!
           </p>
         ) : (
-          <ul className="grid border-t border-hairline lg:grid-cols-2 lg:gap-x-12">
+          <ul className="grid border-t border-hairline @2xl:grid-cols-2 @2xl:gap-x-12">
             {products.map((product) => (
-              <li key={product.id} className="border-b border-hairline">
+              <li key={product.id} className="@container border-b border-hairline">
                 <ProductRow product={product} />
               </li>
             ))}

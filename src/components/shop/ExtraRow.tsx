@@ -51,7 +51,7 @@ export function ExtrasList() {
   }
 
   return (
-    <ul className="grid border-t border-hairline lg:grid-cols-2 lg:gap-x-12">
+    <ul className="grid border-t border-hairline @2xl:grid-cols-2 @2xl:gap-x-12">
       {items.map((item) => (
         <li key={item.id} className="border-b border-hairline">
           <ExtraRow item={item} />

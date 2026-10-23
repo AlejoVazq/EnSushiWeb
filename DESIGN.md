@@ -190,7 +190,7 @@ Una paleta de tinta y papel: negros cálidos con un dejo marrón, crema de papel
 **Display Font:** M PLUS Rounded 1c, peso 700 (con ui-rounded y system-ui de respaldo)
 **Body Font:** Figtree, pesos 400, 500 y 700 (con ui-sans-serif y system-ui de respaldo)
 
-**Character:** Una gótica redondeada y firme para los nombres, de la familia del lettering blando del logo, sobre una sans occidental neutra que se ocupa de precios, controles y textos sin competir. Las dos se cargan con `next/font/google`, solo latin.
+**Character:** Una gótica redondeada y firme para los nombres, de la familia del lettering blando del logo, sobre una sans occidental neutra que se ocupa de precios, controles y textos sin competir. Figtree se carga con `next/font/google`; M PLUS Rounded es el corte latin de Google guardado en `src/app/fonts/` y cargado con `next/font/local` (por `next/font/google` sumaba ~130 `@font-face` de sus cortes japoneses al CSS que bloquea el render). Solo latin las dos.
 
 ### Hierarchy
 - **Headline** (700, 30px y 36px desde `sm`, interlineado 1.25): título de categoría. El título del pie ("Sushi de autor, directo a tu casa.") usa el mismo estilo a 24px y 30px desde `sm`.
@@ -209,11 +209,15 @@ Una paleta de tinta y papel: negros cálidos con un dejo marrón, crema de papel
 
 ## Layout
 
-Mobile-first, una columna con márgenes laterales de 16px (24px desde `sm`) dentro de un contenedor de hasta 1152px (`max-w-6xl`).
+Mobile-first, una columna con márgenes laterales de 16px (24px desde `sm`) dentro de un contenedor de hasta 1280px (`max-w-7xl`), compartido por header, menú, pie y checkout.
+
+- **Celular y tablet (< 1024px):** el pedido es un panel que se abre desde el header o desde la placa "Ver pedido", que sigue abajo también en tablet (centrada, hasta 448px).
+- **Escritorio (≥ 1024px, `lg`):** dos columnas, el menú (`minmax(0,1fr)`) y "Tu pedido" fijo a la derecha (352px, 40px de separación, pegado a 72px del borde de arriba y con scroll propio). La bolsa del header y la placa se ocultan, porque el pedido ya está a la vista; "Ver pedido" lleva el foco al panel. El checkout usa la misma grilla: formulario de hasta 672px y el resumen en el lugar del panel.
+- **Grillas por contenedor, no por pantalla:** las listas de filas pasan a dos columnas cuando su columna mide 672px o más (`@2xl`), así que son dos en tablet, una en escritorio chico (al lado del panel) y dos desde 1280px. Cada fila decide su forma según su propio ancho: debajo de 352px los chips de tamaño van a lo ancho, debajo de la foto.
 
 El menú arranca sin hero: header pegajoso de 56px; banda de estado con 16px arriba y 8px abajo; barra de pestañas pegajosa de 48px debajo del header; una sola categoría visible. El texto de portada vive al pie de la página, después de los productos, con 48px arriba y 128px abajo en el celular (lugar para la placa flotante; 56px desde `sm`).
 
-Las filas forman una lista con un filete arriba de la primera y uno debajo de cada fila. Cada fila tiene 20px de padding vertical y una columna de foto de 88px (104px desde `sm`) con 16px de separación; sin foto, el texto ocupa todo el ancho. Dentro del texto: 4px entre nombre y descripción, 12px entre bloques (texto, chips, acción). Los chips van en 2 o 3 columnas iguales con 8px de separación. Desde `lg` (1024px) las filas pasan a dos columnas con 48px de separación. La sección hace scroll con un margen de 112px para no quedar bajo las barras pegajosas.
+Las filas forman una lista con un filete arriba de la primera y uno debajo de cada fila. Cada fila tiene 20px de padding vertical y una columna de foto de 88px (104px cuando la fila mide 448px o más) con 16px de separación; sin foto, el texto ocupa todo el ancho. Dentro del texto: 4px entre nombre y descripción, 12px entre bloques (texto, chips, acción). Los chips van en 2 o 3 columnas iguales con 8px de separación. Desde `lg` (1024px) las filas pasan a dos columnas con 48px de separación. La sección hace scroll con un margen de 112px para no quedar bajo las barras pegajosas.
 
 En el celular las pestañas hacen scroll horizontal sin barra visible y se desvanecen en los últimos 32px para avisar que hay más.
 

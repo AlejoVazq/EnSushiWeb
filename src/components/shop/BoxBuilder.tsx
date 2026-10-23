@@ -320,7 +320,7 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
                 <span className={cn(blocked && 'font-bold text-washi')}> · hasta las {preorderCutoff}</span>
               </p>
             </header>
-            <ul className="grid lg:grid-cols-2 lg:gap-x-12">
+            <ul className="grid @2xl:grid-cols-2 @2xl:gap-x-12">
               {items.map((item) => (
                 <li key={item.id} className="border-b border-hairline">
                   <BoxItemRow
@@ -346,7 +346,7 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
       </p>
 
       {showBar && (
-        <div className="sticky bottom-[max(1rem,env(safe-area-inset-bottom))] z-20 lg:ml-auto lg:max-w-xl">
+        <div className="sticky bottom-[max(1rem,env(safe-area-inset-bottom))] z-20 @2xl:ml-auto @2xl:max-w-xl">
           <div className="grid grid-cols-[1fr_auto] items-center gap-x-3 rounded-2xl bg-washi py-3 pr-3 pl-4 text-sumi shadow-lg shadow-black/50">
             <div className="min-w-0">
               <p className="text-[15px] leading-snug font-bold text-pretty tabular-nums">

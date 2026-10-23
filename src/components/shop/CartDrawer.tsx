@@ -21,12 +21,21 @@ import { lineTitle, unitPriceText } from './lineText';
 const UNDO_MS = 6000;
 
 interface CartDrawerProps {
-  open: boolean;
+  /**
+   * sheet: a drawer opened from the header or "Ver pedido" (phone and tablet).
+   * panel: always on screen next to the menu (desktop, from `lg`).
+   */
+  layout: 'sheet' | 'panel';
+  /** Sheet only */
+  open?: boolean;
   onClose: () => void;
   onCheckout: () => void;
   /** Opens Arma tu combo with this box loaded */
   onEditBox: (item: BoxCartItem) => void;
 }
+
+/** id of the panel's heading: the shop focuses it instead of opening the drawer on desktop */
+export const CART_PANEL_TITLE_ID = 'cart-panel-title';
 
 /** Lines just removed, with where they were, so "Deshacer" can put them back in place */
 interface Removal {
@@ -157,7 +166,7 @@ function UndoRow({ message, onUndo, buttonRef }: { message: string; onUndo: () =
   );
 }
 
-export function CartDrawer({ open, onClose, onCheckout, onEditBox }: CartDrawerProps) {
+export function CartDrawer({ layout, open = false, onClose, onCheckout, onEditBox }: CartDrawerProps) {
   const items = useCartStore((state) => state.items);
   // Special day only: codes are entered in the checkout
   const { discount, total } = useCartTotals();
@@ -288,14 +297,7 @@ export function CartDrawer({ open, onClose, onCheckout, onEditBox }: CartDrawerP
     );
   }
 
-  return (
-    <Sheet
-      open={open}
-      onClose={() => leave(onClose)}
-      title="Tu pedido"
-      side="right"
-      footer={
-        isEmpty ? undefined : (
+  const footer = isEmpty ? undefined : (
           <div className="space-y-4">
             <div>
               {discount && (
@@ -322,9 +324,10 @@ export function CartDrawer({ open, onClose, onCheckout, onEditBox }: CartDrawerP
               Continuar con el pedido
             </button>
           </div>
-        )
-      }
-    >
+  );
+
+  const body = (
+    <>
       <p aria-live="polite" className="sr-only">
         {announcement}
       </p>
@@ -342,17 +345,25 @@ export function CartDrawer({ open, onClose, onCheckout, onEditBox }: CartDrawerP
       {isEmpty ? (
         <>
           {removal && <ul>{rows}</ul>}
-          <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-            <p className="font-title text-2xl">Tu pedido está vacío</p>
-            <p className="max-w-xs text-sm text-washi-muted">Explorá el menú y sumá lo que tengas ganas de comer.</p>
-            <button
-              type="button"
-              onClick={() => leave(onClose)}
-              className="mt-3 h-11 rounded-[10px] border border-hairline-strong px-4 text-sm font-bold transition-colors hover:border-washi hover:bg-sumi-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi"
-            >
-              Ver el menú
-            </button>
-          </div>
+          {layout === 'panel' ? (
+            // The menu is right beside it: no button to get there
+            <div className="space-y-1 py-10 text-center">
+              <p className="font-title text-xl">Tu pedido está vacío</p>
+              <p className="text-sm text-pretty text-washi-muted">Tocá + en el menú para sumar lo que tengas ganas de comer.</p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+              <p className="font-title text-2xl">Tu pedido está vacío</p>
+              <p className="max-w-xs text-sm text-washi-muted">Explorá el menú y sumá lo que tengas ganas de comer.</p>
+              <button
+                type="button"
+                onClick={() => leave(onClose)}
+                className="mt-3 h-11 rounded-[10px] border border-hairline-strong px-4 text-sm font-bold transition-colors hover:border-washi hover:bg-sumi-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi"
+              >
+                Ver el menú
+              </button>
+            </div>
+          )}
         </>
       ) : (
         <>
@@ -390,6 +401,31 @@ export function CartDrawer({ open, onClose, onCheckout, onEditBox }: CartDrawerP
           {canOrder && <CartSuggestions />}
         </>
       )}
+    </>
+  );
+
+  if (layout === 'panel') {
+    return (
+      <section
+        aria-labelledby={CART_PANEL_TITLE_ID}
+        className="flex max-h-[calc(100dvh-5.5rem)] flex-col overflow-hidden rounded-2xl border border-hairline bg-sumi"
+      >
+        <h2
+          id={CART_PANEL_TITLE_ID}
+          tabIndex={-1}
+          className="border-b border-hairline px-5 py-3 font-title text-2xl outline-none focus-visible:bg-sumi-1"
+        >
+          Tu pedido
+        </h2>
+        <div className="flex-1 overflow-y-auto overscroll-contain px-5">{body}</div>
+        {footer && <div className="border-t border-hairline px-5 pt-4 pb-5">{footer}</div>}
+      </section>
+    );
+  }
+
+  return (
+    <Sheet open={open} onClose={() => leave(onClose)} title="Tu pedido" side="right" footer={footer}>
+      {body}
     </Sheet>
   );
 }

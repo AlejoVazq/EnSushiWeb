@@ -8,7 +8,7 @@ interface FloatingCartBarProps {
   onOpenCart: () => void;
 }
 
-/** Mobile-only shortcut to the cart, shown once there is something in it: the menu's one reversed plate */
+/** Shortcut to the cart on the phone and the tablet (desktop has the panel), once there is something in it: the menu's one reversed plate */
 export function FloatingCartBar({ onOpenCart }: FloatingCartBarProps) {
   const count = useCartStore(selectCartItemCount);
   // With the special day's discount, like the cart's total
@@ -17,11 +17,11 @@ export function FloatingCartBar({ onOpenCart }: FloatingCartBarProps) {
   if (count === 0) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-30 bg-linear-to-t from-sumi via-sumi/90 to-transparent px-4 pt-6 pb-[max(1rem,env(safe-area-inset-bottom))] font-ui sm:hidden">
+    <div className="fixed inset-x-0 bottom-0 z-30 bg-linear-to-t from-sumi via-sumi/90 to-transparent px-4 pt-6 pb-[max(1rem,env(safe-area-inset-bottom))] font-ui lg:hidden">
       <button
         type="button"
         onClick={onOpenCart}
-        className="flex h-14 w-full items-center justify-between rounded-2xl bg-washi px-4 font-bold text-sumi shadow-lg shadow-black/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi"
+        className="mx-auto flex h-14 w-full max-w-md items-center justify-between rounded-2xl bg-washi px-4 font-bold text-sumi shadow-lg shadow-black/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi"
       >
         <span className="flex items-center gap-3">
           <span

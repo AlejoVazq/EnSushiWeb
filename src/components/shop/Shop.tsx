@@ -5,11 +5,13 @@ import { useState } from 'react';
 
 import { BUSINESS } from '@/config/business';
 import { BUILD_CATEGORY_ID, CATEGORIES, EXTRAS_CATEGORY_ID } from '@/data/menu';
+import { DESKTOP_QUERY, useMediaQuery } from '@/hooks/useMediaQuery';
+import { useWarmMenuPhotos } from '@/hooks/useWarmMenuPhotos';
 import { toBoxInput } from '@/store/useCartStore';
 import type { BoxCartItem, CategoryId } from '@/types';
 
 import { BoxBuilder, EMPTY_BOX_DRAFT, isBoxBarShown, useBoxLock, type BoxDraft } from './BoxBuilder';
-import { CartDrawer } from './CartDrawer';
+import { CART_PANEL_TITLE_ID, CartDrawer } from './CartDrawer';
 import { CategoryNav } from './CategoryNav';
 import { CategorySection } from './CategorySection';
 import { ExtrasList } from './ExtraRow';
@@ -20,6 +22,20 @@ import { StatusBand } from './StatusBand';
 export function Shop() {
   const router = useRouter();
   const [cartOpen, setCartOpen] = useState(false);
+  // From `lg` the order is a panel beside the menu, always on screen; below, a drawer
+  const isDesktop = useMediaQuery(DESKTOP_QUERY);
+  useWarmMenuPhotos();
+
+  /** The header's bag, "Ver pedido": opens the drawer, or on desktop takes focus to the panel */
+  const openCart = () => {
+    if (isDesktop) document.getElementById(CART_PANEL_TITLE_ID)?.focus();
+    else setCartOpen(true);
+  };
+
+  const checkout = () => {
+    setCartOpen(false);
+    router.push('/checkout');
+  };
   const [activeCategory, setActiveCategory] = useState<CategoryId>(CATEGORIES[0]?.id ?? BUILD_CATEGORY_ID);
   // Lives here so the box survives switching tabs, and "Editar" in the cart can load one
   const [boxDraft, setBoxDraft] = useState<BoxDraft>(EMPTY_BOX_DRAFT);
@@ -46,29 +62,36 @@ export function Shop() {
   return (
     <>
       <div className="flex flex-1 flex-col">
-        <SiteHeader onOpenCart={() => setCartOpen(true)} />
+        <SiteHeader onOpenCart={openCart} />
 
-        <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-16 sm:px-6">
-          <h1 className="sr-only">{BUSINESS.name} · Menú</h1>
-          <div className="pt-4 pb-2">
-            <StatusBand />
-          </div>
+        <div className="mx-auto w-full max-w-7xl flex-1 px-4 pb-16 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-10">
+          <main className="min-w-0">
+            <h1 className="sr-only">{BUSINESS.name} · Menú</h1>
+            <div className="pt-4 pb-2">
+              <StatusBand />
+            </div>
 
-          <CategoryNav active={activeCategory} onSelect={selectCategory} />
+            <CategoryNav active={activeCategory} onSelect={selectCategory} />
 
-          {CATEGORIES.filter((category) => category.id === activeCategory).map((category) => (
-            <CategorySection key={category.id} category={category}>
-              {category.id === BUILD_CATEGORY_ID ? (
-                <BoxBuilder draft={boxDraft} onDraftChange={setBoxDraft} onOpenCart={() => setCartOpen(true)} />
-              ) : category.id === EXTRAS_CATEGORY_ID ? (
-                <ExtrasList />
-              ) : undefined}
-            </CategorySection>
-          ))}
-        </main>
+            {CATEGORIES.filter((category) => category.id === activeCategory).map((category) => (
+              <CategorySection key={category.id} category={category}>
+                {category.id === BUILD_CATEGORY_ID ? (
+                  <BoxBuilder draft={boxDraft} onDraftChange={setBoxDraft} onOpenCart={openCart} />
+                ) : category.id === EXTRAS_CATEGORY_ID ? (
+                  <ExtrasList />
+                ) : undefined}
+              </CategorySection>
+            ))}
+          </main>
+
+          {/* The column is reserved from the first paint; its contents wait for the clock and the saved cart */}
+          <aside className="sticky top-14 hidden pt-4 lg:block">
+            {isDesktop && <CartDrawer layout="panel" onClose={() => {}} onCheckout={checkout} onEditBox={editBox} />}
+          </aside>
+        </div>
 
         <footer className="border-t border-hairline">
-          <div className="mx-auto max-w-6xl space-y-3 px-4 pt-12 pb-32 sm:px-6 sm:pb-14">
+          <div className="mx-auto max-w-7xl space-y-3 px-4 pt-12 pb-32 sm:px-6 lg:pb-14">
             <p className="font-title text-2xl leading-tight text-balance sm:text-3xl">Sushi de autor, directo a tu casa.</p>
             <p className="max-w-md text-pretty text-washi-muted">
               Armá tu propio combo, o elegí de nuestros combos, y mandanos el pedido por WhatsApp.
@@ -78,16 +101,16 @@ export function Shop() {
         </footer>
       </div>
 
-      {!cartOpen && !builderBarShown && <FloatingCartBar onOpenCart={() => setCartOpen(true)} />}
-      <CartDrawer
-        open={cartOpen}
-        onClose={() => setCartOpen(false)}
-        onCheckout={() => {
-          setCartOpen(false);
-          router.push('/checkout');
-        }}
-        onEditBox={editBox}
-      />
+      {!cartOpen && !builderBarShown && <FloatingCartBar onOpenCart={openCart} />}
+      {!isDesktop && (
+        <CartDrawer
+          layout="sheet"
+          open={cartOpen}
+          onClose={() => setCartOpen(false)}
+          onCheckout={checkout}
+          onEditBox={editBox}
+        />
+      )}
     </>
   );
 }

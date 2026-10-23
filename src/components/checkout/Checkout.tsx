@@ -272,7 +272,7 @@ function DiscountCodeField({ applied, onApply, onRemove, discount }: DiscountCod
 
 function PageShell({ children }: { children: ReactNode }) {
   return (
-    <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
+    <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
       <Link
         href="/"
         className="-ml-2 inline-flex h-11 items-center rounded-[10px] px-2 text-sm font-bold text-washi-muted transition-colors hover:bg-sumi-2 hover:text-washi focus-visible:outline-2 focus-visible:outline-washi"
@@ -418,8 +418,8 @@ export function Checkout() {
     <PageShell>
       <h1 className="mt-4 mb-6 font-title text-2xl sm:mb-8 sm:text-4xl">Finalizar pedido</h1>
 
-      <div className="grid gap-8 lg:grid-cols-[1fr_380px] lg:items-start">
-        <form ref={formRef} onSubmit={handleSubmit} noValidate className="space-y-9">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-10">
+        <form ref={formRef} onSubmit={handleSubmit} noValidate className="w-full space-y-9 lg:max-w-2xl">
           <fieldset>
             <legend className="mb-3 font-title text-xl text-washi sm:text-2xl">Tus datos</legend>
             <Input

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useState, type ReactNode } from 'react';
 
 import { useCanOrder, useSpecialDay } from '@/hooks/useScheduleStatus';
+import { MENU_PHOTO_SIZES } from '@/hooks/useWarmMenuPhotos';
 import { cn } from '@/lib/cn';
 import { specialDayPrice } from '@/lib/discounts';
 import { formatItemPrice, formatPrice } from '@/lib/format';
@@ -208,12 +209,13 @@ export function ProductRow({ product }: ProductRowProps) {
 
   // No photo (or a broken file): the row stands as text, no placeholder
   const showImage = Boolean(imageUrl) && imageUrl !== failedSrc;
-  // Next to the photo, three size chips don't fit a price on phones under 380px: there they go full width, under the photo
-  const fullWidthOnNarrow = showImage && 'max-[380px]:col-span-2';
+  // Next to the photo, three size chips don't fit a price in a row under 22rem (a phone, or a column of the
+  // two-column grid): there they go full width, under the photo. The row's <li> is the container.
+  const fullWidthOnNarrow = showImage && '@max-[22rem]:col-span-2';
 
   return (
     <article
-      className={cn('grid gap-4 py-5', showImage && 'grid-cols-[5.5rem_1fr] max-[380px]:gap-y-3 sm:grid-cols-[6.5rem_1fr]')}
+      className={cn('grid gap-4 py-5', showImage && 'grid-cols-[5.5rem_1fr] @max-[22rem]:gap-y-3 @md:grid-cols-[6.5rem_1fr]')}
     >
       {showImage && imageUrl && (
         <div className={cn('relative aspect-square overflow-hidden rounded-xl bg-sumi-2', soldOut && 'opacity-40 grayscale')}>
@@ -221,7 +223,7 @@ export function ProductRow({ product }: ProductRowProps) {
             src={imageUrl}
             alt={product.name}
             fill
-            sizes="(min-width: 640px) 104px, 88px"
+            sizes={MENU_PHOTO_SIZES}
             className="object-cover"
             onError={() => setFailedSrc(imageUrl)}
             // The error can fire before hydration attaches onError; catch already-broken images here
@@ -232,7 +234,7 @@ export function ProductRow({ product }: ProductRowProps) {
         </div>
       )}
 
-      <div className={cn('flex min-w-0 flex-col gap-3', showImage && 'max-[380px]:contents')}>
+      <div className={cn('flex min-w-0 flex-col gap-3', showImage && '@max-[22rem]:contents')}>
         <div className="min-w-0 space-y-1">
           <h3
             className={cn(

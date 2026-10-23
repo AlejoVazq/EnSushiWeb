@@ -1,15 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { Figtree, M_PLUS_Rounded_1c } from "next/font/google";
+import { Figtree } from "next/font/google";
+import localFont from "next/font/local";
 
 import { CartHydrator } from "@/components/CartHydrator";
 import { BUSINESS } from "@/config/business";
 
 import "./globals.css";
 
-const mplusRounded = M_PLUS_Rounded_1c({
+// Google's Latin slice of M PLUS Rounded 1c 700 (SIL OFL), self-hosted. Through next/font/google it also brings
+// ~130 @font-face rules for its Japanese slices: ~25 KB of render-blocking CSS that the menu never uses.
+const mplusRounded = localFont({
+  src: "./fonts/mplus-rounded-1c-700-latin.woff2",
+  weight: "700",
+  style: "normal",
   variable: "--font-mplus-rounded",
-  subsets: ["latin"],
-  weight: ["700"],
 });
 
 const figtree = Figtree({
