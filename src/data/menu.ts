@@ -1,6 +1,8 @@
 import { BUSINESS } from '@/config/business';
 import { getNow } from '@/lib/schedule';
 import type {
+  BuildBoxSize,
+  BuildBoxSizeId,
   BuildItem,
   BuildItemGroup,
   Category,
@@ -28,7 +30,7 @@ export const CATEGORIES: readonly Category[] = [
   {
     id: 'acompanamientos',
     name: 'Acompañamientos',
-    description: 'Para sumar a tu pedido. Se piden solos, también después de las 20:00.',
+    description: 'Para sumar a tu pedido. Se piden solos, también después de las 19:30.',
   },
   { id: 'combos', name: 'Combos', description: 'Selecciones de la casa para compartir.' },
   { id: 'salsas', name: 'Salsas & complementos', description: 'Porciones extra para acompañar.' },
@@ -42,8 +44,36 @@ export const BUILD_CATEGORY_ID: CategoryId = 'arma-tu-combo';
 /** The category whose tab lists the acompañamientos (build items ordered on their own) */
 export const EXTRAS_CATEGORY_ID: CategoryId = 'acompanamientos';
 
-/** Box sizes in pieces; a box must be filled exactly. A nigiri counts as one piece. */
-export const BUILD_BOX_SIZES: readonly number[] = [10, 15, 20, 25, 30];
+/**
+ * The two physical boxes and what fits in each (nigiris take more room than roll pieces, so the list is explicit).
+ * Both come with salsas and palitos (chica 1 + 1, grande 2 + 2); the builder doesn't show it, the shop adds them.
+ */
+export const BUILD_BOX_SIZES: readonly BuildBoxSize[] = [
+  {
+    id: 'chica',
+    name: 'Caja chica',
+    maxPieces: 15,
+    combinations: [
+      { rollPieces: 15, nigiris: { min: 0, max: 0 } },
+      { rollPieces: 10, nigiris: { min: 0, max: 3 } },
+      { rollPieces: 0, nigiris: { min: 6, max: 8 } },
+    ],
+  },
+  {
+    id: 'grande',
+    name: 'Caja grande',
+    maxPieces: 30,
+    combinations: [
+      { rollPieces: 30, nigiris: { min: 0, max: 0 } },
+      { rollPieces: 25, nigiris: { min: 0, max: 0 } },
+      { rollPieces: 20, nigiris: { min: 0, max: 6 } },
+      { rollPieces: 15, nigiris: { min: 1, max: 9 } },
+    ],
+  },
+];
+
+export const getBoxSize = (id: BuildBoxSizeId): BuildBoxSize | undefined =>
+  BUILD_BOX_SIZES.find((size) => size.id === id);
 
 /** Groups that fill the box and stop at the preorder cutoff; the rest go to the order on their own */
 const BOX_GROUPS: readonly BuildItemGroup[] = ['rolls', 'nigiris'];
@@ -77,21 +107,28 @@ export const BUILD_ITEMS: readonly BuildItem[] = [
   roll('roll-tuna-spicy', 'TunaSpicy'),
   { id: 'nigiri-salmon', group: 'nigiris', name: 'Nigiri de salmón', step: 1, unitLabel: 'unidades', price: PRICE_TBD, available: true },
   { id: 'empanaditas', group: 'acompanamientos', name: 'Empanaditas', step: 3, unitLabel: 'unidades', price: PRICE_TBD, available: true },
-  { id: 'langostinos-empanados', group: 'acompanamientos', name: 'Langostinos empanados', step: 5, unitLabel: 'palitos', price: PRICE_TBD, available: true },
-  { id: 'pollo-tandoori', group: 'acompanamientos', name: 'Pollo tandoori', step: 5, unitLabel: 'palitos', price: PRICE_TBD, available: true },
+  { id: 'langostinos-empanados', group: 'acompanamientos', name: 'Langostinos empanados', step: 5, unitLabel: 'unidades', price: PRICE_TBD, available: true },
+  { id: 'pollo-tandoori', group: 'acompanamientos', name: 'Pollo tandoori', step: 5, unitLabel: 'unidades', price: PRICE_TBD, available: true },
 ];
 
 // ─── Products ───────────────────────────────────────────────────────────────
 
-/** Combo sizes share the piece counts; only prices change per combo */
-const comboSizes = (p15: number, p24: number, p40: number): ProductVariant[] => [
-  { pieces: 15, price: p15 },
-  { pieces: 24, price: p24 },
-  { pieces: 40, price: p40 },
+/** Combo sizes share the piece counts and what comes with them; only prices change per combo */
+const comboSizes = (p15: number, p25: number, p40: number): ProductVariant[] => [
+  { pieces: 15, price: p15, includes: { salsas: 1, palitos: 1 } },
+  { pieces: 25, price: p25, includes: { salsas: 2, palitos: 2 } },
+  // A small box of 15 and a large one of 25
+  { pieces: 40, price: p40, includes: { salsas: 3, palitos: 3 } },
 ];
 
-/** Express combo in 15/24/40 pieces, image path derived from its id */
-const combo = (id: string, name: string, description: string, variants: ProductVariant[]): SizedProduct => ({
+/** Express combo in 15/25/40 pieces, image path derived from its id; `hasPhoto: false` until its photo is in public/images/menu */
+const combo = (
+  id: string,
+  name: string,
+  description: string,
+  variants: ProductVariant[],
+  { hasPhoto = true }: { hasPhoto?: boolean } = {},
+): SizedProduct => ({
   id,
   type: 'sized',
   orderType: 'express',
@@ -99,7 +136,7 @@ const combo = (id: string, name: string, description: string, variants: ProductV
   name,
   description,
   variants,
-  imageUrl: `/images/menu/${id}.jpg`,
+  ...(hasPhoto && { imageUrl: `/images/menu/${id}.jpg` }),
   available: true,
 });
 
@@ -116,7 +153,7 @@ export const PRODUCTS: readonly Product[] = [
   combo('combo-kanituna', 'Combo Kanituna', 'Kanikama y atún.', comboSizes(20000, 36000, 45000)),
   combo('combo-green', 'Combo Green', 'Mango y ciboulette.', comboSizes(22000, 38000, 47000)),
   combo('combo-ensushi', 'Combo Ensushi', 'Salmón, veggie y kanikama.', comboSizes(29000, 45000, 52000)),
-  combo('combo-tunasalm', 'Combo TunaSalm', 'Salmón y atún.', comboSizes(25000, 42000, 50000)),
+  combo('combo-tunasalm', 'Combo TunaSalm', 'Salmón y atún.', comboSizes(25000, 42000, 50000), { hasPhoto: false }),
   combo('combo-salmon', 'Combo Salmón', 'Salmón.', comboSizes(34000, 53000, 64000)),
   combo('combo-ocean-duo', 'Combo Ocean Duo', 'Salmón y langostinos.', comboSizes(31000, 50000, 60000)),
 
@@ -163,6 +200,9 @@ export const PRODUCTS: readonly Product[] = [
     price: 1500,
   }),
   express({ id: 'salsa-agridulce', categoryId: 'salsas', name: 'Salsa Agridulce', price: 1500 }),
+  express({ id: 'wasabi', categoryId: 'salsas', name: 'Wasabi', price: 500 }),
+  // Free: price 0 shows as "Sin cargo"
+  express({ id: 'palitos', categoryId: 'salsas', name: 'Palitos', price: 0 }),
 
 ];
 

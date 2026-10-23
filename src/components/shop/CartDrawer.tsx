@@ -6,10 +6,11 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { MinusIcon, PlusIcon, TrashIcon } from '@/components/ui/icons';
 import { Sheet } from '@/components/ui/Sheet';
 import { BUSINESS } from '@/config/business';
+import { useCartTotals } from '@/hooks/useCartTotals';
 import { useCanOrder, useCartNotices, useScheduleStatus } from '@/hooks/useScheduleStatus';
 import { formatBoxContents, getLineName } from '@/lib/cartLine';
-import { formatPrice } from '@/lib/format';
-import { lineSubtotal, selectCartTotal, toBoxInput, useCartStore } from '@/store/useCartStore';
+import { formatItemPrice, formatPrice } from '@/lib/format';
+import { lineSubtotal, toBoxInput, useCartStore } from '@/store/useCartStore';
 import type { BoxCartItem, CartItem } from '@/types';
 
 import { CartSuggestions } from './CartSuggestions';
@@ -31,7 +32,7 @@ interface CartDrawerProps {
 interface Removal {
   items: readonly CartItem[];
   index: number;
-  /** "Sacaste 2× Combo Kanituna · 24 piezas", "Vaciaste el pedido" */
+  /** "Sacaste 2× Combo Kanituna · 25 piezas", "Vaciaste el pedido" */
   message: string;
 }
 
@@ -82,13 +83,14 @@ function CartLine({ item, onEdit, onRemove, canAdd, titleRef }: CartLineProps) {
       <LineThumb src={lineImage(item)} alt={name} />
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-3">
-          <h3 ref={titleRef} tabIndex={-1} className="font-bold leading-snug text-washi tabular-nums outline-none">
+          <h3 ref={titleRef} tabIndex={-1} className="min-w-0 font-bold leading-snug wrap-anywhere text-washi tabular-nums outline-none">
             {lineTitle(item)}
           </h3>
-          <p className="shrink-0 font-bold text-washi tabular-nums">{formatPrice(lineSubtotal(item))}</p>
+          <p className="shrink-0 font-bold text-washi tabular-nums">{formatItemPrice(lineSubtotal(item))}</p>
         </div>
-        {item.kind === 'box' && <p className="mt-0.5 text-sm leading-relaxed text-washi-muted">{formatBoxContents(item.box)}</p>}
-        <p className="mt-0.5 text-sm text-washi-muted tabular-nums">{unitPriceText(item)}</p>
+        {item.kind === 'box' && <p className="mt-0.5 text-sm leading-relaxed wrap-anywhere text-washi-muted">{formatBoxContents(item.box)}</p>}
+        {/* Free lines already read "Sin cargo" next to the title */}
+        {item.unitPrice > 0 && <p className="mt-0.5 text-sm text-washi-muted tabular-nums">{unitPriceText(item)}</p>}
 
         <div className="mt-2 flex items-center justify-between gap-2">
           {onEdit ? (
@@ -142,7 +144,7 @@ function CartLine({ item, onEdit, onRemove, canAdd, titleRef }: CartLineProps) {
 function UndoRow({ message, onUndo, buttonRef }: { message: string; onUndo: () => void; buttonRef: (el: HTMLButtonElement | null) => void }) {
   return (
     <li className="flex min-h-14 items-center justify-between gap-3 py-2">
-      <p className="text-sm text-washi-muted">{message}</p>
+      <p className="min-w-0 text-sm wrap-anywhere text-washi-muted">{message}</p>
       <button
         type="button"
         ref={buttonRef}
@@ -157,7 +159,8 @@ function UndoRow({ message, onUndo, buttonRef }: { message: string; onUndo: () =
 
 export function CartDrawer({ open, onClose, onCheckout, onEditBox }: CartDrawerProps) {
   const items = useCartStore((state) => state.items);
-  const total = useCartStore(selectCartTotal);
+  // Special day only: codes are entered in the checkout
+  const { discount, total } = useCartTotals();
   const { addItem, addBox, addExtra, removeItem, updateQuantity, clearCart } = useCartStore.getState();
   const scheduleNotices = useCartNotices();
   // Past the cutoff the rolls and nigiris of a box can't change, so it can only be kept or removed
@@ -295,6 +298,12 @@ export function CartDrawer({ open, onClose, onCheckout, onEditBox }: CartDrawerP
         isEmpty ? undefined : (
           <div className="space-y-4">
             <div>
+              {discount && (
+                <div className="mb-1 flex items-baseline justify-between gap-3 text-sm">
+                  <span className="text-washi-muted">Descuento ({discount.label})</span>
+                  <span className="font-bold text-kin tabular-nums">−{formatPrice(discount.amount)}</span>
+                </div>
+              )}
               <div className="flex items-baseline justify-between">
                 <span className="text-washi-muted">Total</span>
                 <span className="text-2xl font-bold tabular-nums">{formatPrice(total)}</span>

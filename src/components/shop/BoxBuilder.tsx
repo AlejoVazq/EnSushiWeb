@@ -4,13 +4,25 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 import { MinusIcon, PlusIcon } from '@/components/ui/icons';
 import { BUSINESS } from '@/config/business';
-import { BUILD_BOX_SIZES, BUILD_ITEM_GROUPS, getBuildItemById, getBuildItemsByGroup, isBoxItem } from '@/data/menu';
+import { BUILD_BOX_SIZES, BUILD_ITEM_GROUPS, getBoxSize, getBuildItemById, getBuildItemsByGroup, isBoxItem } from '@/data/menu';
 import { useCanOrder, useScheduleStatus } from '@/hooks/useScheduleStatus';
-import { formatUnits, stepUnits } from '@/lib/cartLine';
+import { useSettled } from '@/hooks/useSettled';
+import {
+  canReachFill,
+  describeCombinations,
+  formatFill,
+  formatMissing,
+  getBoxFill,
+  getMissing,
+  isEmptyFill,
+  isValidFill,
+  type BoxFill,
+} from '@/lib/boxRules';
+import { formatUnits } from '@/lib/cartLine';
 import { cn } from '@/lib/cn';
 import { formatPrice } from '@/lib/format';
 import { useCartStore, type BoxInput } from '@/store/useCartStore';
-import type { BuildItem, BuildItemGroup } from '@/types';
+import type { BuildBoxSizeId, BuildItem, BuildItemGroup } from '@/types';
 
 import { addButtonClassName, HollowSeal, stepButtonClassName } from './LineAction';
 
@@ -18,8 +30,8 @@ const { preorderCutoff } = BUSINESS.schedule;
 
 /** The box being built, kept by the shop so it survives switching tabs and "Editar" can load one from the cart */
 export interface BoxDraft {
-  /** Chosen box size; null until the customer picks one */
-  pieces: number | null;
+  /** Chosen box; null until the customer picks one */
+  size: BuildBoxSizeId | null;
   /** Steps per box item id */
   steps: Readonly<Record<string, number>>;
   /** Cart line being edited, if the box came from "Editar" */
@@ -28,21 +40,34 @@ export interface BoxDraft {
   notice: 'added' | 'saved' | null;
 }
 
-export const EMPTY_BOX_DRAFT: BoxDraft = { pieces: null, steps: {}, editingLineId: null, notice: null };
-
-/** Pieces already in the box */
-const filledPieces = (steps: BoxDraft['steps']): number =>
-  Object.entries(steps).reduce((sum, [id, count]) => {
-    const item = getBuildItemById(id);
-    return item ? sum + stepUnits(item, count) : sum;
-  }, 0);
+export const EMPTY_BOX_DRAFT: BoxDraft = { size: null, steps: {}, editingLineId: null, notice: null };
 
 /** True while the bar has something to show: a size, pieces, an edit or a confirmation */
 export const isBoxDraftActive = (draft: BoxDraft): boolean =>
-  draft.pieces !== null || filledPieces(draft.steps) > 0 || draft.editingLineId !== null || draft.notice !== null;
+  draft.size !== null || !isEmptyFill(getBoxFill(draft.steps)) || draft.editingLineId !== null || draft.notice !== null;
+
+/** Why the box can't change right now: the shop isn't taking orders (closed wins), or it's past the rolls and nigiris cutoff */
+export function useBoxLock(): { closed: boolean; blocked: boolean } {
+  const closed = !useCanOrder();
+  const pastCutoff = useScheduleStatus()?.isPastPreorderCutoff ?? false;
+  return { closed, blocked: !closed && pastCutoff };
+}
+
+/**
+ * The bar is on screen while the box can still change. A box left half-built when the cutoff hits
+ * can't be finished, so its bar gives way to "Ver pedido"; only the confirmation of one just added stays.
+ */
+export const isBoxBarShown = (draft: BoxDraft, { closed, blocked }: { closed: boolean; blocked: boolean }): boolean =>
+  !closed && (blocked ? draft.notice !== null : isBoxDraftActive(draft));
 
 const boxTotal = (steps: BoxDraft['steps']): number =>
   Object.entries(steps).reduce((sum, [id, count]) => sum + (getBuildItemById(id)?.price ?? 0) * count, 0);
+
+/** The fill after one more step of `item` */
+const withOneMore = (fill: BoxFill, item: BuildItem): BoxFill =>
+  item.group === 'rolls'
+    ? { ...fill, rollPieces: fill.rollPieces + item.step }
+    : { ...fill, nigiris: fill.nigiris + item.step };
 
 /** "De a 5 piezas", "Por unidad" */
 const stepLabel = (item: BuildItem): string =>
@@ -60,7 +85,7 @@ const CUTOFF_TITLE = `Se pueden pedir hasta las ${preorderCutoff}`;
 interface BoxItemRowProps {
   item: BuildItem;
   steps: number;
-  /** One more step fits in the chosen box */
+  /** One more step still leads to a box that fits */
   fits: boolean;
   /** Past the preorder cutoff */
   blocked: boolean;
@@ -73,7 +98,7 @@ interface BoxItemRowProps {
 }
 
 function BoxItemRow({ item, steps, fits, blocked, closed, onChange, onNeedSize, needsSize }: BoxItemRowProps) {
-  const units = stepUnits(item, steps);
+  const units = item.step * steps;
   const unavailable = !item.available || blocked;
 
   let control;
@@ -123,7 +148,7 @@ function BoxItemRow({ item, steps, fits, blocked, closed, onChange, onNeedSize, 
   return (
     <div className="flex min-h-19 items-center justify-between gap-4 py-3.5">
       <div className={cn('min-w-0', unavailable && 'opacity-60')}>
-        <h4 className={cn('font-title text-lg leading-snug', unavailable ? 'text-washi-muted' : 'text-washi')}>
+        <h4 className={cn('font-title text-lg leading-snug wrap-anywhere', unavailable ? 'text-washi-muted' : 'text-washi')}>
           {item.name}
         </h4>
         <p className="text-sm text-washi-muted tabular-nums">
@@ -141,22 +166,25 @@ interface BoxBuilderProps {
   onOpenCart: () => void;
 }
 
-/** "Arma tu combo": pick a box size and fill it exactly with rolls and nigiris (acompañamientos have their own tab) */
+/** "Arma tu combo": pick a box and fill it with one of the combinations that fit (acompañamientos have their own tab) */
 export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps) {
   const addBox = useCartStore((state) => state.addBox);
   const replaceBox = useCartStore((state) => state.replaceBox);
   // Closed (day off or after closing) wins over the cutoff: nothing can be added at all
-  const closed = !useCanOrder();
-  const pastCutoff = useScheduleStatus()?.isPastPreorderCutoff ?? false;
-  const blocked = !closed && pastCutoff;
+  const lock = useBoxLock();
+  const { closed, blocked } = lock;
   const sizeRef = useRef<HTMLFieldSetElement>(null);
   const [askSize, setAskSize] = useState(false);
 
-  const { pieces, steps, editingLineId, notice } = draft;
-  const filled = filledPieces(steps);
-  const remaining = pieces === null ? null : pieces - filled;
+  const { size, steps, editingLineId, notice } = draft;
+  const boxSize = size === null ? undefined : getBoxSize(size);
+  const fill = getBoxFill(steps);
   const total = boxTotal(steps);
-  const complete = remaining === 0 && filled > 0;
+  const complete = boxSize !== undefined && isValidFill(boxSize, fill);
+  const missing = boxSize ? getMissing(boxSize, fill) : null;
+  // The other box, when the contents as they are would fit there
+  const fitsElsewhere =
+    boxSize && !complete ? BUILD_BOX_SIZES.find((other) => other.id !== boxSize.id && isValidFill(other, fill)) : undefined;
 
   // The confirmation fades after a few seconds and the regular "Ver pedido" plate comes back
   useEffect(() => {
@@ -188,8 +216,8 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
   };
 
   const submit = () => {
-    if (pieces === null || !complete) return;
-    const input: BoxInput = { pieces, steps };
+    if (size === null || !complete) return;
+    const input: BoxInput = { size, steps };
     const stillInCart = editingLineId && useCartStore.getState().items.some((item) => item.lineId === editingLineId);
     if (editingLineId && stillInCart) replaceBox(editingLineId, input);
     else addBox(input);
@@ -198,8 +226,12 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
 
   const cancelEdit = () => onDraftChange(EMPTY_BOX_DRAFT);
 
-  const tooSmall = BUILD_BOX_SIZES.some((size) => size < filled);
-  const showBar = !closed && isBoxDraftActive(draft);
+  // A box the contents no longer fit in
+  const outgrown = BUILD_BOX_SIZES.find((candidate) => !canReachFill(candidate, fill));
+  const showBar = isBoxBarShown(draft, lock);
+  // "Ver pedido" takes the place of "Agregar": a double tap on "Agregar" must not open the cart
+  const barSettled = useSettled(notice);
+  const fillText = formatFill(fill);
 
   return (
     <div className="space-y-8">
@@ -225,17 +257,17 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
       >
         <legend className="mb-1 font-title text-xl text-washi">Tamaño de la caja</legend>
         <p className={cn('mb-3 text-sm', askSize ? 'font-bold text-washi' : 'text-washi-muted')}>
-          {askSize ? 'Elegí el tamaño de la caja' : 'La llenás con rolls y nigiris hasta completarla.'}
+          {askSize ? 'Elegí la caja' : 'La llenás con rolls y nigiris, en una de las combinaciones que entran.'}
         </p>
-        <div className="grid grid-cols-5 gap-2 sm:max-w-lg">
-          {BUILD_BOX_SIZES.map((size) => {
-            const selected = size === pieces;
-            const disabled = blocked || closed || size < filled;
+        <div className="grid grid-cols-2 gap-2 sm:max-w-md">
+          {BUILD_BOX_SIZES.map((candidate) => {
+            const selected = candidate.id === size;
+            const disabled = blocked || closed || !canReachFill(candidate, fill);
             return (
               <label
-                key={size}
+                key={candidate.id}
                 className={cn(
-                  'flex min-h-14 cursor-pointer flex-col items-center justify-center rounded-lg border leading-tight transition-colors',
+                  'flex min-h-16 cursor-pointer flex-col items-center justify-center rounded-lg border px-2 text-center leading-tight transition-colors',
                   'has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-washi',
                   selected ? 'border-washi bg-sumi-2 text-washi' : 'border-hairline text-washi-muted',
                   !selected && !disabled && 'hover:border-hairline-strong hover:text-washi',
@@ -247,17 +279,29 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
                   name="box-size"
                   checked={selected}
                   disabled={disabled}
-                  onChange={() => update({ pieces: size })}
+                  onChange={() => update({ size: candidate.id })}
                   className="sr-only"
                 />
-                <span className="font-title text-xl tabular-nums">{size}</span>
-                <span className="text-xs">piezas</span>
+                <span className="font-title text-lg">{candidate.name}</span>
+                <span className="text-xs tabular-nums">hasta {candidate.maxPieces} piezas</span>
               </label>
             );
           })}
         </div>
-        {tooSmall && !blocked && !closed && (
-          <p className="mt-2 text-sm text-washi-muted">Para una caja más chica, sacá piezas.</p>
+        {boxSize && (
+          <div className="mt-3">
+            <p className="sr-only">Entran en la {boxSize.name.toLowerCase()}:</p>
+            <ul className="space-y-0.5 text-sm text-washi-muted tabular-nums">
+              {describeCombinations(boxSize).map((line) => (
+                <li key={line} className="before:content-['·_']">
+                  {line}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {outgrown && !blocked && !closed && (
+          <p className="mt-2 text-sm text-washi-muted">Para la {outgrown.name.toLowerCase()}, sacá piezas.</p>
         )}
       </fieldset>
 
@@ -282,10 +326,10 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
                   <BoxItemRow
                     item={item}
                     steps={steps[item.id] ?? 0}
-                    fits={remaining !== null && item.step <= remaining}
+                    fits={boxSize !== undefined && canReachFill(boxSize, withOneMore(fill, item))}
                     blocked={blocked}
                     closed={closed}
-                    needsSize={pieces === null}
+                    needsSize={size === null}
                     onNeedSize={requestSize}
                     onChange={(count) => setSteps(item, count)}
                   />
@@ -297,7 +341,7 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
       })}
 
       <p aria-live="polite" className="sr-only">
-        {pieces !== null && !notice ? `${filled} de ${pieces} piezas` : ''}
+        {boxSize && !notice ? `${boxSize.name}: ${fillText || 'vacía'}. ${missing ? formatMissing(missing) : 'Completa'}.` : ''}
         {notice === 'added' ? 'Agregaste tu caja al pedido' : notice === 'saved' ? 'Guardamos los cambios de tu caja' : ''}
       </p>
 
@@ -305,20 +349,27 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
         <div className="sticky bottom-[max(1rem,env(safe-area-inset-bottom))] z-20 lg:ml-auto lg:max-w-xl">
           <div className="grid grid-cols-[1fr_auto] items-center gap-x-3 rounded-2xl bg-washi py-3 pr-3 pl-4 text-sumi shadow-lg shadow-black/50">
             <div className="min-w-0">
-              <p className="truncate text-[15px] font-bold tabular-nums">
+              <p className="text-[15px] leading-snug font-bold text-pretty tabular-nums">
                 {notice === 'added'
                   ? 'Agregaste tu caja'
                   : notice === 'saved'
                     ? 'Guardamos los cambios'
-                    : pieces === null
-                      ? `${filled} piezas · elegí la caja`
-                      : `${editingLineId ? 'Editando · ' : ''}Caja de ${pieces} · ${filled} de ${pieces}`}
+                    : !boxSize
+                      ? `${fillText} · elegí la caja`
+                      : `${editingLineId ? 'Editando · ' : ''}${boxSize.name}${fillText ? ` · ${fillText}` : ''}`}
               </p>
               <p className="text-sm font-medium tabular-nums">
                 {notice ? 'Podés armar otra o seguir con tu pedido.' : `Total ${formatPrice(total)}`}
               </p>
             </div>
-            <div className="flex items-center gap-1">
+            <div
+              className={cn(
+                'flex items-center gap-1',
+                // Editing adds "Cancelar": on a narrow phone the buttons get their own row so the contents stay readable
+                editingLineId && !notice && 'max-sm:col-span-2 max-sm:mt-2 max-sm:justify-end',
+                notice && !barSettled && 'pointer-events-none',
+              )}
+            >
               {editingLineId && !notice && (
                 <button
                   type="button"
@@ -332,7 +383,7 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
                 <BarButton onClick={onOpenCart}>Ver pedido</BarButton>
               ) : blocked ? (
                 <BarButton disabled>Hasta las {preorderCutoff}</BarButton>
-              ) : pieces === null ? (
+              ) : !boxSize ? (
                 <BarButton onClick={requestSize} outline>
                   Elegí la caja
                 </BarButton>
@@ -341,16 +392,17 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
                   {editingLineId ? 'Guardar' : 'Agregar'} · {formatPrice(total)}
                 </BarButton>
               ) : (
-                <BarButton disabled>Faltan {formatUnits(remaining ?? 0, 'piezas')}</BarButton>
+                <BarButton disabled>{missing ? formatMissing(missing) : 'Sacá piezas'}</BarButton>
               )}
             </div>
-            {pieces !== null && !notice && (
-              <div className="col-span-2 mt-2.5 h-1.5 overflow-hidden rounded-full bg-sumi/15" aria-hidden="true">
-                <div
-                  className="h-full rounded-full bg-sumi transition-[width] duration-300 ease-out"
-                  style={{ width: `${Math.min(100, (filled / pieces) * 100)}%` }}
-                />
-              </div>
+            {fitsElsewhere && !notice && (
+              <button
+                type="button"
+                onClick={() => update({ size: fitsElsewhere.id })}
+                className="col-span-2 -ml-1 mt-1 h-9 justify-self-start rounded-lg px-1 text-left text-[13px] font-bold underline underline-offset-4 hover:bg-sumi/10 focus-visible:outline-2 focus-visible:outline-sumi"
+              >
+                Así como está, entra en la {fitsElsewhere.name.toLowerCase()}
+              </button>
             )}
           </div>
         </div>

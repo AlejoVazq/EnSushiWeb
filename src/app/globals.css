@@ -16,6 +16,8 @@
   --color-field-edge: #7a7268;
   /* Rosa frío: solo errores de campos, distinto del bermellón */
   --color-error: #e8768f;
+  /* Kin (oro): solo descuentos (sello "−15% hoy", montos descontados); texto encima en sumi */
+  --color-kin: #e9b949;
 
   --animate-stamp: stamp 220ms cubic-bezier(0.22, 1, 0.36, 1);
 

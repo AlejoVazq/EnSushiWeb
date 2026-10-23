@@ -3,7 +3,7 @@
 import { getBuildItemsByGroup, getProductsByCategory } from '@/data/menu';
 import { getNow } from '@/lib/schedule';
 import { formatUnits } from '@/lib/cartLine';
-import { formatPrice } from '@/lib/format';
+import { formatItemPrice, formatPrice } from '@/lib/format';
 import { getExtraLineId, getLineId, useCartStore } from '@/store/useCartStore';
 import type { StandardProduct } from '@/types';
 
@@ -22,7 +22,7 @@ function SuggestionCard({ name, detail, lineId, label, onAdd }: SuggestionCardPr
   return (
     <li className="flex w-44 shrink-0 snap-start flex-col justify-between gap-3 rounded-xl border border-hairline p-3">
       <div>
-        <p className="font-title text-base leading-snug text-washi">{name}</p>
+        <p className="font-title text-base leading-snug wrap-anywhere text-washi">{name}</p>
         <p className="text-sm text-washi-muted tabular-nums">{detail}</p>
       </div>
       <div className="flex justify-end">
@@ -65,7 +65,7 @@ export function CartSuggestions() {
           <SuggestionCard
             key={product.id}
             name={product.name}
-            detail={formatPrice(product.price)}
+            detail={formatItemPrice(product.price)}
             lineId={getLineId(product.id)}
             label={product.name}
             onAdd={() => addItem({ product })}

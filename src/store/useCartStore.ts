@@ -2,9 +2,11 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { BUILD_BOX_SIZES, BUILD_ITEMS, getBuildItemById, getProductById, isAvailableOn, isBoxItem } from '@/data/menu';
+import { getBoxFill, isValidFill } from '@/lib/boxRules';
 import type {
   BoxCartItem,
   BuildBoxEntry,
+  BuildBoxSizeId,
   CartItem,
   ExtraCartItem,
   Product,
@@ -22,7 +24,7 @@ export type AddItemInput =
 
 /** An "Arma tu combo" box as the builder holds it: size and steps per box item id */
 export interface BoxInput {
-  pieces: number;
+  size: BuildBoxSizeId;
   steps: Readonly<Record<string, number>>;
 }
 
@@ -34,7 +36,7 @@ export interface CartState {
   addBox: (input: BoxInput) => void;
   /** Swaps an edited box in place, keeping its quantity; merges if it now equals another line */
   replaceBox: (lineId: string, input: BoxInput) => void;
-  /** Adds one step of an acompañamiento (3 empanaditas, 5 palitos) */
+  /** Adds one step of an acompañamiento (3 empanaditas, 5 langostinos) */
   addExtra: (itemId: string) => void;
   /** Removes the whole line */
   removeItem: (lineId: string) => void;
@@ -51,6 +53,8 @@ interface PersistedLine {
   pieces?: number;
   optionId?: string;
   itemId?: string;
+  /** Box size id ("chica" | "grande"); boxes saved with `pieces` (old 10–30 sizes) are dropped */
+  size?: string;
   steps?: Record<string, number>;
 }
 
@@ -78,9 +82,9 @@ export const getLineId = (productId: string, { pieces, optionId }: LineOptions =
 /** Acompañamiento lines: one per build item */
 export const getExtraLineId = (itemId: string): string => `extra:${itemId}`;
 
-/** Box size + sorted "itemId*steps", so the same box always gets the same id: "box@20:roll-midori*1,roll-new-york*2" */
-const getBoxLineId = (pieces: number, entries: readonly BuildBoxEntry[]): string =>
-  `box@${pieces}:${entries
+/** Box size + sorted "itemId*steps", so the same box always gets the same id: "box@grande:roll-midori*1,roll-new-york*2" */
+const getBoxLineId = (size: BuildBoxSizeId, entries: readonly BuildBoxEntry[]): string =>
+  `box@${size}:${entries
     .map((entry) => `${entry.item.id}*${entry.steps}`)
     .sort()
     .join(',')}`;
@@ -128,10 +132,11 @@ const createProductLine = (
 
 /**
  * A valid box: a known size, only available rolls and nigiris, whole positive steps,
- * and exactly as many pieces as the size. Entries keep the BUILD_ITEMS order.
+ * and one of the combinations that fit in that size. Entries keep the BUILD_ITEMS order.
  */
-const createBoxLine = ({ pieces, steps }: BoxInput, quantity: number): BoxCartItem | null => {
-  if (!isValidQuantity(quantity) || !BUILD_BOX_SIZES.includes(pieces)) return null;
+const createBoxLine = ({ size, steps }: BoxInput, quantity: number): BoxCartItem | null => {
+  const boxSize = BUILD_BOX_SIZES.find((candidate) => candidate.id === size);
+  if (!isValidQuantity(quantity) || !boxSize) return null;
 
   const ids = Object.keys(steps).filter((id) => steps[id] !== 0);
   const entries: BuildBoxEntry[] = BUILD_ITEMS.filter((item) => ids.includes(item.id)).map((item) => ({
@@ -142,13 +147,12 @@ const createBoxLine = ({ pieces, steps }: BoxInput, quantity: number): BoxCartIt
   const valid = entries.every((entry) => isBoxItem(entry.item) && entry.item.available && isValidQuantity(entry.steps));
   if (!valid) return null;
 
-  const filled = entries.reduce((sum, entry) => sum + entry.item.step * entry.steps, 0);
-  if (filled !== pieces) return null;
+  if (!isValidFill(boxSize, getBoxFill(steps))) return null;
 
   return {
     kind: 'box',
-    lineId: getBoxLineId(pieces, entries),
-    box: { pieces, entries },
+    lineId: getBoxLineId(boxSize.id, entries),
+    box: { size: boxSize.id, entries },
     quantity,
     unitPrice: entries.reduce((sum, entry) => sum + entry.item.price * entry.steps, 0),
   };
@@ -168,7 +172,7 @@ const mergeLine = (items: readonly CartItem[], line: CartItem): CartItem[] =>
 
 /** The builder's view of a box already in the cart, for "Editar" */
 export const toBoxInput = (item: BoxCartItem): BoxInput => ({
-  pieces: item.box.pieces,
+  size: item.box.size,
   steps: Object.fromEntries(item.box.entries.map((entry) => [entry.item.id, entry.steps])),
 });
 
@@ -203,10 +207,10 @@ const restoreLine = (raw: Record<string, unknown>): CartItem | null => {
   const pieces = typeof raw.pieces === 'number' ? raw.pieces : undefined;
 
   switch (raw.kind) {
-    case 'box':
-      return pieces !== undefined && isStepsRecord(raw.steps)
-        ? createBoxLine({ pieces, steps: raw.steps }, raw.quantity)
-        : null;
+    case 'box': {
+      const size = BUILD_BOX_SIZES.find((candidate) => candidate.id === raw.size)?.id;
+      return size && isStepsRecord(raw.steps) ? createBoxLine({ size, steps: raw.steps }, raw.quantity) : null;
+    }
     case 'extra':
       return typeof raw.itemId === 'string' ? createExtraLine(raw.itemId, raw.quantity) : null;
     // Carts saved before boxes existed have no kind: they're product lines

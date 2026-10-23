@@ -33,7 +33,7 @@ export const BUSINESS = {
     /** Express kitchen, same day (`close` after `open`) */
     operatingHours: { open: '17:00', close: '23:30' },
     /** Last time to order the rolls and nigiris of Arma tu combo (`preorder`) */
-    preorderCutoff: '20:00',
+    preorderCutoff: '19:30',
   },
   locale: 'es-AR',
   currency: 'ARS',

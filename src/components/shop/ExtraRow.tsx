@@ -18,7 +18,7 @@ export function ExtraRow({ item }: { item: BuildItem }) {
   return (
     <div className="flex min-h-19 items-center justify-between gap-4 py-4">
       <div className={cn('min-w-0', !item.available && 'opacity-60')}>
-        <h3 className={cn('font-title text-lg leading-snug sm:text-xl', item.available ? 'text-washi' : 'text-washi-muted')}>
+        <h3 className={cn('font-title text-lg leading-snug wrap-anywhere sm:text-xl', item.available ? 'text-washi' : 'text-washi-muted')}>
           {item.name}
         </h3>
         <p className="text-sm text-washi-muted tabular-nums">
@@ -41,6 +41,14 @@ export function ExtraRow({ item }: { item: BuildItem }) {
 /** The Acompañamientos tab: build items ordered on their own, no cutoff */
 export function ExtrasList() {
   const items = getBuildItemsByGroup('acompanamientos');
+
+  if (items.length === 0) {
+    return (
+      <p className="rounded-xl border border-hairline px-6 py-10 text-center text-washi-muted">
+        Hoy no hay nada disponible en esta sección. ¡Volvé mañana!
+      </p>
+    );
+  }
 
   return (
     <ul className="grid border-t border-hairline lg:grid-cols-2 lg:gap-x-12">

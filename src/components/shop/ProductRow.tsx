@@ -3,17 +3,36 @@
 import Image from 'next/image';
 import { useState, type ReactNode } from 'react';
 
-import { useCanOrder } from '@/hooks/useScheduleStatus';
+import { useCanOrder, useSpecialDay } from '@/hooks/useScheduleStatus';
 import { cn } from '@/lib/cn';
-import { formatPrice } from '@/lib/format';
+import { specialDayPrice } from '@/lib/discounts';
+import { formatItemPrice, formatPrice } from '@/lib/format';
 import { TAG_LABELS } from '@/lib/labels';
 import { getLineId, useCartStore } from '@/store/useCartStore';
-import type { Product } from '@/types';
+import type { Product, ProductIncludes } from '@/types';
 
 import { HollowSeal, LineAction, Seal, useLineQuantity } from './LineAction';
 
 interface ProductRowProps {
   product: Product;
+}
+
+/** "Incluye 2 salsas y 2 palitos" */
+const formatIncludes = ({ salsas, palitos }: ProductIncludes): string => {
+  const parts = [
+    salsas > 0 && `${salsas} ${salsas === 1 ? 'salsa' : 'salsas'}`,
+    palitos > 0 && `${palitos} ${palitos === 1 ? 'palito' : 'palitos'}`,
+  ].filter(Boolean);
+  return `Incluye ${parts.join(' y ')}`;
+};
+
+/** Gold seal next to a combo's name on a special day: "−15% hoy" (kin is only for discounts) */
+function DiscountSeal({ percent }: { percent: number }) {
+  return (
+    <span className="inline-flex h-7 shrink-0 -rotate-3 items-center rounded-md bg-kin px-2 font-title text-sm whitespace-nowrap text-sumi">
+      −{percent}% hoy
+    </span>
+  );
 }
 
 /** Small seal on a size or option chip: how many of that exact line are in the order */
@@ -93,6 +112,9 @@ export function ProductRow({ product }: ProductRowProps) {
   const soldOut = !product.available;
   const canOrder = useCanOrder();
   const addItem = useCartStore((state) => state.addItem);
+  // Special days take a percent off every Combo (not Arma tu combo); sold-out ones show no discount
+  const specialDay = useSpecialDay();
+  const discount = specialDay && product.categoryId === 'combos' && !soldOut ? specialDay : null;
   const [pieces, setPieces] = useState(product.type === 'sized' ? (product.variants[0]?.pieces ?? 0) : 0);
   const [optionId, setOptionId] = useState(
     product.type === 'standard' ? (product.option?.values[0]?.id ?? '') : '',
@@ -102,6 +124,8 @@ export function ProductRow({ product }: ProductRowProps) {
   let imageUrl = product.imageUrl;
   /** Shown next to the action; sized products carry their prices on the chips */
   let price: number | null = null;
+  /** What comes with the chosen size (combos) */
+  let includes: ProductIncludes | undefined;
   let picker: ReactNode = null;
   let action: ReactNode;
 
@@ -138,6 +162,7 @@ export function ProductRow({ product }: ProductRowProps) {
       break;
     }
     case 'sized': {
+      includes = product.variants.find((v) => v.pieces === pieces)?.includes;
       picker = (
         <ChoicePicker
           legend={`Tamaño de ${product.name}`}
@@ -147,7 +172,20 @@ export function ProductRow({ product }: ProductRowProps) {
             label: (
               <>
                 <span className="text-xs tabular-nums">{v.pieces} piezas</span>
-                <span className="font-bold tabular-nums">{formatPrice(v.price)}</span>
+                {discount ? (
+                  <>
+                    <s className="text-xs tabular-nums decoration-washi-muted">
+                      <span className="sr-only">Antes </span>
+                      {formatPrice(v.price)}
+                    </s>
+                    <span className="font-bold tabular-nums">
+                      <span className="sr-only">Hoy </span>
+                      {formatPrice(specialDayPrice(v.price, discount))}
+                    </span>
+                  </>
+                ) : (
+                  <span className="font-bold tabular-nums">{formatPrice(v.price)}</span>
+                )}
               </>
             ),
             lineId: getLineId(product.id, { pieces: v.pieces }),
@@ -170,9 +208,13 @@ export function ProductRow({ product }: ProductRowProps) {
 
   // No photo (or a broken file): the row stands as text, no placeholder
   const showImage = Boolean(imageUrl) && imageUrl !== failedSrc;
+  // Next to the photo, three size chips don't fit a price on phones under 380px: there they go full width, under the photo
+  const fullWidthOnNarrow = showImage && 'max-[380px]:col-span-2';
 
   return (
-    <article className={cn('grid gap-4 py-5', showImage && 'grid-cols-[5.5rem_1fr] sm:grid-cols-[6.5rem_1fr]')}>
+    <article
+      className={cn('grid gap-4 py-5', showImage && 'grid-cols-[5.5rem_1fr] max-[380px]:gap-y-3 sm:grid-cols-[6.5rem_1fr]')}
+    >
       {showImage && imageUrl && (
         <div className={cn('relative aspect-square overflow-hidden rounded-xl bg-sumi-2', soldOut && 'opacity-40 grayscale')}>
           <Image
@@ -190,15 +232,23 @@ export function ProductRow({ product }: ProductRowProps) {
         </div>
       )}
 
-      <div className="flex min-w-0 flex-col gap-3">
-        <div className="space-y-1">
+      <div className={cn('flex min-w-0 flex-col gap-3', showImage && 'max-[380px]:contents')}>
+        <div className="min-w-0 space-y-1">
           <h3
             className={cn(
-              'font-title text-lg leading-snug text-balance sm:text-xl',
+              'font-title text-lg leading-snug text-balance wrap-anywhere sm:text-xl',
               soldOut ? 'text-washi-muted' : 'text-washi',
             )}
           >
-            {product.name}
+            {discount ? (
+              // Name and seal wrap as two pieces, so the seal never starts a line indented
+              <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <span>{product.name}</span>
+                <DiscountSeal percent={discount.percent} />
+              </span>
+            ) : (
+              product.name
+            )}
           </h3>
           {product.description && <p className="text-sm leading-relaxed text-pretty text-washi-muted">{product.description}</p>}
           {product.tags && product.tags.length > 0 && (
@@ -211,12 +261,14 @@ export function ProductRow({ product }: ProductRowProps) {
             </ul>
           )}
         </div>
-        {picker}
-        <div className="flex min-h-11 items-center justify-between gap-3">
+        {picker && <div className={cn(fullWidthOnNarrow)}>{picker}</div>}
+        <div className={cn('flex min-h-11 items-center justify-between gap-3', fullWidthOnNarrow)}>
           {price !== null ? (
             <p className={cn('text-base font-bold tabular-nums', soldOut ? 'text-washi-muted' : 'text-washi')}>
-              {formatPrice(price)}
+              {formatItemPrice(price)}
             </p>
+          ) : includes ? (
+            <p className="text-sm text-washi-muted">{formatIncludes(includes)}</p>
           ) : (
             <span />
           )}

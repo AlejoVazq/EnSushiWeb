@@ -13,6 +13,7 @@ colors:
   shu-fg: "#fff6ee"
   field-edge: "#7a7268"
   error: "#e8768f"
+  kin: "#e9b949"
 typography:
   headline:
     fontFamily: "M PLUS Rounded 1c, ui-rounded, system-ui, sans-serif"
@@ -165,6 +166,8 @@ Una paleta de tinta y papel: negros cálidos con un dejo marrón, crema de papel
 ### Secondary
 - **Rosa Frío** (`error`): solo errores de campos: el borde del campo o de las opciones sin elegir y el mensaje debajo (6.6:1 sobre `sumi`). Es frío a propósito, para que nunca se confunda con el sello.
 
+- **Oro Kin** (`kin`): solo descuentos. El sello lleno "−15% hoy" junto al nombre de cada Combo en un día especial (texto `sumi`, 9.6:1), el "−15%" dentro de la banda de estado y el monto descontado en el carrito y el checkout ("−$ 5.400", 10:1 sobre `sumi`). Nunca para cantidades ni para el pedido: eso es del bermellón.
+
 ### Neutral
 - **Tinta Sumi** (`sumi`): fondo de la página, del header y de la barra de pestañas (estas dos al 90% con desenfoque) y del degradado detrás de la placa flotante.
 - **Sumi Lavada** (`sumi-1`): hover del botón "+" y del botón del carrito; esqueletos de carga.
@@ -176,7 +179,7 @@ Una paleta de tinta y papel: negros cálidos con un dejo marrón, crema de papel
 - **Papel Gastado** (`washi-muted`): descripciones, pestañas inactivas, chips en reposo, etiquetas, botones del stepper y todo lo agotado. Pasa AA en las tres capas (8.7:1 sobre `sumi`, 7.4:1 sobre `sumi-2`).
 
 ### Named Rules
-**La Regla del Sello.** El bermellón significa "en tu pedido" y solo eso. Si algo es rojo y no muestra una cantidad que está en el pedido, está mal. El único otro color saturado es el rosa frío de los errores de campos.
+**La Regla del Sello.** El bermellón significa "en tu pedido" y solo eso. Si algo es rojo y no muestra una cantidad que está en el pedido, está mal. Los únicos otros colores saturados son el rosa frío de los errores de campos y el oro kin de los descuentos.
 
 **La Regla de los Dos Papeles.** Hay dos niveles de texto, `washi` y `washi-muted`, y los dos pasan AA sobre todas las superficies. No existe un tercer gris para texto: los filetes son para bordes, nunca para letras.
 
@@ -251,7 +254,7 @@ El gesto que define el sistema. Un cuadrado de pasta bermellón (`shu`) con la c
 La unidad del menú. Foto cuadrada de 88/104px con 12px de radio a la izquierda (o nada si no hay foto o falla la carga), nombre, descripción, etiquetas, chips y una línea de acción de 44px: precio a la izquierda (vacío en los combos, que llevan el precio en cada chip) y acción a la derecha. **Agotado:** foto en gris al 40%, nombre y precio en `washi-muted`, chips deshabilitados al 40% y el sello hueco en lugar de la acción.
 
 ### Status Band
-Banda crema de 44px como mínimo, 12px de radio, texto `sumi` de 14px. La primera frase va en 700 y el detalle en 500, a los costados (o apilados si no entran). Lee el horario del local y usa las mismas frases que los avisos del carrito y el checkout ("Hoy no abrimos. / Abrimos mañana a las 17:00.", "Abierto hoy hasta las 23:30 / Rolls y nigiris hasta las 20:00"). Mientras no se sabe la hora del visitante, reserva el lugar vacío. `role="status"`.
+Banda crema de 44px como mínimo, 12px de radio, texto `sumi` de 14px. La primera frase va en 700 y el detalle en 500, a los costados (o apilados si no entran). Lee el horario del local y usa las mismas frases que los avisos del carrito y el checkout ("Hoy no abrimos. / Abrimos mañana a las 17:00.", "Abierto hoy hasta las 23:30 / Rolls y nigiris hasta las 19:30"). Mientras no se sabe la hora del visitante, reserva el lugar vacío. `role="status"`.
 
 ### Navigation
 - **Header:** pegajoso, 56px, logo de 28px de alto a la izquierda y botón del carrito a la derecha; filete abajo.
@@ -262,17 +265,22 @@ Banda crema de 44px como mínimo, 12px de radio, texto `sumi` de 14px. La primer
 "¿Le sumás algo?" debajo de las líneas del carrito, solo mientras se toman pedidos: una fila que se desliza con tarjetas de 176px (filete `hairline`, 12px de radio) para acompañamientos y salsas. Cada tarjeta tiene nombre, porción y precio, y el mismo "+" / stepper con sello del menú, así lo que se suma queda sellado ahí mismo y aparece como línea.
 
 ### Box Builder (Arma tu combo)
-El armado de la caja, dentro de la pestaña. Arriba, el selector de caja: cinco chips de 56px de alto con el tamaño en M PLUS Rounded y "piezas" debajo, con el mismo estado de selección que los chips de tamaño. Debajo, un grupo por sección (Rolls de autor, Nigiris) con su título y una nota a la derecha ("De a 5 piezas · hasta las 20:00"), y filas de texto de 76px: nombre, unidad de venta y precio, y el control.
+El armado de la caja, dentro de la pestaña. Arriba, el selector de caja: dos chips de 64px de alto, "Caja chica" y "Caja grande" en M PLUS Rounded con "hasta 15 / 30 piezas" debajo, con el mismo estado de selección que los chips de tamaño. Debajo de la caja elegida, la lista de lo que entra en ella en `washi-muted` ("· 10 piezas + hasta 3 nigiris"). Debajo, un grupo por sección (Rolls de autor, Nigiris) con su título y una nota a la derecha ("De a 5 piezas · hasta las 19:30"), y filas de texto de 76px: nombre, unidad de venta y precio, y el control.
 - **Dentro de la caja, sin sello:** lo que está en la caja todavía no está en el pedido, así que la cantidad va en número `washi` (M PLUS Rounded, tabular) entre el menos y el más. Los acompañamientos tienen su propia pestaña, con las mismas filas y el stepper con sello del resto del menú.
 - **Antes de elegir caja:** el "+" de un roll o nigiri no se deshabilita; lleva al selector, lo enmarca con un contorno `washi` y cambia la ayuda a "Elegí el tamaño de la caja".
-- **Barra del armado:** es la placa crema de esta pantalla y reemplaza a "Ver pedido" mientras hay una caja en curso. Va pegada al pie (en escritorio, hasta 576px y a la derecha) y muestra "Caja de 20 · 15 de 20", el total y una barrita de progreso `sumi` sobre `sumi` al 15%. Su botón es `sumi` lleno cuando hay una acción ("Agregar · $ X", "Guardar · $ X", "Ver pedido") y contorneado con texto `sumi` a contraste completo cuando informa ("Faltan 5 piezas", "Hasta las 20:00"): deshabilitado no quiere decir ilegible.
-- **Pasado el corte:** rolls y nigiris desteñidos con el sello hueco "Hasta las 20:00", chips de caja apagados y un aviso con filete `hairline-strong` arriba del selector.
+- **Barra del armado:** es la placa crema de esta pantalla y reemplaza a "Ver pedido" mientras hay una caja en curso. Va pegada al pie (en escritorio, hasta 576px y a la derecha) y muestra la caja y lo cargado ("Caja grande · 15 piezas + 3 nigiris") y el total, sin barrita de progreso (no hay un número fijo que completar). Si lo cargado ya entra en la otra caja, abajo va el link "Así como está, entra en la caja chica". Su botón es `sumi` lleno cuando hay una acción ("Agregar · $ X", "Guardar · $ X", "Ver pedido") y contorneado con texto `sumi` a contraste completo cuando informa ("Faltan 5 piezas", "Hasta las 19:30"): deshabilitado no quiere decir ilegible.
+- **Pasado el corte:** rolls y nigiris desteñidos con el sello hueco "Hasta las 19:30", chips de caja apagados y un aviso con filete `hairline-strong` arriba del selector.
+
+### Día especial
+En Combos: el sello kin "−15% hoy" junto al nombre (rotado −3°, como el sello hueco; nombre y sello cortan como dos piezas), y en cada chip de tamaño el precio de antes tachado en 12px y el de hoy en 700. Debajo de los chips, a la izquierda del "+", "Incluye 2 salsas y 2 palitos" del tamaño elegido (también los días comunes).
 
 ### Checkout
 Una sola columna en el celular y dos desde `lg` (formulario a la izquierda, resumen pegado a la derecha). Los títulos de página van en el estilo Headline a 24px en el celular (36px desde `sm`), para que el formulario arranque en la primera pantalla. "← Volver al menú" tiene 44px de alto. El orden es: Tus datos, "¿Cómo lo recibís?", "¿Cómo pagás?", la línea "Para hoy", y al final el total y la placa "Enviar pedido por WhatsApp".
 - **Opciones de Entrega y Pago:** dos opciones grandes del mismo tamaño, lado a lado también en el celular (128px de alto como mínimo, 12px de radio): ícono de línea, nombre en 700 y una ayuda en `washi-muted`. Seleccionada: borde `washi`, fondo `sumi-2` y un tilde arriba a la derecha (la selección no es solo color). Con error, borde rosa frío.
 - **Total arriba del botón (celular):** un bloque con filete que muestra Subtotal / Envío / Total cuando hay envío, solo Total con retiro, y "Si elegís envío a domicilio, se suman $ X." si todavía no eligió.
 - **Retiro:** la dirección del local en un bloque con filete. **Transferencia:** el aviso de no transferir todavía, con filete `hairline-strong` y texto `washi`.
+
+- **Código de descuento:** arriba del total, plegado en el link "¿Tenés un código de descuento?". Abierto: campo de texto (mayúsculas) y "Aplicar" contorneado al lado; Enter aplica, no manda el pedido. Con error, el mensaje en rosa frío debajo. Aplicado: placa `sumi-2` con borde `washi`, "VERANO10 · 10% en tu pedido" y "Quitar"; si el día especial ahorra más, una línea `washi-muted` lo explica. El resumen suma la fila "Descuento (…)" con el monto en kin.
 
 ### Inputs / Fields
 - **Style:** 48px de alto, fondo `sumi-1`, borde `field-edge`, 12px de radio y texto de 16px (para que iOS no haga zoom). El label va arriba en 14px/700 y la ayuda abajo en `washi-muted`.

@@ -67,11 +67,19 @@ export interface StandardProduct extends BaseProduct {
   option?: ProductOption;
 }
 
+/** What comes with a combo at no extra cost */
+export interface ProductIncludes {
+  salsas: number;
+  palitos: number;
+}
+
 /** One size of a sized product; `pieces` is unique within the product */
 export interface ProductVariant {
   pieces: number;
   /** Unit price in ARS, integer */
   price: number;
+  /** Shown under the size chips: "Incluye 2 salsas y 2 palitos" */
+  includes?: ProductIncludes;
 }
 
 /** Same product in several sizes (e.g. combos of 15/24/40 pieces); the customer picks one */
@@ -112,10 +120,27 @@ export interface BuildBoxEntry {
   steps: number;
 }
 
-/** A filled "Arma tu combo" box: its entries add up to exactly `pieces` */
+export type BuildBoxSizeId = 'chica' | 'grande';
+
+/** One way to fill a box: exactly `rollPieces` of rolls, plus between `nigiris.min` and `nigiris.max` nigiris */
+export interface BoxCombination {
+  rollPieces: number;
+  nigiris: { min: number; max: number };
+}
+
+/** A physical box of "Arma tu combo": only the listed combinations fit in it */
+export interface BuildBoxSize {
+  id: BuildBoxSizeId;
+  /** "Caja chica" */
+  name: string;
+  /** Most pieces it holds, for the chip ("hasta 15 piezas") */
+  maxPieces: number;
+  combinations: readonly BoxCombination[];
+}
+
+/** A filled "Arma tu combo" box: its entries match one of the size's combinations */
 export interface BuildBox {
-  /** One of BUILD_BOX_SIZES */
-  pieces: number;
+  size: BuildBoxSizeId;
   /** Rolls and nigiris only, in BUILD_ITEMS order */
   entries: readonly BuildBoxEntry[];
 }
@@ -177,8 +202,43 @@ export interface OrderDetails {
   fulfillment: Fulfillment;
   paymentMethod: PaymentMethod;
   items: readonly CartItem[];
+  /** The one discount applied (code or special day; they don't stack), or null */
+  discount: OrderDiscount | null;
   /** Integer ARS; 0 for pickup */
   deliveryFee: number;
-  /** Integer ARS: items + delivery fee, computed at submit time */
+  /** Integer ARS: items − discount + delivery fee, computed at submit time */
   total: number;
+}
+
+// ─── Discounts ──────────────────────────────────────────────────────────────
+
+/** A date with a discount on every product of the Combos category (not on Arma tu combo boxes) */
+export interface SpecialDay {
+  /** "YYYY-MM-DD", in the shop's time zone */
+  date: string;
+  /** Whole percent, e.g. 15 */
+  percent: number;
+}
+
+/**
+ * A code handed out by the shop, for the whole order (not the delivery fee).
+ * Only its SHA-256 is stored, so the code itself isn't readable in the site's JS (`npm run codigo`).
+ */
+export interface DiscountCode {
+  /** SHA-256 hex of the normalized code (trimmed, upper case) */
+  hash: string;
+  /** percent: `value` is a whole percent; amount: `value` is integer ARS off */
+  kind: 'percent' | 'amount';
+  value: number;
+  /** First and last day it works, "YYYY-MM-DD" in the shop's time zone (both included) */
+  validFrom?: string;
+  validUntil?: string;
+}
+
+/** The discount as the cart, the checkout and the message show it */
+export interface OrderDiscount {
+  /** What goes in parentheses: "VERANO10", "15% en Combos" */
+  label: string;
+  /** Integer ARS, positive */
+  amount: number;
 }

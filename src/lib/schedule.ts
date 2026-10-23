@@ -115,6 +115,8 @@ export const getSimulatedNow = (): Date | null => {
 
 /** "Now" for every schedule decision: the simulated time in development, the real clock otherwise */
 export const getNow = (): Date => getSimulatedNow() ?? new Date();
+/** Today's date in the shop's time zone, "YYYY-MM-DD" (for special days and code validity) */
+export const getShopDate = (date: Date = getNow()): string => shopTime(date).day;
 
 /** The calendar day `offset` days after `day`, at UTC noon so weekday math ignores time zones */
 const addDays = (day: string, offset: number): Date => new Date(Date.parse(`${day}T12:00:00Z`) + offset * DAY_MS);

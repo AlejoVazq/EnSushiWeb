@@ -2,7 +2,16 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState, type ComponentType, type FormEvent, type ReactNode, type SVGProps } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ComponentType,
+  type FormEvent,
+  type MouseEvent,
+  type ReactNode,
+  type SVGProps,
+} from 'react';
 
 import { ScheduleNotices } from '@/components/shop/ScheduleNotices';
 import { Button, buttonClassName } from '@/components/ui/Button';
@@ -10,7 +19,9 @@ import { CashIcon, CheckIcon, HomeIcon, PhoneIcon, StoreIcon } from '@/component
 import { Input } from '@/components/ui/Input';
 import { BUSINESS, DELIVERY_METHOD_LABELS, PAYMENT_METHOD_LABELS } from '@/config/business';
 import { useCartHydrated } from '@/hooks/useCartHydration';
-import { useCheckoutSchedule } from '@/hooks/useScheduleStatus';
+import { useCartTotals } from '@/hooks/useCartTotals';
+import { useCheckoutSchedule, useNow } from '@/hooks/useScheduleStatus';
+import { useSettled } from '@/hooks/useSettled';
 import {
   CHECKOUT_FIELDS,
   clearCheckoutDraft,
@@ -23,10 +34,12 @@ import {
   type CheckoutForm,
 } from '@/lib/checkout';
 import { cn } from '@/lib/cn';
+import { lookUpCode } from '@/lib/discounts';
 import { formatPrice } from '@/lib/format';
+import { getNow } from '@/lib/schedule';
 import { buildWhatsAppUrl } from '@/services/whatsappService';
-import { selectCartTotal, useCartStore } from '@/store/useCartStore';
-import type { DeliveryMethod, PaymentMethod } from '@/types';
+import { useCartStore } from '@/store/useCartStore';
+import type { DeliveryMethod, DiscountCode, OrderDiscount, PaymentMethod } from '@/types';
 
 import { OrderSummary } from './OrderSummary';
 
@@ -128,6 +141,135 @@ function TransferNotice() {
   );
 }
 
+/** "10% en tu pedido", "$ 2.000 menos en tu pedido" */
+const describeCode = (definition: DiscountCode): string =>
+  definition.kind === 'percent' ? `${definition.value}% en tu pedido` : `${formatPrice(definition.value)} menos en tu pedido`;
+
+interface DiscountCodeFieldProps {
+  /** The applied code, normalized; '' when none */
+  applied: string;
+  onApply: (code: string) => void;
+  onRemove: () => void;
+  /** The discount the order ends up with (the code's, or the special day's if it saves more) */
+  discount: OrderDiscount | null;
+}
+
+/** Folded by default: "¿Tenés un código de descuento?" opens the field; once applied it shows with "Quitar" */
+function DiscountCodeField({ applied, onApply, onRemove, discount }: DiscountCodeFieldProps) {
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const errorId = 'discount-code-error';
+
+  const apply = () => {
+    const lookup = lookUpCode(value, getNow());
+    if (!lookup.ok) {
+      setError(lookup.error);
+      inputRef.current?.focus();
+      return;
+    }
+    setError(null);
+    setValue('');
+    setOpen(false);
+    onApply(lookup.code);
+  };
+
+  if (applied) {
+    const lookup = lookUpCode(applied, getNow());
+    // Applied, but the special day saves more: they don't stack, so the order keeps the day's
+    const outdone = discount !== null && discount.label !== applied;
+    return (
+      <div className="rounded-xl border border-washi bg-sumi-2 px-4 py-2 text-sm">
+        <div className="flex items-center justify-between gap-3">
+          <p className="min-w-0 wrap-anywhere">
+            <span className="font-bold text-washi">{applied}</span>
+            {lookup.ok && <span className="text-washi-muted"> · {describeCode(lookup.definition)}</span>}
+          </p>
+          <button
+            type="button"
+            onClick={onRemove}
+            className="-mr-2 h-11 shrink-0 rounded-[10px] px-2 font-bold text-washi underline underline-offset-4 transition-colors hover:bg-sumi-1 focus-visible:outline-2 focus-visible:outline-washi"
+          >
+            Quitar
+          </button>
+        </div>
+        {outdone && (
+          <p className="pb-1 text-pretty text-washi-muted">
+            Hoy el {discount.label} te ahorra más. No se suman: te aplicamos ese.
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => {
+          setOpen(true);
+          requestAnimationFrame(() => inputRef.current?.focus());
+        }}
+        className="-ml-2 inline-flex h-11 items-center rounded-[10px] px-2 text-sm font-bold text-washi underline underline-offset-4 transition-colors hover:bg-sumi-2 focus-visible:outline-2 focus-visible:outline-washi"
+      >
+        ¿Tenés un código de descuento?
+      </button>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor="discount-code" className="text-sm font-bold text-washi">
+        Código de descuento
+      </label>
+      <div className="flex gap-2">
+        <input
+          ref={inputRef}
+          id="discount-code"
+          // No "name": the form's own fields are looked up by name to focus the first invalid one
+          autoComplete="off"
+          autoCapitalize="characters"
+          spellCheck={false}
+          enterKeyHint="done"
+          maxLength={40}
+          value={value}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? errorId : undefined}
+          onChange={(e) => {
+            setValue(e.target.value);
+            setError(null);
+          }}
+          onKeyDown={(e) => {
+            // Enter applies the code instead of submitting the order
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              apply();
+            }
+          }}
+          className={cn(
+            'h-12 min-w-0 flex-1 rounded-xl border bg-sumi-1 px-4 text-base text-washi uppercase caret-washi transition-colors',
+            'focus:border-washi focus:outline-2 focus:outline-offset-2 focus:outline-washi',
+            error ? 'border-error' : 'border-field-edge',
+          )}
+        />
+        <button
+          type="button"
+          onClick={apply}
+          className="h-12 shrink-0 rounded-xl border border-hairline-strong px-4 text-sm font-bold text-washi transition-colors hover:border-washi hover:bg-sumi-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi"
+        >
+          Aplicar
+        </button>
+      </div>
+      {error && (
+        <p id={errorId} role="alert" className="text-sm font-medium text-error">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
 function PageShell({ children }: { children: ReactNode }) {
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
@@ -148,6 +290,9 @@ function SentScreen({ url, isTransfer, onEdit, onNewOrder }: {
   onEdit: () => void;
   onNewOrder: () => void;
 }) {
+  // This screen replaces the form under the finger: a double tap on the send button must not reach "Hacer otro pedido"
+  const settled = useSettled('sent');
+
   return (
     <div className="mx-auto mt-10 max-w-md space-y-6 text-center">
       <h1 className="font-title text-2xl text-balance sm:text-4xl">Terminá de enviarlo en WhatsApp</h1>
@@ -156,7 +301,7 @@ function SentScreen({ url, isTransfer, onEdit, onNewOrder }: {
         abrió, tocá Abrir WhatsApp.
       </p>
       {isTransfer && <TransferNotice />}
-      <div className="space-y-3">
+      <div className={cn('space-y-3', !settled && 'pointer-events-none')}>
         <a href={url} target="_blank" rel="noopener noreferrer" className={buttonClassName({ size: 'lg', fullWidth: true })}>
           Abrir WhatsApp
         </a>
@@ -175,7 +320,6 @@ export function Checkout() {
   const router = useRouter();
   const hydrated = useCartHydrated();
   const items = useCartStore((state) => state.items);
-  const subtotal = useCartStore(selectCartTotal);
   const clearCart = useCartStore((state) => state.clearCart);
 
   const formRef = useRef<HTMLFormElement>(null);
@@ -185,14 +329,17 @@ export function Checkout() {
   const [errors, setErrors] = useState<CheckoutErrors>({});
   const [sent, setSent] = useState(false);
   const deliveryFee = deliveryFeeFor(form.deliveryMethod);
+  const { subtotal, discount, total: itemsTotal } = useCartTotals(form.discountCode);
+  const total = itemsTotal + deliveryFee;
+  const now = useNow();
 
   useEffect(() => saveCheckoutDraft(form), [form]);
 
   // A complete form turns the main button into a plain link to wa.me: in-app browsers (Instagram, Facebook) block window.open
   const isComplete = !CHECKOUT_FIELDS.some((field) => validateCheckout(form)[field]);
-  const order = isComplete ? createOrder(form, items) : null;
+  const order = isComplete ? createOrder(form, items, now ?? getNow()) : null;
   const whatsappUrl = order ? buildWhatsAppUrl(order) : null;
-  const submitLabel = `Enviar pedido por WhatsApp · ${formatPrice(subtotal + deliveryFee)}`;
+  const submitLabel = `Enviar pedido por WhatsApp · ${formatPrice(total)}`;
 
   const update = <K extends keyof CheckoutForm>(key: K, value: CheckoutForm[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -208,8 +355,22 @@ export function Checkout() {
     if (firstInvalid) formRef.current?.querySelector<HTMLElement>(`[name="${firstInvalid}"]`)?.focus();
   };
 
+  // Set on the first tap, so a double tap opens the chat once
+  const openedRef = useRef(false);
+
   // Deferred: a link removed from the page during its own click doesn't navigate
-  const handleOpenWhatsApp = () => window.setTimeout(() => setSent(true));
+  const handleOpenWhatsApp = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (openedRef.current) {
+      event.preventDefault();
+      return;
+    }
+    openedRef.current = true;
+    window.setTimeout(() => {
+      setSent(true);
+      // The form was long and this screen is short: start from its title
+      window.scrollTo({ top: 0 });
+    });
+  };
 
   if (!hydrated) {
     return (
@@ -225,7 +386,10 @@ export function Checkout() {
         <SentScreen
           url={whatsappUrl}
           isTransfer={form.paymentMethod === 'transfer'}
-          onEdit={() => setSent(false)}
+          onEdit={() => {
+            openedRef.current = false;
+            setSent(false);
+          }}
           onNewOrder={() => {
             clearCheckoutDraft();
             clearCart();
@@ -262,6 +426,7 @@ export function Checkout() {
               label="Nombre"
               name="name"
               autoComplete="name"
+              maxLength={60}
               placeholder="¿A nombre de quién?"
               value={form.name}
               onChange={(e) => update('name', e.target.value)}
@@ -282,6 +447,7 @@ export function Checkout() {
                 label="Dirección de entrega"
                 name="address"
                 autoComplete="street-address"
+                maxLength={160}
                 placeholder="Calle y número"
                 hint="Sumá piso, depto o alguna referencia si hace falta."
                 value={form.address}
@@ -311,28 +477,42 @@ export function Checkout() {
           <p className="text-sm text-washi-muted">Para hoy · el horario lo coordinamos por WhatsApp</p>
 
           <div className="space-y-3">
+            <DiscountCodeField
+              applied={form.discountCode}
+              onApply={(code) => update('discountCode', code)}
+              onRemove={() => update('discountCode', '')}
+              discount={discount}
+            />
             {/* On the phone the summary sits below the button: the total (and the delivery fee) shows right above it */}
             <dl className="space-y-1 rounded-xl border border-hairline p-4 text-sm lg:hidden">
-              {deliveryFee > 0 && (
+              {(deliveryFee > 0 || discount) && (
                 <>
                   <div className="flex justify-between">
                     <dt className="text-washi-muted">Subtotal</dt>
                     <dd className="tabular-nums">{formatPrice(subtotal)}</dd>
                   </div>
-                  <div className="flex justify-between">
-                    <dt className="text-washi-muted">Envío</dt>
-                    <dd className="tabular-nums">{formatPrice(deliveryFee)}</dd>
-                  </div>
+                  {discount && (
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-washi-muted">Descuento ({discount.label})</dt>
+                      <dd className="font-bold text-kin tabular-nums">−{formatPrice(discount.amount)}</dd>
+                    </div>
+                  )}
+                  {deliveryFee > 0 && (
+                    <div className="flex justify-between">
+                      <dt className="text-washi-muted">Envío</dt>
+                      <dd className="tabular-nums">{formatPrice(deliveryFee)}</dd>
+                    </div>
+                  )}
                 </>
               )}
               <div
                 className={cn(
                   'flex items-baseline justify-between',
-                  deliveryFee > 0 && 'mt-1 border-t border-hairline pt-2',
+                  (deliveryFee > 0 || discount) && 'mt-1 border-t border-hairline pt-2',
                 )}
               >
                 <dt className="font-bold">Total</dt>
-                <dd className="text-lg font-bold tabular-nums">{formatPrice(subtotal + deliveryFee)}</dd>
+                <dd className="text-lg font-bold tabular-nums">{formatPrice(total)}</dd>
               </div>
               {form.deliveryMethod === null && (
                 <p className="text-washi-muted">
@@ -363,7 +543,7 @@ export function Checkout() {
         </form>
 
         <div className="lg:sticky lg:top-6">
-          <OrderSummary items={items} deliveryFee={deliveryFee} />
+          <OrderSummary items={items} discount={discount} deliveryFee={deliveryFee} />
         </div>
       </div>
     </PageShell>

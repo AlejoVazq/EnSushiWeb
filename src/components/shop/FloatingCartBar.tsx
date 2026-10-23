@@ -1,7 +1,8 @@
 'use client';
 
+import { useCartTotals } from '@/hooks/useCartTotals';
 import { formatPrice } from '@/lib/format';
-import { selectCartItemCount, selectCartTotal, useCartStore } from '@/store/useCartStore';
+import { selectCartItemCount, useCartStore } from '@/store/useCartStore';
 
 interface FloatingCartBarProps {
   onOpenCart: () => void;
@@ -10,7 +11,8 @@ interface FloatingCartBarProps {
 /** Mobile-only shortcut to the cart, shown once there is something in it: the menu's one reversed plate */
 export function FloatingCartBar({ onOpenCart }: FloatingCartBarProps) {
   const count = useCartStore(selectCartItemCount);
-  const total = useCartStore(selectCartTotal);
+  // With the special day's discount, like the cart's total
+  const { total } = useCartTotals();
 
   if (count === 0) return null;
 

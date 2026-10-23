@@ -2,6 +2,7 @@
 
 import { useMemo, useSyncExternalStore } from 'react';
 
+import { getSpecialDay } from '@/lib/discounts';
 import {
   checkSchedule,
   getCartNotices,
@@ -11,6 +12,7 @@ import {
   type CartScheduleNotice,
   type ScheduleStatus,
 } from '@/lib/schedule';
+import type { SpecialDay } from '@/types';
 
 const MINUTE = 60_000;
 
@@ -23,10 +25,22 @@ const subscribe = (onChange: () => void) => {
 const getSnapshot = () => Math.floor(getNow().getTime() / MINUTE);
 const getServerSnapshot = () => null;
 
+/** "Now" to the minute (simulated with ?ahora in development); null during SSR and hydration */
+export function useNow(): Date | null {
+  const minute = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  return useMemo(() => (minute === null ? null : new Date(minute * MINUTE)), [minute]);
+}
+
 /** null during SSR and hydration: the status depends on the visitor's clock */
 export function useScheduleStatus(): ScheduleStatus | null {
-  const minute = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-  return useMemo(() => (minute === null ? null : getScheduleStatus(new Date(minute * MINUTE))), [minute]);
+  const now = useNow();
+  return useMemo(() => (now ? getScheduleStatus(now) : null), [now]);
+}
+
+/** Today's special day (a discount on every Combo), or null; null until the clock is known */
+export function useSpecialDay(): SpecialDay | null {
+  const now = useNow();
+  return useMemo(() => (now ? getSpecialDay(now) : null), [now]);
 }
 
 /**

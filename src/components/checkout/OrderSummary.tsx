@@ -2,19 +2,22 @@ import Link from 'next/link';
 
 import { lineTitle } from '@/components/shop/lineText';
 import { formatBoxContents } from '@/lib/cartLine';
-import { formatPrice } from '@/lib/format';
+import { formatItemPrice, formatPrice } from '@/lib/format';
 import { cartTotal, lineSubtotal } from '@/store/useCartStore';
-import type { CartItem } from '@/types';
+import type { CartItem, OrderDiscount } from '@/types';
 
 interface OrderSummaryProps {
   items: readonly CartItem[];
+  /** Code or special day; the row is hidden when null */
+  discount: OrderDiscount | null;
   /** Integer ARS; the row is hidden when 0 */
   deliveryFee: number;
 }
 
-/** The order as the message will read it: same lines as the cart, then Subtotal / Envío / Total */
-export function OrderSummary({ items, deliveryFee }: OrderSummaryProps) {
+/** The order as the message will read it: same lines as the cart, then Subtotal / Descuento / Envío / Total */
+export function OrderSummary({ items, discount, deliveryFee }: OrderSummaryProps) {
   const subtotal = cartTotal(items);
+  const total = subtotal - (discount?.amount ?? 0) + deliveryFee;
 
   return (
     <section aria-labelledby="summary-title" className="rounded-2xl border border-hairline p-5">
@@ -33,28 +36,36 @@ export function OrderSummary({ items, deliveryFee }: OrderSummaryProps) {
         {items.map((item) => (
           <li key={item.lineId} className="flex justify-between gap-4 py-3 text-sm">
             <div className="min-w-0">
-              <p className="font-bold text-washi tabular-nums">{lineTitle(item)}</p>
-              {item.kind === 'box' && <p className="text-washi-muted">{formatBoxContents(item.box)}</p>}
+              <p className="font-bold wrap-anywhere text-washi tabular-nums">{lineTitle(item)}</p>
+              {item.kind === 'box' && <p className="wrap-anywhere text-washi-muted">{formatBoxContents(item.box)}</p>}
             </div>
-            <p className="shrink-0 font-bold tabular-nums">{formatPrice(lineSubtotal(item))}</p>
+            <p className="shrink-0 font-bold tabular-nums">{formatItemPrice(lineSubtotal(item))}</p>
           </li>
         ))}
       </ul>
-      {deliveryFee > 0 && (
+      {(deliveryFee > 0 || discount) && (
         <dl className="space-y-1 border-t border-hairline pt-3 text-sm">
           <div className="flex justify-between">
             <dt className="text-washi-muted">Subtotal</dt>
             <dd className="tabular-nums">{formatPrice(subtotal)}</dd>
           </div>
-          <div className="flex justify-between">
-            <dt className="text-washi-muted">Envío</dt>
-            <dd className="tabular-nums">{formatPrice(deliveryFee)}</dd>
-          </div>
+          {discount && (
+            <div className="flex justify-between gap-3">
+              <dt className="text-washi-muted">Descuento ({discount.label})</dt>
+              <dd className="font-bold text-kin tabular-nums">−{formatPrice(discount.amount)}</dd>
+            </div>
+          )}
+          {deliveryFee > 0 && (
+            <div className="flex justify-between">
+              <dt className="text-washi-muted">Envío</dt>
+              <dd className="tabular-nums">{formatPrice(deliveryFee)}</dd>
+            </div>
+          )}
         </dl>
       )}
       <div className="mt-2 flex items-baseline justify-between border-t border-hairline pt-4">
         <span className="text-washi-muted">Total</span>
-        <span className="text-2xl font-bold tabular-nums">{formatPrice(subtotal + deliveryFee)}</span>
+        <span className="text-2xl font-bold tabular-nums">{formatPrice(total)}</span>
       </div>
     </section>
   );

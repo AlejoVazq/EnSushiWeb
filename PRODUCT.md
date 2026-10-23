@@ -20,7 +20,8 @@ Web de pedidos online de EnSushi: el cliente arma el pedido para hoy (combos, Ar
 
 ## Positioning
 
-- **Arma tu combo**: el cliente elige una caja de 10, 15, 20, 25 o 30 piezas y la llena exactamente con rolls de autor de a 5 piezas y nigiris (cada nigiri cuenta como 1 pieza); los acompañamientos tienen su propia pestaña y se piden solos. El total es la suma de los ítems.
+- **Arma tu combo**: el cliente elige una caja chica (hasta 15) o grande (hasta 30) y la llena con rolls de autor de a 5 piezas y nigiris, en una de las combinaciones que entran en esa caja; los acompañamientos tienen su propia pestaña y se piden solos. El total es la suma de los ítems.
+- **Descuentos**: días especiales con un % en todos los Combos (no en Arma tu combo) y códigos que reparte el local (% o monto fijo, para todo el pedido). No se suman: se aplica el que más conviene.
 - **Rolls de autor propios**: recetas de la casa (New York, Sake, Midori, Hikaru, Sakana Maki, TunaSpicy; la lista puede crecer).
 - **Sushiburgers**: producto poco común en la zona (ej. SushiBurger Salmón, crudo o cocido).
 - **Pedido sin fricción**: elegir desde el celu y en un toque queda listo en WhatsApp, sin registrarse ni pagar online.
@@ -29,8 +30,8 @@ Web de pedidos online de EnSushi: el cliente arma el pedido para hoy (combos, Ar
 
 - Uso nocturno, en el celular, muchas veces con poca luz y apuro por la hora de la cena.
 - El catálogo va por pestañas (una categoría por vez): Arma tu combo, Sushiburgers, Acompañamientos, Combos, Salsas & complementos. Al abrir el carrito se sugieren acompañamientos y salsas.
-- Momentos clave: elegir combo y tamaño (15 / 24 / 40 piezas); armar su propio combo (rolls y nigiris hasta las 20:00; los acompañamientos no tienen corte); revisar el carrito; completar el checkout (entrega y pago; el horario lo coordina el local por WhatsApp).
-- Horario en la zona horaria del local: solo pedidos para hoy. En un día cerrado o después del cierre se bloquea el envío y se avisa cuándo abre; antes de la apertura se puede mandar, con un aviso. El corte de las 20:00 es por ítem (rolls y nigiris de Arma tu combo), no por pedido. Cuando el local no toma pedidos, la web queda solo para ver el menú: no se puede agregar nada.
+- Momentos clave: elegir combo y tamaño (15 / 25 / 40 piezas); armar su propio combo (rolls y nigiris hasta las 19:30; los acompañamientos no tienen corte); revisar el carrito; completar el checkout (entrega y pago; el horario lo coordina el local por WhatsApp).
+- Horario en la zona horaria del local: solo pedidos para hoy. En un día cerrado o después del cierre se bloquea el envío y se avisa cuándo abre; antes de la apertura se puede mandar, con un aviso. El corte de las 19:30 es por ítem (rolls y nigiris de Arma tu combo), no por pedido. Cuando el local no toma pedidos, la web queda solo para ver el menú: no se puede agregar nada.
 - El pedido termina en el WhatsApp del local; la confirmación, el cobro por transferencia y el comprobante pasan por ese chat.
 
 ## Capabilities and Constraints

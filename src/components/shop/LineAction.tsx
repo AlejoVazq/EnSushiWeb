@@ -25,7 +25,7 @@ export function Seal({ quantity, className }: { quantity: number; className?: st
   );
 }
 
-/** Hollow seal: on the menu, but not orderable right now ("Agotado hoy", "Hasta las 20:00") */
+/** Hollow seal: on the menu, but not orderable right now ("Agotado hoy", "Hasta las 19:30") */
 export function HollowSeal({ children, title }: { children: ReactNode; title?: string }) {
   return (
     <span
@@ -45,7 +45,7 @@ export const addButtonClassName =
 
 interface LineActionProps {
   lineId: string;
-  /** Accessible name, e.g. "Combo Kanituna · 24 piezas" */
+  /** Accessible name, e.g. "Combo Kanituna · 25 piezas" */
   label: string;
   onAdd: () => void;
 }

@@ -1,4 +1,4 @@
-import { BUILD_CATEGORY_ID, CATEGORIES } from '@/data/menu';
+import { BUILD_CATEGORY_ID, CATEGORIES, getBoxSize } from '@/data/menu';
 import type { BuildBox, BuildItem, CartItem } from '@/types';
 
 const BOX_NAME = CATEGORIES.find((category) => category.id === BUILD_CATEGORY_ID)?.name ?? 'Arma tu combo';
@@ -20,12 +20,12 @@ export const formatBoxContents = (box: BuildBox): string =>
 
 /**
  * Line title, shared by the cart, the checkout and the WhatsApp message:
- * "Combo Kanituna · 24 piezas", "SushiBurger Salmón · Crudo", "Arma tu combo · 20 piezas", "Empanaditas".
+ * "Combo Kanituna · 25 piezas", "SushiBurger Salmón · Crudo", "Arma tu combo · Caja grande", "Empanaditas".
  */
 export const getLineName = (item: CartItem): string => {
   switch (item.kind) {
     case 'box':
-      return `${BOX_NAME} · ${item.box.pieces} piezas`;
+      return `${BOX_NAME} · ${getBoxSize(item.box.size)?.name ?? item.box.size}`;
     case 'extra':
       return item.item.name;
     case 'product':

@@ -1,4 +1,6 @@
 import { BUSINESS } from '@/config/business';
+import { getBestDiscount, lookUpCode } from '@/lib/discounts';
+import { getNow } from '@/lib/schedule';
 import { cartTotal } from '@/store/useCartStore';
 import type { CartItem, DeliveryMethod, OrderDetails, PaymentMethod } from '@/types';
 
@@ -8,6 +10,8 @@ export interface CheckoutForm {
   /** Only used (and required) for delivery */
   address: string;
   paymentMethod: PaymentMethod | null;
+  /** Applied discount code, normalized; '' when none */
+  discountCode: string;
 }
 
 export type CheckoutErrors = Partial<Record<keyof CheckoutForm, string>>;
@@ -17,6 +21,7 @@ export const EMPTY_CHECKOUT_FORM: CheckoutForm = {
   deliveryMethod: null,
   address: '',
   paymentMethod: null,
+  discountCode: '',
 };
 
 /** The form survives "Editar" / "Volver al menú" for this tab only, and is dropped once the order is sent */
@@ -40,6 +45,9 @@ export const loadCheckoutDraft = (): CheckoutForm => {
       deliveryMethod: pickOne(DELIVERY_METHODS, saved.deliveryMethod),
       address: typeof saved.address === 'string' ? saved.address : '',
       paymentMethod: pickOne(PAYMENT_METHODS, saved.paymentMethod),
+      // A code that stopped working (expired, removed) since it was saved is dropped
+      discountCode:
+        typeof saved.discountCode === 'string' && lookUpCode(saved.discountCode, getNow()).ok ? saved.discountCode : '',
     };
   } catch {
     return EMPTY_CHECKOUT_FORM;
@@ -87,11 +95,12 @@ export const deliveryFeeFor = (method: DeliveryMethod | null): number =>
 
 /**
  * Builds the order from a validated form; null if a required choice is missing.
- * Total is always recomputed from the items (plus the delivery fee) at submit time.
+ * Total is always recomputed from the items (minus the discount, plus the delivery fee) at submit time.
  */
-export const createOrder = (form: CheckoutForm, items: readonly CartItem[]): OrderDetails | null => {
+export const createOrder = (form: CheckoutForm, items: readonly CartItem[], date: Date): OrderDetails | null => {
   if (!form.deliveryMethod || !form.paymentMethod) return null;
   const deliveryFee = deliveryFeeFor(form.deliveryMethod);
+  const discount = getBestDiscount(items, { code: form.discountCode, date });
   return {
     customer: { name: form.name.trim() },
     fulfillment:
@@ -100,7 +109,8 @@ export const createOrder = (form: CheckoutForm, items: readonly CartItem[]): Ord
         : { method: 'pickup' },
     paymentMethod: form.paymentMethod,
     items,
+    discount,
     deliveryFee,
-    total: cartTotal(items) + deliveryFee,
+    total: cartTotal(items) - (discount?.amount ?? 0) + deliveryFee,
   };
 };

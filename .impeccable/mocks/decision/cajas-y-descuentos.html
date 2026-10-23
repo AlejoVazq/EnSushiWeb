@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cajas y descuentos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700&family=M+PLUS+Rounded+1c:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sumi: #141210; --sumi-1: #1d1a17; --sumi-2: #262220;
+    --hairline: #34302b; --hairline-strong: #4d463e;
+    --washi: #f1ebe0; --washi-muted: #b9b0a2; --shu: #c8432b; --shu-fg: #fff6ee;
+    --field-edge: #7a7268;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: #0c0b0a; color: var(--washi); font: 16px/1.45 Figtree, system-ui, sans-serif; padding: 32px 16px 80px; }
+  h1 { font: 700 30px 'M PLUS Rounded 1c'; margin-bottom: 6px; }
+  .lead { color: var(--washi-muted); max-width: 70ch; margin-bottom: 40px; }
+  section.decision { margin-bottom: 64px; }
+  section.decision > h2 { font: 700 22px 'M PLUS Rounded 1c'; margin-bottom: 4px; }
+  section.decision > p { color: var(--washi-muted); margin-bottom: 20px; max-width: 70ch; }
+  .options { display: flex; flex-wrap: wrap; gap: 28px; }
+  .opt > h3 { font: 700 16px Figtree; margin-bottom: 4px; }
+  .opt > p { color: var(--washi-muted); font-size: 14px; max-width: 360px; margin-bottom: 10px; }
+  .phone { width: 360px; background: var(--sumi); border: 1px solid var(--hairline); border-radius: 28px; padding: 20px 16px; overflow: hidden; }
+  .t { font-family: 'M PLUS Rounded 1c'; font-weight: 700; }
+  .muted { color: var(--washi-muted); }
+  .sm { font-size: 14px; } .xs { font-size: 12px; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .hr { border-bottom: 1px solid var(--hairline); }
+  .chips2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .chip { border: 1px solid var(--hairline); border-radius: 10px; padding: 10px 8px; text-align: center; color: var(--washi-muted); line-height: 1.2; }
+  .chip.sel { border-color: var(--washi); background: var(--sumi-2); color: var(--washi); }
+  .chip .t { font-size: 18px; display: block; }
+  .chips3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .chips3 .chip { padding: 6px 4px; font-size: 14px; }
+  .chips3 .chip b { display: block; }
+  .chips3 s { color: var(--washi-muted); font-size: 12px; display: block; }
+  .item { display: flex; align-items: center; justify-content: space-between; min-height: 70px; border-bottom: 1px solid var(--hairline); }
+  .item .t { font-size: 17px; }
+  .step { display: flex; align-items: center; gap: 2px; }
+  .step span.b { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 99px; color: var(--washi-muted); font-size: 22px; }
+  .step span.b.off { opacity: .35; }
+  .step span.n { min-width: 36px; text-align: center; font: 700 18px 'M PLUS Rounded 1c'; }
+  .plus { width: 44px; height: 44px; display: grid; place-items: center; border: 1px solid var(--hairline-strong); border-radius: 10px; font-size: 22px; }
+  .bar { background: var(--washi); color: var(--sumi); border-radius: 16px; padding: 12px 12px 12px 16px; margin-top: 18px; box-shadow: 0 10px 24px rgba(0,0,0,.5); }
+  .bar .btn { border: 1.5px solid rgba(20,18,16,.4); border-radius: 12px; padding: 10px 14px; font-weight: 700; font-size: 14px; white-space: nowrap; }
+  .bar .btn.solid { background: var(--sumi); color: var(--washi); border-color: var(--sumi); }
+  .bar .link { font-size: 13px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; margin-top: 6px; display: inline-block; }
+  .combos-list { list-style: none; padding: 0; margin-top: 10px; font-size: 14px; color: var(--washi-muted); }
+  .combos-list li { padding: 3px 0; }
+  .combos-list li::before { content: "· "; }
+  .band { background: var(--washi); color: var(--sumi); border-radius: 12px; padding: 10px 14px; font-size: 14px; }
+  .note { border: 1px solid var(--hairline-strong); border-radius: 12px; padding: 10px 14px; font-size: 14px; }
+  .tag { display: inline-block; border: 1.5px solid var(--washi); border-radius: 6px; padding: 1px 7px; font-size: 13px; font-weight: 700; transform: rotate(-3deg); }
+  .img { width: 88px; height: 88px; border-radius: 12px; background: linear-gradient(135deg, #3a332c, #241f1b); flex: none; }
+  .field { height: 48px; border: 1px solid var(--field-edge); border-radius: 12px; background: var(--sumi-1); padding: 0 14px; display: flex; align-items: center; color: var(--washi-muted); flex: 1; }
+  .ghostbtn { height: 48px; border: 1px solid var(--hairline-strong); border-radius: 12px; padding: 0 16px; display: grid; place-items: center; font-weight: 700; }
+  .card { border: 1px solid var(--hairline); border-radius: 12px; padding: 14px; font-size: 14px; }
+  .card .row + .row { margin-top: 4px; }
+  .send { background: var(--washi); color: var(--sumi); border-radius: 16px; height: 56px; display: grid; place-items: center; font-weight: 700; margin-top: 12px; }
+  .applied { display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--washi); border-radius: 12px; padding: 10px 14px; background: var(--sumi-2); }
+  .u { text-decoration: underline; text-underline-offset: 3px; font-weight: 700; font-size: 14px; }
+  .gap8 > * + * { margin-top: 8px; } .gap12 > * + * { margin-top: 12px; } .gap16 > * + * { margin-top: 16px; }
+</style>
+</head>
+<body>
+<h1>Cajas y descuentos</h1>
+<p class="lead">Tres decisiones antes de programar. Todo está en el celular (360px) con los textos reales. Los precios de rolls y nigiris son los provisorios ($ 1.000).</p>
+
+<!-- ─── 1. Arma tu combo ─────────────────────────────────────────── -->
+<section class="decision">
+  <h2>1 · Arma tu combo: cómo se elige la caja</h2>
+  <p>En los dos casos el "+" solo deja avanzar hacia una combinación válida, y la barra dice qué falta. Ejemplo: Caja grande con 15 piezas de rolls y todavía sin nigiris.</p>
+  <div class="options">
+    <div class="opt">
+      <h3>A · Las combinaciones a la vista (recomendada)</h3>
+      <p>Debajo de la caja elegida se listan las combinaciones que entran. El cliente sabe de antemano qué puede armar.</p>
+      <div class="phone gap16">
+        <div>
+          <div class="t" style="font-size:20px">Tamaño de la caja</div>
+          <div class="chips2" style="margin-top:10px">
+            <div class="chip"><span class="t">Caja chica</span><span class="xs">hasta 15 piezas</span></div>
+            <div class="chip sel"><span class="t">Caja grande</span><span class="xs">hasta 30 piezas</span></div>
+          </div>
+          <ul class="combos-list">
+            <li>30, 25 o 20 piezas de rolls</li>
+            <li>20 piezas + 1 a 6 nigiris</li>
+            <li>15 piezas + 1 a 9 nigiris</li>
+          </ul>
+        </div>
+        <div>
+          <div class="row hr" style="padding-bottom:6px"><span class="t" style="font-size:20px">Rolls de autor</span><span class="sm muted">De a 5 piezas · hasta las 19:30</span></div>
+          <div class="item"><div><div class="t">New York</div><div class="sm muted">5 piezas · $ 1.000</div></div><div class="step"><span class="b">−</span><span class="n">10</span><span class="b">+</span></div></div>
+          <div class="item"><div><div class="t">Midori</div><div class="sm muted">5 piezas · $ 1.000</div></div><div class="step"><span class="b">−</span><span class="n">5</span><span class="b">+</span></div></div>
+        </div>
+        <div>
+          <div class="row hr" style="padding-bottom:6px"><span class="t" style="font-size:20px">Nigiris</span><span class="sm muted">Por unidad · hasta las 19:30</span></div>
+          <div class="item"><div><div class="t">Nigiri de salmón</div><div class="sm muted">1 unidad · $ 1.000</div></div><div class="plus">+</div></div>
+        </div>
+        <div class="bar">
+          <div class="row">
+            <div><div style="font-weight:700;font-size:15px">Caja grande · 15 piezas</div><div class="sm">Total $ 3.000</div></div>
+            <div class="btn">Falta 1 nigiri</div>
+          </div>
+          <span class="link">Así como está, entra en la caja chica</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="opt">
+      <h3>B · Solo la barra guía</h3>
+      <p>Sin lista: más limpio, pero el cliente descubre las reglas a medida que toca "+".</p>
+      <div class="phone gap16">
+        <div>
+          <div class="t" style="font-size:20px">Tamaño de la caja</div>
+          <div class="chips2" style="margin-top:10px">
+            <div class="chip"><span class="t">Caja chica</span><span class="xs">hasta 15 piezas</span></div>
+            <div class="chip sel"><span class="t">Caja grande</span><span class="xs">hasta 30 piezas</span></div>
+          </div>
+        </div>
+        <div>
+          <div class="row hr" style="padding-bottom:6px"><span class="t" style="font-size:20px">Rolls de autor</span><span class="sm muted">De a 5 piezas · hasta las 19:30</span></div>
+          <div class="item"><div><div class="t">New York</div><div class="sm muted">5 piezas · $ 1.000</div></div><div class="step"><span class="b">−</span><span class="n">10</span><span class="b">+</span></div></div>
+          <div class="item"><div><div class="t">Midori</div><div class="sm muted">5 piezas · $ 1.000</div></div><div class="step"><span class="b">−</span><span class="n">5</span><span class="b">+</span></div></div>
+        </div>
+        <div>
+          <div class="row hr" style="padding-bottom:6px"><span class="t" style="font-size:20px">Nigiris</span><span class="sm muted">Por unidad · hasta las 19:30</span></div>
+          <div class="item"><div><div class="t">Nigiri de salmón</div><div class="sm muted">1 unidad · $ 1.000</div></div><div class="plus">+</div></div>
+        </div>
+        <div class="bar">
+          <div class="row">
+            <div><div style="font-weight:700;font-size:15px">Caja grande · 15 piezas</div><div class="sm">Total $ 3.000</div></div>
+            <div class="btn">Falta 1 nigiri</div>
+          </div>
+          <span class="link">Así como está, entra en la caja chica</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 2. Día especial ──────────────────────────────────────────── -->
+<section class="decision">
+  <h2>2 · Día especial: cómo se ve en Combos</h2>
+  <p>Ejemplo: hoy 15% en todos los Combos. En las dos, la banda de arriba lo anuncia y el carrito muestra la línea "Descuento en Combos (15%)". También se ve el nuevo "Incluye 2 salsas y 2 palitos" del tamaño elegido.</p>
+  <div class="options">
+    <div class="opt">
+      <h3>A · Precio tachado en cada chip (recomendada)</h3>
+      <p>Se ve el precio de antes y el de hoy. Más claro, un poco más cargado.</p>
+      <div class="phone gap16">
+        <div class="band row"><b>Hoy 15% en todos los Combos</b><span>Abierto hasta las 23:30</span></div>
+        <div style="display:flex;gap:16px">
+          <div class="img"></div>
+          <div class="gap8" style="flex:1">
+            <div class="t" style="font-size:18px">Combo Kanituna</div>
+            <div class="sm muted">Kanikama y atún.</div>
+          </div>
+        </div>
+        <div class="chips3">
+          <div class="chip"><span class="xs">15 piezas</span><s>$ 20.000</s><b>$ 17.000</b></div>
+          <div class="chip sel"><span class="xs">25 piezas</span><s>$ 36.000</s><b>$ 30.600</b></div>
+          <div class="chip"><span class="xs">40 piezas</span><s>$ 45.000</s><b>$ 38.250</b></div>
+        </div>
+        <div class="row"><span class="sm muted">Incluye 2 salsas y 2 palitos</span><div class="plus">+</div></div>
+      </div>
+    </div>
+    <div class="opt">
+      <h3>B · Sello en el título, precio final solo</h3>
+      <p>Los chips quedan como hoy, con el precio ya descontado, y un sello "−15% hoy" marca el combo.</p>
+      <div class="phone gap16">
+        <div class="band row"><b>Hoy 15% en todos los Combos</b><span>Abierto hasta las 23:30</span></div>
+        <div style="display:flex;gap:16px">
+          <div class="img"></div>
+          <div class="gap8" style="flex:1">
+            <div class="t" style="font-size:18px">Combo Kanituna</div>
+            <div class="sm muted">Kanikama y atún.</div>
+            <span class="tag">−15% hoy</span>
+          </div>
+        </div>
+        <div class="chips3">
+          <div class="chip"><span class="xs">15 piezas</span><b>$ 17.000</b></div>
+          <div class="chip sel"><span class="xs">25 piezas</span><b>$ 30.600</b></div>
+          <div class="chip"><span class="xs">40 piezas</span><b>$ 38.250</b></div>
+        </div>
+        <div class="row"><span class="sm muted">Incluye 2 salsas y 2 palitos</span><div class="plus">+</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── 3. Código ────────────────────────────────────────────────── -->
+<section class="decision">
+  <h2>3 · Código de descuento en el checkout</h2>
+  <p>Va justo arriba del total. El mensaje de WhatsApp suma la línea <code>Descuento (VERANO10): -$ 1.300</code> antes del Total, así el local ve qué código se usó.</p>
+  <div class="options">
+    <div class="opt">
+      <h3>A · Plegado: "¿Tenés un código?" (recomendada)</h3>
+      <p>No distrae a quien no tiene código. Al tocarlo se abre el campo; aplicado, queda como en la tercera pantalla.</p>
+      <div class="phone gap16">
+        <div class="sm muted">Para hoy · el horario lo coordinamos por WhatsApp</div>
+        <span class="u">¿Tenés un código de descuento?</span>
+        <div class="card"><div class="row"><b>Total</b><b style="font-size:18px">$ 13.000</b></div></div>
+        <div class="send">Enviar pedido por WhatsApp · $ 13.000</div>
+      </div>
+    </div>
+    <div class="opt">
+      <h3>A · abierto</h3>
+      <p>Con un código que no existe o venció, el error va en rosa debajo del campo.</p>
+      <div class="phone gap16">
+        <div class="gap8">
+          <div class="sm" style="font-weight:700">Código de descuento</div>
+          <div class="row" style="gap:8px"><div class="field" style="color:var(--washi)">VERANO10</div><div class="ghostbtn">Aplicar</div></div>
+        </div>
+        <div class="card"><div class="row"><b>Total</b><b style="font-size:18px">$ 13.000</b></div></div>
+        <div class="send">Enviar pedido por WhatsApp · $ 13.000</div>
+      </div>
+    </div>
+    <div class="opt">
+      <h3>A · aplicado</h3>
+      <p>El total ya incluye el descuento, y el botón también.</p>
+      <div class="phone gap16">
+        <div class="applied"><div><b>VERANO10</b> <span class="sm muted">· 10% en tu pedido</span></div><span class="u">Quitar</span></div>
+        <div class="card">
+          <div class="row"><span class="muted">Subtotal</span><span>$ 13.000</span></div>
+          <div class="row"><span class="muted">Descuento (VERANO10)</span><span>−$ 1.300</span></div>
+          <div class="row" style="border-top:1px solid var(--hairline);padding-top:8px;margin-top:8px"><b>Total</b><b style="font-size:18px">$ 11.700</b></div>
+        </div>
+        <div class="send">Enviar pedido por WhatsApp · $ 11.700</div>
+      </div>
+    </div>
+    <div class="opt">
+      <h3>B · Siempre visible, en "Tus datos"</h3>
+      <p>Debajo del nombre, opcional. Más fácil de encontrar, pero suma un campo para todos.</p>
+      <div class="phone gap16">
+        <div class="t" style="font-size:20px">Tus datos</div>
+        <div class="gap8"><div class="sm" style="font-weight:700">Nombre</div><div class="field">¿A nombre de quién?</div></div>
+        <div class="gap8">
+          <div class="sm" style="font-weight:700">Código de descuento <span class="muted" style="font-weight:400">(opcional)</span></div>
+          <div class="row" style="gap:8px"><div class="field">Si tenés uno</div><div class="ghostbtn">Aplicar</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</body>
+</html>

@@ -6,7 +6,7 @@ import type { CartItem } from '@/types';
 export const lineCount = (item: CartItem): number =>
   item.kind === 'extra' ? stepUnits(item.item, item.quantity) : item.quantity;
 
-/** "2× Combo Kanituna · 24 piezas", the same shape as the message line (cart and checkout) */
+/** "2× Combo Kanituna · 25 piezas", the same shape as the message line (cart and checkout) */
 export const lineTitle = (item: CartItem): string => `${lineCount(item)}× ${getLineName(item)}`;
 
 /** "$ 1.000 c/u", or per portion for acompañamientos: "$ 1.000 cada 3 unidades" */
