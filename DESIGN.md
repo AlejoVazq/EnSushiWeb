@@ -262,7 +262,7 @@ Banda crema de 44px como mínimo, 12px de radio, texto `sumi` de 14px. La primer
 - **Placa "Ver pedido" (celular):** placa `washi` de 56px a todo el ancho, 16px de radio, con el sello y "Ver pedido" a la izquierda y el total a la derecha, en `sumi` 700. Desaparece desde `sm`.
 
 ### Sugerencias del carrito
-"¿Le sumás algo?" debajo de las líneas del carrito, solo mientras se toman pedidos: una fila que se desliza con tarjetas de 176px (filete `hairline`, 12px de radio) para acompañamientos y salsas. Cada tarjeta tiene nombre, porción y precio, y el mismo "+" / stepper con sello del menú, así lo que se suma queda sellado ahí mismo y aparece como línea.
+"¿Le sumás algo?" debajo de las líneas del carrito, solo mientras se toman pedidos: una fila que se desliza (con mouse, dos flechas redondas de 44px a la derecha del título, contorno `hairline-strong`, apagadas en cada punta) con tarjetas de 176px (filete `hairline`, 12px de radio) para acompañamientos y salsas. Cada tarjeta tiene nombre, porción y precio, y el mismo "+" / stepper con sello del menú, así lo que se suma queda sellado ahí mismo y aparece como línea.
 
 ### Box Builder (Arma tu combo)
 El armado de la caja, dentro de la pestaña. Arriba, el selector de caja: dos chips de 64px de alto, "Caja chica" y "Caja grande" en M PLUS Rounded con "hasta 15 / 30 piezas" debajo, con el mismo estado de selección que los chips de tamaño. Debajo de la caja elegida, la lista de lo que entra en ella en `washi-muted` ("· 10 piezas + hasta 3 nigiris"). Debajo, un grupo por sección (Rolls de autor, Nigiris) con su título y una nota a la derecha ("De a 5 piezas · hasta las 19:30"), y filas de texto de 76px: nombre, unidad de venta y precio, y el control.

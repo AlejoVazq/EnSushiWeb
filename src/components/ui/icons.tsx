@@ -79,3 +79,15 @@ export const CheckIcon = (props: IconProps) => (
     <path d="m5 12 5 5L20 7" />
   </svg>
 );
+
+export const ChevronLeftIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="m15 6-6 6 6 6" />
+  </svg>
+);
+
+export const ChevronRightIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="m9 6 6 6-6 6" />
+  </svg>
+);
