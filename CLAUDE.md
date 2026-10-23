@@ -62,7 +62,7 @@ En lugar de WhatsApp, el pedido va a nuestro servidor y lo recibe la app de escr
 - Antispam del cliente: cuenta con código por correo (sin captcha). Solo hace falta una cuenta SMTP (dominio, Zoho, Brevo…), no un servidor de correo propio.
 - Mensaje al cliente: la app abre WhatsApp con el texto listo (un clic, `wa.me`) + página de estado en la web. Sin WhatsApp Business API.
 - Electron, una sola PC con Windows, ticketera Epson TM-T20 USB impresa por su driver de Windows (no ESC/POS crudo, salvo que el driver no alcance).
-- Horarios aproximados ("es una cocina"): sin cupos por franja. Stock/agotados: a futuro.
+- Horarios aproximados ("es una cocina"): sin cupos por franja. La hora de cada pedido la pone quien maneja la app (a mano o con +15/+30/+45/+60): arranca vacía y no se puede confirmar sin ella; la app nunca la elige sola. Stock/agotados: a futuro.
 - Pedidos que nadie responde: sin decidir ("lo veremos en el momento").
 - Versión base solo funcional, sin diseño; el diseño de la app se hace después (`/impeccable shape`).
 

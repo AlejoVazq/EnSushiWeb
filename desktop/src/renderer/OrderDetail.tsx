@@ -25,7 +25,8 @@ interface OrderDetailProps {
 
 /** The comanda, and the answer: an approximate time (confirm) or a reason (reject), then WhatsApp */
 export function OrderDetail({ order, settings, onUpdated }: OrderDetailProps) {
-  const [eta, setEta] = useState(order.eta ?? etaIn(30));
+  // Empty until the person answering sets it: the app never picks the time on its own
+  const [eta, setEta] = useState(order.eta ?? '');
   const [reason, setReason] = useState(REJECT_REASONS[0] ?? '');
   const [mode, setMode] = useState<'confirmar' | 'rechazar'>('confirmar');
   // The message follows the time/reason until it's edited by hand
@@ -36,6 +37,7 @@ export function OrderDetail({ order, settings, onUpdated }: OrderDetailProps) {
 
   const message = customMessage ?? (mode === 'confirmar' ? confirmMessage(order, eta, settings) : rejectMessage(order, reason));
   const decided = order.status !== 'nuevo';
+  const missingEta = mode === 'confirmar' && !eta;
 
   const send = async (action: StaffOrderAction) => {
     const response = await window.ensushi.api('PATCH', `/api/local/pedidos/${order.id}`, action);
@@ -178,8 +180,14 @@ export function OrderDetail({ order, settings, onUpdated }: OrderDetailProps) {
               </>
             )}
 
-            <label htmlFor="message">Mensaje para el cliente (se puede editar)</label>
-            <textarea id="message" value={message} onChange={(e) => setCustomMessage(e.target.value)} />
+            {missingEta ? (
+              <p className="muted">Poné la hora aproximada para ver el mensaje.</p>
+            ) : (
+              <>
+                <label htmlFor="message">Mensaje para el cliente (se puede editar)</label>
+                <textarea id="message" value={message} onChange={(e) => setCustomMessage(e.target.value)} />
+              </>
+            )}
           </>
         )}
 
@@ -187,7 +195,7 @@ export function OrderDetail({ order, settings, onUpdated }: OrderDetailProps) {
           {!decided && (
             <button
               className={mode === 'confirmar' ? 'primary' : 'danger'}
-              disabled={busy || (mode === 'confirmar' ? !eta : !reason.trim())}
+              disabled={busy || missingEta || (mode === 'rechazar' && !reason.trim())}
               onClick={answer}
             >
               {busy ? 'Guardando…' : mode === 'confirmar' ? 'Confirmar y abrir WhatsApp' : 'Rechazar y abrir WhatsApp'}
@@ -198,7 +206,7 @@ export function OrderDetail({ order, settings, onUpdated }: OrderDetailProps) {
               onClick={() =>
                 window.ensushi.openWhatsApp(
                   order.phone,
-                  order.status === 'confirmado' ? confirmMessage(order, order.eta ?? eta, settings) : rejectMessage(order, order.rejectReason ?? ''),
+                  order.status === 'confirmado' ? confirmMessage(order, order.eta ?? '', settings) : rejectMessage(order, order.rejectReason ?? ''),
                 )
               }
             >
