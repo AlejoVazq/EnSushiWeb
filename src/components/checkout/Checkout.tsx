@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -14,6 +15,7 @@ import {
 } from 'react';
 
 import { ScheduleNotices } from '@/components/shop/ScheduleNotices';
+import { AccountSection } from './AccountSection';
 import { Button, buttonClassName } from '@/components/ui/Button';
 import { CashIcon, CheckIcon, HomeIcon, PhoneIcon, StoreIcon } from '@/components/ui/icons';
 import { Input } from '@/components/ui/Input';
@@ -37,6 +39,8 @@ import { cn } from '@/lib/cn';
 import { lookUpCode } from '@/lib/discounts';
 import { formatPrice } from '@/lib/format';
 import { getNow } from '@/lib/schedule';
+import { normalizePhone } from '@/lib/phone';
+import { loadSavedPhone, ORDERS_BY_APP, savePhone, sendOrder } from '@/lib/pedidosApp';
 import { buildWhatsAppUrl } from '@/services/whatsappService';
 import { useCartStore } from '@/store/useCartStore';
 import type { DeliveryMethod, DiscountCode, OrderDiscount, PaymentMethod } from '@/types';
@@ -339,20 +343,51 @@ export function Checkout() {
   const isComplete = !CHECKOUT_FIELDS.some((field) => validateCheckout(form)[field]);
   const order = isComplete ? createOrder(form, items, now ?? getNow()) : null;
   const whatsappUrl = order ? buildWhatsAppUrl(order) : null;
-  const submitLabel = `Enviar pedido por WhatsApp · ${formatPrice(total)}`;
+  const submitLabel = ORDERS_BY_APP ? `Enviar pedido · ${formatPrice(total)}` : `Enviar pedido por WhatsApp · ${formatPrice(total)}`;
+
+  // Orders by app (ORDERS_BY_APP): an account, a phone for the shop's WhatsApp answer, and a POST instead of wa.me
+  const [accountEmail, setAccountEmail] = useState<string | null>(null);
+  const onAccountChange = useCallback((email: string | null) => setAccountEmail(email), []);
+  const [phone, setPhone] = useState(loadSavedPhone);
+  const [phoneError, setPhoneError] = useState<string | undefined>();
+  const [sendError, setSendError] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
 
   const update = <K extends keyof CheckoutForm>(key: K, value: CheckoutForm[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     setErrors((prev) => ({ ...prev, [key]: undefined }));
   };
 
-  /** Only reached while the form is incomplete (a complete one shows the WhatsApp link instead) */
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  /** WhatsApp: only reached while the form is incomplete (a complete one shows the wa.me link). By app: sends it. */
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const nextErrors = validateCheckout(form);
     setErrors(nextErrors);
-    const firstInvalid = CHECKOUT_FIELDS.find((field) => nextErrors[field]);
-    if (firstInvalid) formRef.current?.querySelector<HTMLElement>(`[name="${firstInvalid}"]`)?.focus();
+    const badPhone = ORDERS_BY_APP && !normalizePhone(phone);
+    setPhoneError(badPhone ? 'Ingresá tu celular con código de área, sin 0 ni 15.' : undefined);
+    const firstInvalid = CHECKOUT_FIELDS.find((field) => nextErrors[field]) ?? (badPhone ? 'phone' : undefined);
+    if (firstInvalid) {
+      formRef.current?.querySelector<HTMLElement>(`[name="${firstInvalid}"]`)?.focus();
+      return;
+    }
+    if (!ORDERS_BY_APP || sending) return;
+    if (!accountEmail) {
+      setSendError('Primero ingresá con tu correo (arriba, en Tu cuenta).');
+      return;
+    }
+
+    setSending(true);
+    setSendError(null);
+    const result = await sendOrder(form, phone, items);
+    if (!result.ok) {
+      setSending(false);
+      setSendError(result.error);
+      return;
+    }
+    savePhone(phone);
+    clearCheckoutDraft();
+    clearCart();
+    router.push(`/pedido/${result.data.id}`);
   };
 
   // Set on the first tap, so a double tap opens the chat once
@@ -420,7 +455,9 @@ export function Checkout() {
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-10">
         <form ref={formRef} onSubmit={handleSubmit} noValidate className="w-full space-y-9 lg:max-w-2xl">
-          <fieldset>
+          {ORDERS_BY_APP && <AccountSection onChange={onAccountChange} />}
+
+          <fieldset className="space-y-4">
             <legend className="mb-3 font-title text-xl text-washi sm:text-2xl">Tus datos</legend>
             <Input
               label="Nombre"
@@ -432,6 +469,24 @@ export function Checkout() {
               onChange={(e) => update('name', e.target.value)}
               error={errors.name}
             />
+            {ORDERS_BY_APP && (
+              <Input
+                label="Celular"
+                name="phone"
+                type="tel"
+                autoComplete="tel-national"
+                inputMode="tel"
+                maxLength={20}
+                placeholder="2478 567168"
+                hint="Con código de área, sin 0 ni 15. Te confirmamos por WhatsApp a este número."
+                value={phone}
+                onChange={(e) => {
+                  setPhone(e.target.value);
+                  setPhoneError(undefined);
+                }}
+                error={phoneError}
+              />
+            )}
           </fieldset>
 
           <ChoiceCards
@@ -521,7 +576,16 @@ export function Checkout() {
               )}
             </dl>
             <ScheduleNotices notices={schedule.notices} />
-            {whatsappUrl && schedule.canCheckout ? (
+            {sendError && (
+              <p role="alert" className="text-sm font-medium text-error">
+                {sendError}
+              </p>
+            )}
+            {ORDERS_BY_APP ? (
+              <Button type="submit" size="lg" fullWidth disabled={!schedule.canCheckout || sending}>
+                {sending ? 'Enviando…' : submitLabel}
+              </Button>
+            ) : whatsappUrl && schedule.canCheckout ? (
               <a
                 href={whatsappUrl}
                 target="_blank"
@@ -537,7 +601,9 @@ export function Checkout() {
               </Button>
             )}
             <p className="text-center text-sm text-balance text-washi-muted">
-              Se abre WhatsApp con tu pedido listo para enviar. Te confirmamos por WhatsApp.
+              {ORDERS_BY_APP
+                ? 'El pedido le llega al local, que te confirma el horario por WhatsApp.'
+                : 'Se abre WhatsApp con tu pedido listo para enviar. Te confirmamos por WhatsApp.'}
             </p>
           </div>
         </form>

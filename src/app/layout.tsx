@@ -55,6 +55,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="es-AR"
+      // html has scroll-behavior: smooth (globals.css); this tells Next to turn it off while changing routes
+      data-scroll-behavior="smooth"
       className={`${mplusRounded.variable} ${figtree.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-sumi font-ui text-washi selection:bg-washi selection:text-sumi">
