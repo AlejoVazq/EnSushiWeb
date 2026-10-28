@@ -12,10 +12,15 @@ import { TAG_LABELS } from '@/lib/labels';
 import { getLineId, useCartStore } from '@/store/useCartStore';
 import type { Product, ProductIncludes } from '@/types';
 
+import { ChevronRightIcon } from '@/components/ui/icons';
+
 import { HollowSeal, LineAction, Seal, useLineQuantity } from './LineAction';
+import { ProductSheet, type ProductLine } from './ProductSheet';
 
 interface ProductRowProps {
   product: Product;
+  /** The name opens a sheet with the photo and what the product has; the row leaves the description out */
+  withSheet?: boolean;
 }
 
 /** "Incluye 2 salsas y 2 palitos" */
@@ -109,7 +114,7 @@ function ChoicePicker<T extends string | number>({
   );
 }
 
-export function ProductRow({ product }: ProductRowProps) {
+export function ProductRow({ product, withSheet = false }: ProductRowProps) {
   const soldOut = !product.available;
   const canOrder = useCanOrder();
   const addItem = useCartStore((state) => state.addItem);
@@ -121,29 +126,32 @@ export function ProductRow({ product }: ProductRowProps) {
     product.type === 'standard' ? (product.option?.values[0]?.id ?? '') : '',
   );
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   let imageUrl = product.imageUrl;
   /** Shown next to the action; sized products carry their prices on the chips */
   let price: number | null = null;
   /** What comes with the chosen size (combos) */
   let includes: ProductIncludes | undefined;
-  let picker: ReactNode = null;
-  let action: ReactNode;
+  /** The option or size chips; the sheet gets its own copy, with its own radio group name */
+  let renderPicker: ((name: string) => ReactNode) | null = null;
+  let line: ProductLine;
 
   switch (product.type) {
     case 'standard': {
       price = product.price;
       if (!product.option) {
-        action = <LineAction lineId={product.id} label={product.name} onAdd={() => addItem({ product })} />;
+        line = { lineId: product.id, label: product.name, onAdd: () => addItem({ product }) };
         break;
       }
-      const optionValue = product.option.values.find((v) => v.id === optionId);
+      const { option } = product;
+      const optionValue = option.values.find((v) => v.id === optionId);
       imageUrl = optionValue?.imageUrl ?? product.imageUrl;
-      picker = (
+      renderPicker = (name) => (
         <ChoicePicker
-          legend={`${product.option.name} de ${product.name}`}
-          name={`${product.id}-option`}
-          choices={product.option.values.map((v) => ({
+          legend={`${option.name} de ${product.name}`}
+          name={name}
+          choices={option.values.map((v) => ({
             value: v.id,
             label: <span className="font-medium">{v.label}</span>,
             lineId: getLineId(product.id, { optionId: v.id }),
@@ -153,21 +161,19 @@ export function ProductRow({ product }: ProductRowProps) {
           disabled={soldOut}
         />
       );
-      action = (
-        <LineAction
-          lineId={getLineId(product.id, { optionId })}
-          label={`${product.name} · ${optionValue?.label ?? ''}`}
-          onAdd={() => addItem({ product, optionId })}
-        />
-      );
+      line = {
+        lineId: getLineId(product.id, { optionId }),
+        label: `${product.name} · ${optionValue?.label ?? ''}`,
+        onAdd: () => addItem({ product, optionId }),
+      };
       break;
     }
     case 'sized': {
       includes = product.variants.find((v) => v.pieces === pieces)?.includes;
-      picker = (
+      renderPicker = (name) => (
         <ChoicePicker
           legend={`Tamaño de ${product.name}`}
-          name={`${product.id}-size`}
+          name={name}
           choices={product.variants.map((v) => ({
             value: v.pieces,
             label: (
@@ -196,13 +202,11 @@ export function ProductRow({ product }: ProductRowProps) {
           disabled={soldOut}
         />
       );
-      action = (
-        <LineAction
-          lineId={getLineId(product.id, { pieces })}
-          label={`${product.name} · ${pieces} piezas`}
-          onAdd={() => addItem({ product, pieces })}
-        />
-      );
+      line = {
+        lineId: getLineId(product.id, { pieces }),
+        label: `${product.name} · ${pieces} piezas`,
+        onAdd: () => addItem({ product, pieces }),
+      };
       break;
     }
   }
@@ -212,6 +216,18 @@ export function ProductRow({ product }: ProductRowProps) {
   // Next to the photo, three size chips don't fit a price in a row under 22rem (a phone, or a column of the
   // two-column grid): there they go full width, under the photo. The row's <li> is the container.
   const fullWidthOnNarrow = showImage && '@max-[22rem]:col-span-2';
+  const openSheet = withSheet ? () => setSheetOpen(true) : undefined;
+
+  const priceLabel =
+    price !== null ? (
+      <p className={cn('text-base font-bold tabular-nums', soldOut ? 'text-washi-muted' : 'text-washi')}>
+        {formatItemPrice(price)}
+      </p>
+    ) : includes ? (
+      <p className="text-sm text-washi-muted">{formatIncludes(includes)}</p>
+    ) : (
+      <span />
+    );
 
   return (
     <article
@@ -219,6 +235,10 @@ export function ProductRow({ product }: ProductRowProps) {
     >
       {showImage && imageUrl && (
         <div className={cn('relative aspect-square overflow-hidden rounded-xl bg-sumi-2', soldOut && 'opacity-40 grayscale')}>
+          {/* The photo opens the sheet too; the name's button is the one for keyboards and screen readers */}
+          {openSheet && (
+            <button type="button" tabIndex={-1} aria-hidden onClick={openSheet} className="absolute inset-0 z-10 cursor-pointer" />
+          )}
           <Image
             src={imageUrl}
             alt={product.name}
@@ -235,7 +255,7 @@ export function ProductRow({ product }: ProductRowProps) {
       )}
 
       <div className={cn('flex min-w-0 flex-col gap-3', showImage && '@max-[22rem]:contents')}>
-        <div className="min-w-0 space-y-1">
+        <div className="relative min-w-0 space-y-1">
           <h3
             className={cn(
               'font-title text-lg leading-snug text-balance wrap-anywhere sm:text-xl',
@@ -248,12 +268,24 @@ export function ProductRow({ product }: ProductRowProps) {
                 <span>{product.name}</span>
                 <DiscountSeal percent={discount.percent} />
               </span>
+            ) : openSheet ? (
+              // Covers the whole text block, so a tap anywhere on it opens the sheet
+              <button
+                type="button"
+                onClick={openSheet}
+                aria-haspopup="dialog"
+                className="text-left after:absolute after:inset-0 after:rounded-lg focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-4 focus-visible:after:outline-washi"
+              >
+                {product.name}
+                <ChevronRightIcon className="ml-1 inline-block size-4 align-[-0.125em] text-washi-muted" />
+                <span className="sr-only">: ver qué trae</span>
+              </button>
             ) : (
               product.name
             )}
           </h3>
-          {product.description && <p className="text-sm leading-relaxed text-pretty text-washi-muted">{product.description}</p>}
-          {product.tags && product.tags.length > 0 && (
+          {product.description && !withSheet && <p className="text-sm leading-relaxed text-pretty text-washi-muted">{product.description}</p>}
+          {product.tags && product.tags.length > 0 && !withSheet && (
             <ul className="flex flex-wrap gap-1.5 pt-1">
               {product.tags.map((tag) => (
                 <li key={tag} className="rounded-md border border-hairline px-2 py-0.5 text-xs font-medium text-washi-muted">
@@ -263,20 +295,27 @@ export function ProductRow({ product }: ProductRowProps) {
             </ul>
           )}
         </div>
-        {picker && <div className={cn(fullWidthOnNarrow)}>{picker}</div>}
+        {renderPicker && <div className={cn(fullWidthOnNarrow)}>{renderPicker(`${product.id}-choice`)}</div>}
         <div className={cn('flex min-h-11 items-center justify-between gap-3', fullWidthOnNarrow)}>
-          {price !== null ? (
-            <p className={cn('text-base font-bold tabular-nums', soldOut ? 'text-washi-muted' : 'text-washi')}>
-              {formatItemPrice(price)}
-            </p>
-          ) : includes ? (
-            <p className="text-sm text-washi-muted">{formatIncludes(includes)}</p>
-          ) : (
-            <span />
-          )}
-          {soldOut ? <HollowSeal>Agotado hoy</HollowSeal> : canOrder ? action : null}
+          {priceLabel}
+          {soldOut ? <HollowSeal>Agotado hoy</HollowSeal> : canOrder ? <LineAction {...line} /> : null}
         </div>
       </div>
+
+      {withSheet && (
+        <ProductSheet
+          product={product}
+          open={sheetOpen}
+          onClose={() => setSheetOpen(false)}
+          imageUrl={showImage && imageUrl ? imageUrl : null}
+          picker={renderPicker?.(`${product.id}-choice-sheet`) ?? null}
+          price={priceLabel}
+          priceText={price !== null ? formatItemPrice(price) : null}
+          line={line}
+          soldOut={soldOut}
+          canOrder={canOrder}
+        />
+      )}
     </article>
   );
 }

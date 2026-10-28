@@ -13,6 +13,8 @@ export interface Category {
   description: string;
   /** Left out of the menu (no tab) and of the cart's suggestions, without deleting its items */
   hidden?: boolean;
+  /** Each product's name opens a sheet with its photo and what it has; the list shows no descriptions */
+  itemSheet?: boolean;
 }
 
 export type ProductTag = 'nuevo' | 'mas-pedido' | 'picante' | 'veggie' | 'sin-tacc';
@@ -110,12 +112,22 @@ export type RollFillingKind =
 
 /** Cross-section of a roll, drawn in its detail sheet until it has a photo of its own */
 export interface RollCut {
+  type: 'roll';
   /** uramaki: rice outside the nori. hosomaki: nori outside */
   wrap: 'uramaki' | 'hosomaki';
   /** Coating over the rice, e.g. "Crujiente picante" */
   topping?: { label: string; kind: 'crunchy-spicy' };
   fillings: readonly { label: string; kind: RollFillingKind }[];
 }
+
+/** A nigiri seen from the side: the piece over the rice */
+export interface NigiriCut {
+  type: 'nigiri';
+  topping: { label: string; kind: 'salmon' | 'shrimp' };
+}
+
+/** What a builder item's detail sheet draws until the item has a photo */
+export type ItemDrawing = RollCut | NigiriCut;
 
 /**
  * Something the customer adds in "Arma tu combo", in fixed steps, each with its own price.
@@ -127,10 +139,10 @@ export interface BuildItem {
   group: BuildItemGroup;
   name: string;
   description?: string;
-  /** Photo; in a roll's detail sheet it takes the place of the drawn `cut` */
+  /** Photo; in the detail sheet it takes the place of the `drawing` */
   imageUrl?: string;
-  /** Rolls: what's inside, drawn in the detail sheet */
-  cut?: RollCut;
+  /** Rolls and nigiris: what they're made of, drawn in the detail sheet */
+  drawing?: ItemDrawing;
   /** Units added per step: 5 pieces of a roll, 1 nigiri, 3 gyosas, 5 langostinos */
   step: number;
   /** Plural unit shown next to `step`, e.g. "piezas", "unidades", "palitos" */

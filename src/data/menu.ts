@@ -9,6 +9,7 @@ import type {
   CategoryId,
   Product,
   ProductVariant,
+  NigiriCut,
   RollCut,
   SizedProduct,
   StandardProduct,
@@ -27,7 +28,7 @@ export const CATEGORIES: readonly Category[] = [
     name: 'Arma tu combo',
     description: `Elegí una caja y llenala con rolls de autor y nigiris (hasta las ${BUSINESS.schedule.preorderCutoff}).`,
   },
-  { id: 'sushiburgers', name: 'Sushiburgers', description: 'Nuestra fusión: arroz crocante en formato burger.' },
+  { id: 'sushiburgers', name: 'Sushiburgers', description: 'Nuestra fusión: arroz crocante en formato burger.', itemSheet: true },
   {
     id: 'acompanamientos',
     name: 'Acompañamientos',
@@ -96,15 +97,28 @@ export const BUILD_ITEM_GROUPS: readonly { id: BuildItemGroup; name: string }[] 
 ];
 
 /** "Rolls de autor" item, sold in steps of 5 pieces */
-const roll = (id: string, name: string, description: string, cut: RollCut): BuildItem => ({
+const roll = (id: string, name: string, description: string, cut: Omit<RollCut, 'type'>): BuildItem => ({
   id,
   group: 'rolls',
   name,
   description,
-  cut,
+  drawing: { type: 'roll', ...cut },
   step: 5,
   unitLabel: 'piezas',
   price: 9000,
+  available: true,
+});
+
+/** Nigiri, sold by the unit */
+const nigiri = (id: string, name: string, description: string, price: number, topping: NigiriCut['topping']): BuildItem => ({
+  id,
+  group: 'nigiris',
+  name,
+  description,
+  drawing: { type: 'nigiri', topping },
+  step: 1,
+  unitLabel: 'unidades',
+  price,
   available: true,
 });
 
@@ -153,8 +167,8 @@ export const BUILD_ITEMS: readonly BuildItem[] = [
       { label: 'Ciboulette', kind: 'chive' },
     ],
   }),
-  { id: 'nigiri-salmon', group: 'nigiris', name: 'Nigiri de salmón', step: 1, unitLabel: 'unidades', price: 2000, available: true },
-  { id: 'nigiri-langostino', group: 'nigiris', name: 'Nigiri de langostino', step: 1, unitLabel: 'unidades', price: 1500, available: true },
+  nigiri('nigiri-salmon', 'Nigiri de salmón', 'Una lámina de salmón sobre arroz.', 2000, { label: 'Salmón', kind: 'salmon' }),
+  nigiri('nigiri-langostino', 'Nigiri de langostino', 'Un langostino sobre arroz.', 1500, { label: 'Langostino', kind: 'shrimp' }),
   // TODO: the three flavors (names still to be defined)
   { id: 'gyosas-1', group: 'acompanamientos', name: 'Gyosas · Sabor 1', step: 3, unitLabel: 'unidades', price: PRICE_TBD, available: true },
   { id: 'gyosas-2', group: 'acompanamientos', name: 'Gyosas · Sabor 2', step: 3, unitLabel: 'unidades', price: PRICE_TBD, available: true },
@@ -241,9 +255,9 @@ export const PRODUCTS: readonly Product[] = [
     id: 'sb-atun-ciboulette',
     categoryId: 'sushiburgers',
     name: 'SushiBurger Atún y ciboulette',
-    // TODO: full description (ingredients) and photo
-    description: 'Atún y ciboulette entre dos panes de arroz empanizados y fritos. Incluye nachos y guacamole.',
+    description: 'Atún, queso philly y ciboulette entre dos panes de arroz empanizados y fritos. Incluye nachos y guacamole.',
     price: 14000,
+    imageUrl: '/images/menu/sb-atun-ciboulette.jpg',
   }),
 
   // Salsas: one product each, so the order says exactly which one

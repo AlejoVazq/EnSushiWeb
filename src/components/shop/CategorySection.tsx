@@ -60,7 +60,7 @@ export function CategorySection({ category, children }: CategorySectionProps) {
           <ul className="grid border-t border-hairline @2xl:grid-cols-2 @2xl:gap-x-12">
             {products.map((product) => (
               <li key={product.id} className="@container border-b border-hairline">
-                <ProductRow product={product} />
+                <ProductRow product={product} withSheet={category.itemSheet} />
               </li>
             ))}
           </ul>
