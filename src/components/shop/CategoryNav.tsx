@@ -1,7 +1,8 @@
 'use client';
 
-import { useRef, type KeyboardEvent } from 'react';
+import { useRef, type ComponentType, type KeyboardEvent, type SVGProps } from 'react';
 
+import { BoxIcon, BurgerIcon, DumplingIcon, RollsIcon, SauceIcon } from '@/components/ui/icons';
 import { MENU_CATEGORIES } from '@/data/menu';
 import { cn } from '@/lib/cn';
 import type { CategoryId } from '@/types';
@@ -12,6 +13,15 @@ interface CategoryNavProps {
 }
 
 export const categoryTabId = (id: CategoryId): string => `tab-${id}`;
+
+/** One per category, hidden ones included, so a category shows its icon as soon as it's unhidden */
+const CATEGORY_ICONS: Record<CategoryId, ComponentType<SVGProps<SVGSVGElement>>> = {
+  'arma-tu-combo': BoxIcon,
+  sushiburgers: BurgerIcon,
+  acompanamientos: DumplingIcon,
+  combos: RollsIcon,
+  salsas: SauceIcon,
+};
 
 /** Category tabs: only the selected category is shown below */
 export function CategoryNav({ active, onSelect }: CategoryNavProps) {
@@ -43,6 +53,7 @@ export function CategoryNav({ active, onSelect }: CategoryNavProps) {
       >
         {MENU_CATEGORIES.map((category) => {
           const selected = category.id === active;
+          const Icon = CATEGORY_ICONS[category.id];
           return (
             <button
               key={category.id}
@@ -54,13 +65,14 @@ export function CategoryNav({ active, onSelect }: CategoryNavProps) {
               tabIndex={selected ? 0 : -1}
               onClick={() => onSelect(category.id)}
               className={cn(
-                'inline-flex h-12 shrink-0 items-center px-2 text-[0.9375rem] transition-colors',
+                'inline-flex h-17 shrink-0 flex-col items-center justify-center gap-1 px-2.5 text-[0.8125rem] transition-colors',
                 'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-washi',
                 selected
                   ? 'font-bold text-washi shadow-[inset_0_-2px_0_currentColor]'
                   : 'font-medium text-washi-muted hover:text-washi',
               )}
             >
+              <Icon className="size-6" />
               {category.name}
             </button>
           );

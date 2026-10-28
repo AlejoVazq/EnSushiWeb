@@ -91,3 +91,55 @@ export const ChevronRightIcon = (props: IconProps) => (
     <path d="m9 6 6 6-6 6" />
   </svg>
 );
+
+// ─── Menu categories ────────────────────────────────────────────────────────
+
+/** Arma tu combo: a box with a roll and two nigiris */
+export const BoxIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <rect x="3" y="6.5" width="18" height="13" rx="2" />
+    <path d="M12 6.5v13" />
+    <circle cx="7.5" cy="13" r="2.4" />
+    <circle cx="7.5" cy="13" r=".7" />
+    <path d="M14.3 11.2c0-1 .9-1.6 1.7-1.6h1.6c.9 0 1.7.6 1.7 1.6v.6h-5zM14.3 15.2c0-1 .9-1.6 1.7-1.6h1.6c.9 0 1.7.6 1.7 1.6v.6h-5z" />
+  </svg>
+);
+
+export const BurgerIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M4 11.5a8 6.5 0 0 1 16 0z" />
+    <path d="M9 7.6l.5.4M12.5 6.6l.4.5M15 8.3l.5.3" />
+    <path d="M3.5 14.6c1.4 1 2.8 1 4.2 0s2.8-1 4.3 0 2.8 1 4.2 0 2.8-1 4.3 0" />
+    <path d="M4.5 17.3h15v.7a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2z" />
+  </svg>
+);
+
+/** Acompañamientos: a gyoza */
+export const DumplingIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M3 16c0-4.6 4-8.5 9-8.5s9 3.9 9 8.5z" />
+    <path d="M7.6 9.4l1.1 2.2M12 7.5v2.6M16.4 9.4l-1.1 2.2" />
+    <path d="M5 19.2h14" />
+  </svg>
+);
+
+/** Combos: three rolls */
+export const RollsIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <circle cx="12" cy="7.8" r="3.6" />
+    <circle cx="12" cy="7.8" r="1.2" />
+    <circle cx="7" cy="15.6" r="3.6" />
+    <circle cx="7" cy="15.6" r="1.2" />
+    <circle cx="17" cy="15.6" r="3.6" />
+    <circle cx="17" cy="15.6" r="1.2" />
+  </svg>
+);
+
+/** Salsas & complementos: a sauce dish and chopsticks */
+export const SauceIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M3.5 14.5h17c0 2.9-3.8 5-8.5 5s-8.5-2.1-8.5-5z" />
+    <path d="M9.5 14.5c.6-1.2 1.6-1.8 2.5-1.8s1.9.6 2.5 1.8" />
+    <path d="M6 3.5l13 8M9.5 3l11 7" />
+  </svg>
+);

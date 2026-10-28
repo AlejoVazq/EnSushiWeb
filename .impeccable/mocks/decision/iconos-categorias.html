@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Íconos de categorías · decisiones</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700&family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--sumi:#141210;--s1:#1d1a17;--s2:#262220;--line:#34302b;--line2:#4d463e;--washi:#f1ebe0;--muted:#b9b0a2;--shu:#c8432b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0b0a09;color:var(--washi);font:400 15px/1.5 Figtree,sans-serif;padding:32px 16px 80px}
+.wrap{max-width:1180px;margin:0 auto}
+h1{font:700 32px/1.15 "M PLUS Rounded 1c";margin-bottom:8px}
+.lead{color:var(--muted);max-width:760px;margin-bottom:24px}
+section{border-top:1px solid var(--line);padding:28px 0}
+h2{font:700 20px "M PLUS Rounded 1c";margin-bottom:4px}
+.q{color:var(--muted);margin-bottom:16px;max-width:760px;font-size:14px}
+.tag{display:inline-block;font:700 11px Figtree;padding:2px 8px;border-radius:6px;background:var(--washi);color:var(--sumi);margin-left:6px;vertical-align:3px}
+.row{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start}
+.ph{width:375px;background:var(--sumi);border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.ph .hd{height:44px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 14px;font:700 17px "M PLUS Rounded 1c"}
+.ttl{padding:18px 14px 2px;font:700 26px "M PLUS Rounded 1c"}
+.sub{padding:0 14px 16px;color:var(--muted);font-size:13px}
+.desk{flex:1;min-width:520px;background:var(--sumi);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.cap{font-size:12px;color:var(--muted);margin:8px 2px 0}
+.nav{display:flex;gap:4px;overflow:hidden;border-bottom:1px solid var(--line);padding:0 8px;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 32px),transparent)}
+.desk .nav{-webkit-mask-image:none;gap:12px;padding:0 16px}
+.t{flex:none;display:flex;align-items:center;color:var(--muted);font-weight:500;font-size:15px;white-space:nowrap;position:relative}
+.t.on{color:var(--washi);font-weight:700}
+.t.hid{opacity:.45}
+.t svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.hidtag{position:absolute;top:4px;right:-2px;font-size:9px;font-weight:700;color:var(--washi);background:var(--line2);border-radius:4px;padding:0 4px}
+/* A: icon above, no circle */
+.A .t{flex-direction:column;gap:4px;height:68px;justify-content:center;padding:0 10px;font-size:13px}
+.A .t.on{box-shadow:inset 0 -2px 0 var(--washi)}
+/* B: ink circle */
+.B .t{flex-direction:column;gap:6px;padding:10px 8px 10px;font-size:13px}
+.B .t i{width:52px;height:52px;border-radius:50%;background:var(--s2);border:1px solid var(--line);display:grid;place-items:center}
+.B .t i svg{width:26px;height:26px}
+.B .t.on i{border-color:var(--washi);background:var(--s2)}
+.B .t.on{box-shadow:inset 0 -2px 0 var(--washi)}
+/* C: inline */
+.C .t{gap:7px;height:48px;padding:0 8px}
+.C .t svg{width:20px;height:20px}
+.C .t.on{box-shadow:inset 0 -2px 0 var(--washi)}
+/* D: colored circles like the reference */
+.D .t{flex-direction:column;gap:6px;padding:10px 8px;font-size:13px}
+.D .t i{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;color:#fff}
+.D .t i svg{width:26px;height:26px}
+.D .t.on{box-shadow:inset 0 -2px 0 var(--washi)}
+.lst{padding:14px}
+.lst div{height:58px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.lst b{display:block;width:140px;height:12px;border-radius:4px;background:var(--s2)}
+.icons{display:flex;gap:28px;flex-wrap:wrap}
+.ic{width:150px;text-align:center;font-size:13px;color:var(--muted)}
+.ic div{height:96px;border:1px solid var(--line);border-radius:14px;display:grid;place-items:center;color:var(--washi);margin-bottom:8px;background:var(--sumi)}
+.ic svg{width:48px;height:48px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+</style></head><body><div class="wrap">
+
+<h1>Íconos de categorías · decisiones</h1>
+<p class="lead">Un ícono propio para cada categoría, incluida Acompañamientos (hoy oculta: aparece cuando se le saque el <code>hidden</code>). Primero los íconos solos; después, cuatro formas de ponerlos en la barra de pestañas, en el celu y en la compu. En los mockups Acompañamientos se ve desteñida y marcada "oculta" solo para mostrarla: en la web no aparece hasta que se active.</p>
+
+<section><h2>Los íconos</h2>
+<p class="q">Dibujados a línea, del mismo trazo que el resto de los íconos de la web (carrito, entrega, pago).</p>
+<div class="icons" id="icons"></div>
+</section>
+
+<section><h2>A · Ícono arriba, sin círculo <span class="tag">recomendado</span></h2>
+<p class="q">El ícono en el color del texto: apagado en las pestañas inactivas y crema en la activa, con el subrayado de hoy. Es lo más limpio y respeta el sistema (un solo color, el bermellón del pedido). La barra pasa de 48 a 68px de alto.</p>
+<div class="row"><div><div class="ph A" data-mock></div><p class="cap">Celu · se desliza de costado como hoy</p></div><div class="desk A" data-mock="desk"></div></div>
+</section>
+
+<section><h2>B · En círculo de tinta</h2>
+<p class="q">Como la referencia, pero en los tonos del sistema: círculo de tinta cargada con filete y, en la activa, filete crema. Se lee más como "botón"; ocupa más alto (≈96px), menos lugar para el menú en el celu.</p>
+<div class="row"><div><div class="ph B" data-mock></div><p class="cap">Celu</p></div><div class="desk B" data-mock="desk"></div></div>
+</section>
+
+<section><h2>C · Al lado del nombre</h2>
+<p class="q">Ícono chico a la izquierda del nombre. La barra queda de 48px como hoy (no le saca lugar al menú), pero el ícono pesa menos.</p>
+<div class="row"><div><div class="ph C" data-mock></div><p class="cap">Celu</p></div><div class="desk C" data-mock="desk"></div></div>
+</section>
+
+<section><h2>D · Círculos de color, como la referencia</h2>
+<p class="q">Lo más parecido a la captura. Rompe la regla del sistema: el único color saturado es el bermellón y significa "en tu pedido"; con cinco colores más, el sello del carrito pierde fuerza y la web se ve menos "Sello y sumi".</p>
+<div class="row"><div><div class="ph D" data-mock></div><p class="cap">Celu</p></div><div class="desk D" data-mock="desk"></div></div>
+</section>
+</div>
+<script>
+const ICONS={
+ 'Arma tu combo':'<rect x="3" y="6.5" width="18" height="13" rx="2"/><path d="M12 6.5v13"/><circle cx="7.5" cy="13" r="2.4"/><circle cx="7.5" cy="13" r=".7"/><path d="M14.3 11.2c0-1 .9-1.6 1.7-1.6h1.6c.9 0 1.7.6 1.7 1.6v.6h-5zM14.3 15.2c0-1 .9-1.6 1.7-1.6h1.6c.9 0 1.7.6 1.7 1.6v.6h-5z"/>',
+ 'Sushiburgers':'<path d="M4 11.5a8 6.5 0 0 1 16 0z"/><path d="M9 7.6l.5.4M12.5 6.6l.4.5M15 8.3l.5.3"/><path d="M3.5 14.6c1.4 1 2.8 1 4.2 0s2.8-1 4.3 0 2.8 1 4.2 0 2.8-1 4.3 0"/><path d="M4.5 17.3h15v.7a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2z"/>',
+ 'Acompañamientos':'<path d="M3 16c0-4.6 4-8.5 9-8.5s9 3.9 9 8.5z"/><path d="M7.6 9.4l1.1 2.2M12 7.5v2.6M16.4 9.4l-1.1 2.2"/><path d="M5 19.2h14"/>',
+ 'Combos':'<circle cx="12" cy="7.8" r="3.6"/><circle cx="12" cy="7.8" r="1.2"/><circle cx="7" cy="15.6" r="3.6"/><circle cx="7" cy="15.6" r="1.2"/><circle cx="17" cy="15.6" r="3.6"/><circle cx="17" cy="15.6" r="1.2"/>',
+ 'Salsas & complementos':'<path d="M3.5 14.5h17c0 2.9-3.8 5-8.5 5s-8.5-2.1-8.5-5z"/><path d="M9.5 14.5c.6-1.2 1.6-1.8 2.5-1.8s1.9.6 2.5 1.8"/><path d="M6 3.5l13 8M9.5 3l11 7"/>'
+};
+const COLORS={'Arma tu combo':'#e8833a','Sushiburgers':'#d9a441','Acompañamientos':'#9b7fd1','Combos':'#e0517a','Salsas & complementos':'#4e9be0'};
+const names=Object.keys(ICONS);
+const svg=n=>`<svg viewBox="0 0 24 24">${ICONS[n]}</svg>`;
+document.getElementById('icons').innerHTML=names.map(n=>`<div class="ic"><div>${svg(n)}</div>${n}${n==='Acompañamientos'?' (oculta)':''}</div>`).join('');
+document.querySelectorAll('[data-mock]').forEach(el=>{
+ const D=el.classList.contains('D'),circle=el.classList.contains('B')||D;
+ const tabs=names.map((n,i)=>{const ic=circle?`<i ${D?`style="background:${COLORS[n]}"`:''}>${svg(n)}</i>`:svg(n);
+  return `<span class="t ${i===0?'on':''} ${n==='Acompañamientos'?'hid':''}">${ic}<span>${n}</span>${n==='Acompañamientos'?'<em class="hidtag">oculta</em>':''}</span>`}).join('');
+ const head=el.dataset.mock==='desk'?'':'<div class="hd">EnSushi</div>';
+ el.innerHTML=`${head}<div class="nav">${tabs}</div><div class="ttl">Arma tu combo</div><div class="sub">Elegí una caja y llenala con rolls de autor y nigiris.</div><div class="lst"><div><b></b></div><div><b></b></div><div><b></b></div></div>`;
+});
+</script>
+</body></html>
