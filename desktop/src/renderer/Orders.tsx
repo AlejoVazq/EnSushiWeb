@@ -10,6 +10,16 @@ import { OrderDetail } from './OrderDetail';
 
 /** How often the list asks the server for new orders */
 const POLL_MS = 5000;
+/** An order waiting this long without an answer beeps again, and again every REMIND_MS, until someone answers it */
+const REMIND_AFTER_MS = 3 * 60_000;
+const REMIND_MS = 2 * 60_000;
+
+/** "hace 4 min" */
+const waitingFor = (createdAt: string, now: number): string => {
+  const minutes = Math.max(0, Math.floor((now - new Date(createdAt).getTime()) / 60_000));
+  return minutes === 0 ? 'recién' : `hace ${minutes} min`;
+};
+
 /** Today's menu changes only come from this app, so it's asked for less often (another PC, or a new day) */
 const MENU_POLL_MS = 60_000;
 
@@ -94,6 +104,22 @@ export function Orders({ settings, onLoggedOut, onSettings, updateVersion }: Ord
     return () => window.clearInterval(timer);
   }, [loadMenu]);
 
+  // Orders nobody answered keep beeping (what to do with them in the end is up to whoever runs the app)
+  const ordersRef = useRef(orders);
+  useEffect(() => {
+    ordersRef.current = orders;
+  }, [orders]);
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      const now = Date.now();
+      const late = ordersRef.current.some(
+        (order) => order.status === 'nuevo' && now - new Date(order.createdAt).getTime() > REMIND_AFTER_MS,
+      );
+      if (late) beep();
+    }, REMIND_MS);
+    return () => window.clearInterval(timer);
+  }, []);
+
   const resumeOrders = async () => {
     const result = await changeMenu({ ordersPaused: false });
     if (result.ok) setMenu(result.menu);
@@ -107,6 +133,10 @@ export function Orders({ settings, onLoggedOut, onSettings, updateVersion }: Ord
   const pending = orders.filter((order) => order.status === 'nuevo');
   const others = orders.filter((order) => order.status !== 'nuevo');
   const selected = orders.find((order) => order.id === selectedId) ?? null;
+  const confirmed = orders.filter((order) => order.status === 'confirmado');
+  const confirmedTotal = confirmed.reduce((sum, order) => sum + order.total, 0);
+  // The list re-renders with every poll (5 s), enough to keep "hace N min" current
+  const now = lastUpdate?.getTime() ?? Date.now();
 
   const listItem = (order: StaffOrder) => (
     <button
@@ -125,7 +155,9 @@ export function Orders({ settings, onLoggedOut, onSettings, updateVersion }: Ord
         <span className={`tag ${order.status}`}>{order.status}</span>
       </div>
       <div className="muted">
-        {formatTime(order.createdAt)} · {DELIVERY_LABELS[order.deliveryMethod]} · {formatPrice(order.total)}
+        {formatTime(order.createdAt)}
+        {order.status === 'nuevo' && <strong className="error"> ({waitingFor(order.createdAt, now)})</strong>} ·{' '}
+        {DELIVERY_LABELS[order.deliveryMethod]} · {formatPrice(order.total)}
         {order.eta ? ` · sale ${order.eta}` : ''}
       </div>
     </button>
@@ -167,6 +199,11 @@ export function Orders({ settings, onLoggedOut, onSettings, updateVersion }: Ord
         <div className="bar muted" style={{ fontSize: 13 }}>
           {connection ? <span className="error">{connection}</span> : lastUpdate ? `Actualizado ${formatTime(lastUpdate)}` : 'Cargando…'}
         </div>
+        {confirmed.length > 0 && (
+          <div className="bar muted" style={{ fontSize: 13 }}>
+            Hoy: {confirmed.length} {confirmed.length === 1 ? 'confirmado' : 'confirmados'} · {formatPrice(confirmedTotal)}
+          </div>
+        )}
         {pending.length > 0 && <div className="bar"><strong>Por responder ({pending.length})</strong></div>}
         {pending.map(listItem)}
         {others.length > 0 && <div className="bar muted">Respondidos</div>}
