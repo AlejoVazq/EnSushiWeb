@@ -34,7 +34,7 @@ import { useCartStore, type BoxInput } from '@/store/useCartStore';
 import type { BuildBoxSizeId, BuildItem, BuildItemGroup } from '@/types';
 
 import { addButtonClassName, HollowSeal, stepButtonClassName } from './LineAction';
-import { RollSheet } from './RollSheet';
+import { BuildItemSheet } from './BuildItemSheet';
 
 const { preorderCutoff } = BUSINESS.schedule;
 
@@ -105,7 +105,7 @@ interface BoxItemRowProps {
   /** "+" before choosing a size: sends the customer to the size picker */
   onNeedSize: () => void;
   needsSize: boolean;
-  /** Rolls: opens the sheet with what the roll has inside */
+  /** Opens the sheet with what the item is made of */
   onOpen?: () => void;
 }
 
@@ -167,10 +167,10 @@ function BoxItemRow({ item, steps, fits, blocked, closed, onChange, onNeedSize, 
               type="button"
               onClick={onOpen}
               aria-haspopup="dialog"
-              className="inline-flex items-center gap-1 text-left after:absolute after:inset-0 after:rounded-lg focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-4 focus-visible:after:outline-washi"
+              className="text-left after:absolute after:inset-0 after:rounded-lg focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-4 focus-visible:after:outline-washi"
             >
               {item.name}
-              <ChevronRightIcon className="size-4 shrink-0 text-washi-muted" />
+              <ChevronRightIcon className="ml-1 inline-block size-4 align-[-0.125em] text-washi-muted" />
               <span className="sr-only">: ver qué trae</span>
             </button>
           ) : (
@@ -201,7 +201,7 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
   const { closed, blocked } = lock;
   const sizeRef = useRef<HTMLFieldSetElement>(null);
   const [askSize, setAskSize] = useState(false);
-  // Roll whose sheet is open; the id stays while the sheet closes
+  // Item whose sheet is open; the id stays while the sheet closes
   const [sheet, setSheet] = useState<{ id: string; open: boolean } | null>(null);
 
   const { size, steps, editingLineId, notice } = draft;
@@ -364,7 +364,7 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
                     needsSize={size === null}
                     onNeedSize={requestSize}
                     onChange={(count) => setSteps(item, count)}
-                    onOpen={item.cut || item.imageUrl ? () => setSheet({ id: item.id, open: true }) : undefined}
+                    onOpen={item.drawing || item.imageUrl ? () => setSheet({ id: item.id, open: true }) : undefined}
                   />
                 </li>
               ))}
@@ -374,7 +374,7 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
       })}
 
       {sheetItem && (
-        <RollSheet
+        <BuildItemSheet
           item={sheetItem}
           open={sheet?.open ?? false}
           onClose={closeSheet}

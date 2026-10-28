@@ -11,15 +11,15 @@ import { formatPrice } from '@/lib/format';
 import type { BuildItem } from '@/types';
 
 import { HollowSeal, stepButtonClassName } from './LineAction';
-import { RollCut } from './RollCut';
+import { ItemDrawing } from './ItemDrawing';
 
 const { preorderCutoff } = BUSINESS.schedule;
 
 const plateClassName =
   'flex h-14 w-full items-center justify-center rounded-2xl bg-washi px-4 font-bold text-sumi tabular-nums transition-colors hover:bg-washi/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi disabled:pointer-events-none disabled:opacity-40';
 
-interface RollSheetProps {
-  /** Last roll opened: kept while the sheet closes so its content doesn't vanish mid-animation */
+interface BuildItemSheetProps {
+  /** Last item opened: kept while the sheet closes so its content doesn't vanish mid-animation */
   item: BuildItem | null;
   open: boolean;
   onClose: () => void;
@@ -36,8 +36,8 @@ interface RollSheetProps {
   onNeedSize: () => void;
 }
 
-/** What a roll has inside (its photo or the drawn cross-section), with the same controls as its row */
-export function RollSheet({ item, open, onClose, steps, fits, blocked, closed, needsSize, onChange, onNeedSize }: RollSheetProps) {
+/** What a roll or nigiri is made of (its photo, or the drawing), with the same controls as its row */
+export function BuildItemSheet({ item, open, onClose, steps, fits, blocked, closed, needsSize, onChange, onNeedSize }: BuildItemSheetProps) {
   if (!item) return null;
   const units = formatUnits(item.step, item.unitLabel);
 
@@ -96,7 +96,7 @@ export function RollSheet({ item, open, onClose, steps, fits, blocked, closed, n
   const footer = (
     <div className="space-y-3">
       <p className="flex items-baseline justify-between gap-4 text-sm text-washi-muted tabular-nums">
-        <span>{steps > 0 ? `${formatUnits(item.step * steps, item.unitLabel)} en la caja` : `De a ${units}`}</span>
+        <span>{steps > 0 ? `${formatUnits(item.step * steps, item.unitLabel)} en la caja` : item.step === 1 ? 'Por unidad' : `De a ${units}`}</span>
         <span className="text-base font-bold text-washi">{formatPrice(item.price * Math.max(steps, 1))}</span>
       </p>
       {action}
@@ -117,9 +117,9 @@ export function RollSheet({ item, open, onClose, steps, fits, blocked, closed, n
             />
           </div>
         ) : (
-          item.cut && (
+          item.drawing && (
             <div className="rounded-xl bg-sumi-1 px-1 py-2">
-              <RollCut cut={item.cut} description={item.description ?? item.name} seed={item.id} />
+              <ItemDrawing drawing={item.drawing} description={item.description ?? item.name} seed={item.id} />
             </div>
           )
         )}

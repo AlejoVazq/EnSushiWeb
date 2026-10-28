@@ -2,9 +2,9 @@
 
 import { useId, useMemo, type ReactElement } from 'react';
 
-import type { RollCut as RollCutData, RollFillingKind } from '@/types';
+import type { ItemDrawing as ItemDrawingData, NigiriCut, RollCut, RollFillingKind } from '@/types';
 
-// Drawing area: the roll in the middle, labels on both sides
+// Drawing area: the item in the middle, labels on both sides
 const W = 360;
 const H = 250;
 const CX = W / 2;
@@ -218,7 +218,7 @@ const splitLabel = (text: string): string[] => {
 };
 
 /** Labels on both sides of the roll, spread so they never overlap */
-function placeLabels(cut: RollCutData, sliceAngle: number, start: number): Label[] {
+function placeLabels(cut: RollCut, sliceAngle: number, start: number): Label[] {
   const labels: Label[] = [];
   const count = { left: 0, right: 0 };
   const add = (text: string, angle: number, radius: number, preferred?: 'left' | 'right') => {
@@ -253,16 +253,40 @@ function placeLabels(cut: RollCutData, sliceAngle: number, start: number): Label
   return labels;
 }
 
-interface RollCutProps {
-  cut: RollCutData;
-  /** Read by screen readers instead of the drawing */
-  description: string;
-  /** Seeds the texture, so each roll keeps its own look */
-  seed: string;
+/** A label beside the drawing with a line to what it names */
+function Callout({ lines, side, y, anchor }: Label) {
+  const left = side === 'left';
+  const x = left ? LABEL_LEFT_X : LABEL_RIGHT_X;
+  const startX = left ? x + 4 : x - 4;
+  const startY = y - 4;
+  const [ax, ay] = anchor;
+  const path = `M${startX} ${startY} Q${(startX + ax) / 2} ${startY} ${ax} ${ay}`;
+  return (
+    <g>
+      {/* Dark under light: the line reads over the ink and over the rice */}
+      <path d={path} fill="none" strokeWidth={3.5} strokeLinecap="round" className="stroke-sumi" />
+      <path d={path} fill="none" strokeWidth={1.5} strokeLinecap="round" className="stroke-washi" />
+      <circle cx={ax} cy={ay} r={3} strokeWidth={1.5} className="fill-washi stroke-sumi" />
+      <text
+        x={x}
+        y={y}
+        textAnchor={left ? 'end' : 'start'}
+        fontSize={12}
+        fontWeight={700}
+        letterSpacing="0.06em"
+        className="fill-washi"
+      >
+        {lines.map((line, j) => (
+          <tspan key={line} x={x} dy={j === 0 ? 0 : LINE_HEIGHT}>
+            {line}
+          </tspan>
+        ))}
+      </text>
+    </g>
+  );
 }
 
-/** Cross-section of a roll with each ingredient pointed out, until the roll has a photo */
-export function RollCut({ cut, description, seed }: RollCutProps) {
+function RollCutDrawing({ cut, seed }: { cut: RollCut; seed: string }) {
   const clipId = useId();
 
   const drawing = useMemo(() => {
@@ -314,7 +338,7 @@ export function RollCut({ cut, description, seed }: RollCutProps) {
   }, [cut, seed]);
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={description} className="block h-auto w-full font-ui">
+    <>
       {drawing.shell}
       {drawing.topping}
       <defs>
@@ -336,37 +360,114 @@ export function RollCut({ cut, description, seed }: RollCutProps) {
         drawing.slices.map((slice, i) => (
           <line key={i} x1={CX} y1={CY} x2={slice.edge[0]} y2={slice.edge[1]} stroke={RICE} strokeWidth={3} />
         ))}
+      {drawing.labels.map((label, i) => (
+        <Callout key={i} {...label} />
+      ))}
+    </>
+  );
+}
 
-      {drawing.labels.map((label, i) => {
-        const left = label.side === 'left';
-        const startX = left ? LABEL_LEFT_X + 4 : LABEL_RIGHT_X - 4;
-        const startY = label.y - 4;
-        const [ax, ay] = label.anchor;
-        const path = `M${startX} ${startY} Q${(startX + ax) / 2} ${startY} ${ax} ${ay}`;
-        return (
-          <g key={i}>
-            {/* Dark under light: the line reads over the ink and over the rice */}
-            <path d={path} fill="none" strokeWidth={3.5} strokeLinecap="round" className="stroke-sumi" />
-            <path d={path} fill="none" strokeWidth={1.5} strokeLinecap="round" className="stroke-washi" />
-            <circle cx={ax} cy={ay} r={3} strokeWidth={1.5} className="fill-washi stroke-sumi" />
-            <text
-              x={left ? LABEL_LEFT_X : LABEL_RIGHT_X}
-              y={label.y}
-              textAnchor={left ? 'end' : 'start'}
-              fontSize={12}
-              fontWeight={700}
-              letterSpacing="0.06em"
-              className="fill-washi"
-            >
-              {label.lines.map((line, j) => (
-                <tspan key={line} x={left ? LABEL_LEFT_X : LABEL_RIGHT_X} dy={j === 0 ? 0 : LINE_HEIGHT}>
-                  {line}
-                </tspan>
-              ))}
-            </text>
-          </g>
-        );
-      })}
+// Nigiri seen from the side: a rice block with the piece draped over it
+const RICE_TOP = CY - 6;
+const RICE_BOTTOM = CY + 58;
+const RICE_HALF_WIDTH = 92;
+/** The piece: its arched upper edge, then back along the top of the rice */
+const TOPPING_SHAPE = [
+  `M${CX - 112} ${RICE_TOP + 22}`,
+  `Q${CX} ${RICE_TOP - 72} ${CX + 112} ${RICE_TOP + 22}`,
+  `Q${CX + 110} ${RICE_TOP + 34} ${CX + 98} ${RICE_TOP + 30}`,
+  `Q${CX} ${RICE_TOP - 26} ${CX - 98} ${RICE_TOP + 30}`,
+  `Q${CX - 110} ${RICE_TOP + 34} ${CX - 112} ${RICE_TOP + 22}Z`,
+].join(' ');
+
+const NIGIRI_TOPPINGS: Record<NigiriCut['topping']['kind'], { base: string; band: string; bandWidth: number }> = {
+  salmon: { base: '#e8845e', band: '#f6c2a8', bandWidth: 3 },
+  // Langostino: red stripes over white flesh
+  shrimp: { base: '#fbe6d8', band: '#ef7a4f', bandWidth: 7 },
+};
+
+function NigiriDrawing({ cut, seed }: { cut: NigiriCut; seed: string }) {
+  const clipId = useId();
+  const colors = NIGIRI_TOPPINGS[cut.topping.kind];
+
+  const grains = useMemo(() => {
+    const random = makeRandom(seed);
+    return Array.from({ length: 300 }, (_, i) => {
+      const x = CX - RICE_HALF_WIDTH + random() * RICE_HALF_WIDTH * 2;
+      const y = RICE_TOP + random() * (RICE_BOTTOM - RICE_TOP);
+      return (
+        <ellipse
+          key={i}
+          cx={x}
+          cy={y}
+          rx={3.6}
+          ry={2.1}
+          fill={RICE_GRAINS[i % 2]}
+          transform={`rotate(${random() * 180} ${x} ${y})`}
+        />
+      );
+    });
+  }, [seed]);
+
+  return (
+    <>
+      <defs>
+        <clipPath id={`${clipId}-rice`}>
+          <rect x={CX - RICE_HALF_WIDTH} y={RICE_TOP} width={RICE_HALF_WIDTH * 2} height={RICE_BOTTOM - RICE_TOP} rx={34} />
+        </clipPath>
+        <clipPath id={`${clipId}-top`}>
+          <path d={TOPPING_SHAPE} />
+        </clipPath>
+      </defs>
+      <g clipPath={`url(#${clipId}-rice)`}>
+        <rect x={0} y={0} width={W} height={H} fill={RICE} />
+        {grains}
+      </g>
+      <g clipPath={`url(#${clipId}-top)`}>
+        <rect x={0} y={0} width={W} height={H} fill={colors.base} />
+        {/* Bands across the piece: the grain of the salmon, the stripes of the langostino */}
+        {Array.from({ length: 12 }, (_, i) => {
+          const x = CX - 120 + i * 21;
+          return (
+            <path
+              key={i}
+              d={`M${x} ${RICE_TOP - 60} Q${x + 14} ${RICE_TOP - 10} ${x + 4} ${RICE_TOP + 40}`}
+              stroke={colors.band}
+              strokeWidth={colors.bandWidth}
+              fill="none"
+            />
+          );
+        })}
+      </g>
+      {cut.topping.kind === 'shrimp' && (
+        // The tail, at the right end of the piece
+        <path
+          d={`M${CX + 104} ${RICE_TOP + 20} l22 -18 l6 12 l-8 4 l12 4 l-12 6 Z`}
+          fill="#d9502e"
+          stroke="#f08a5d"
+          strokeWidth={1.5}
+          strokeLinejoin="round"
+        />
+      )}
+      <Callout lines={splitLabel(cut.topping.label)} side="left" y={56} anchor={[CX - 44, RICE_TOP - 18]} />
+      <Callout lines={['ARROZ']} side="right" y={RICE_BOTTOM + 18} anchor={[CX + 50, RICE_TOP + 40]} />
+    </>
+  );
+}
+
+interface ItemDrawingProps {
+  drawing: ItemDrawingData;
+  /** Read by screen readers instead of the drawing */
+  description: string;
+  /** Seeds the texture, so each item keeps its own look */
+  seed: string;
+}
+
+/** What a roll or nigiri is made of, with each ingredient pointed out, until it has a photo */
+export function ItemDrawing({ drawing, description, seed }: ItemDrawingProps) {
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={description} className="block h-auto w-full font-ui">
+      {drawing.type === 'roll' ? <RollCutDrawing cut={drawing} seed={seed} /> : <NigiriDrawing cut={drawing} seed={seed} />}
     </svg>
   );
 }
