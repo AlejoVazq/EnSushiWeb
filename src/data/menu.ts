@@ -123,7 +123,7 @@ const nigiri = (id: string, name: string, description: string, price: number, to
 });
 
 export const BUILD_ITEMS: readonly BuildItem[] = [
-  roll('roll-new-york', 'New York', 'Salmón, palta y pepino.', {
+  roll('roll-new-york', 'New York', 'Salmón, palta y pepino, envueltos en alga y con el arroz por fuera.', {
     wrap: 'uramaki',
     fillings: [
       { label: 'Salmón', kind: 'salmon' },
@@ -131,7 +131,7 @@ export const BUILD_ITEMS: readonly BuildItem[] = [
       { label: 'Pepino', kind: 'cucumber' },
     ],
   }),
-  roll('roll-sake', 'Sake', 'Salmón, queso crema y verdeo.', {
+  roll('roll-sake', 'Sake', 'Salmón, queso crema y verdeo, envueltos en alga y con el arroz por fuera.', {
     wrap: 'uramaki',
     fillings: [
       { label: 'Salmón', kind: 'salmon' },
@@ -139,7 +139,7 @@ export const BUILD_ITEMS: readonly BuildItem[] = [
       { label: 'Verdeo', kind: 'scallion' },
     ],
   }),
-  roll('roll-midori', 'Midori', 'Veggie: palta, pepino y zanahoria.', {
+  roll('roll-midori', 'Midori', 'Roll veggie de palta, pepino y zanahoria, envueltos en alga y con el arroz por fuera.', {
     wrap: 'uramaki',
     fillings: [
       { label: 'Palta', kind: 'avocado' },
@@ -147,11 +147,11 @@ export const BUILD_ITEMS: readonly BuildItem[] = [
       { label: 'Zanahoria', kind: 'carrot' },
     ],
   }),
-  roll('roll-hikaru', 'Hikaru', 'Salmón rebozado, bien crocante.', {
+  roll('roll-hikaru', 'Hikaru', 'Salmón rebozado y bien crocante, envuelto en alga y con el arroz por fuera.', {
     wrap: 'uramaki',
     fillings: [{ label: 'Salmón rebozado', kind: 'salmon-tempura' }],
   }),
-  roll('roll-sakana-maki', 'Sakana Maki', 'Salmón cocido, queso crema y verdeo.', {
+  roll('roll-sakana-maki', 'Sakana Maki', 'Salmón cocido, queso crema y verdeo, con el arroz adentro y el alga por fuera.', {
     wrap: 'hosomaki',
     fillings: [
       { label: 'Salmón cocido', kind: 'salmon-cooked' },
@@ -159,7 +159,7 @@ export const BUILD_ITEMS: readonly BuildItem[] = [
       { label: 'Verdeo', kind: 'scallion' },
     ],
   }),
-  roll('roll-tuna-spicy', 'TunaSpicy', 'Atún y ciboulette, con cobertura crujiente y picante.', {
+  roll('roll-tuna-spicy', 'TunaSpicy', 'Atún y ciboulette envueltos en alga, con el arroz por fuera y una cobertura crujiente y picante.', {
     wrap: 'uramaki',
     topping: { label: 'Crujiente picante', kind: 'crunchy-spicy' },
     fillings: [
@@ -167,8 +167,8 @@ export const BUILD_ITEMS: readonly BuildItem[] = [
       { label: 'Ciboulette', kind: 'chive' },
     ],
   }),
-  nigiri('nigiri-salmon', 'Nigiri de salmón', 'Una lámina de salmón sobre arroz.', 2000, { label: 'Salmón', kind: 'salmon' }),
-  nigiri('nigiri-langostino', 'Nigiri de langostino', 'Un langostino sobre arroz.', 1500, { label: 'Langostino', kind: 'shrimp' }),
+  nigiri('nigiri-salmon', 'Nigiri de salmón', 'Una lámina de salmón sobre un bocado de arroz.', 2000, { label: 'Salmón', kind: 'salmon' }),
+  nigiri('nigiri-langostino', 'Nigiri de langostino', 'Un langostino sobre un bocado de arroz.', 1500, { label: 'Langostino', kind: 'shrimp' }),
   // TODO: the three flavors (names still to be defined)
   { id: 'gyosas-1', group: 'acompanamientos', name: 'Gyosas · Sabor 1', step: 3, unitLabel: 'unidades', price: PRICE_TBD, available: true },
   { id: 'gyosas-2', group: 'acompanamientos', name: 'Gyosas · Sabor 2', step: 3, unitLabel: 'unidades', price: PRICE_TBD, available: true },
