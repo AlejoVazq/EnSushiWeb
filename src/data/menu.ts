@@ -95,10 +95,11 @@ export const BUILD_ITEM_GROUPS: readonly { id: BuildItemGroup; name: string }[] 
 ];
 
 /** "Rolls de autor" item, sold in steps of 5 pieces */
-const roll = (id: string, name: string): BuildItem => ({
+const roll = (id: string, name: string, description: string): BuildItem => ({
   id,
   group: 'rolls',
   name,
+  description,
   step: 5,
   unitLabel: 'piezas',
   price: 9000,
@@ -106,12 +107,12 @@ const roll = (id: string, name: string): BuildItem => ({
 });
 
 export const BUILD_ITEMS: readonly BuildItem[] = [
-  roll('roll-new-york', 'New York'),
-  roll('roll-sake', 'Sake'),
-  roll('roll-midori', 'Midori'),
-  roll('roll-hikaru', 'Hikaru'),
-  roll('roll-sakana-maki', 'Sakana Maki'),
-  roll('roll-tuna-spicy', 'TunaSpicy'),
+  roll('roll-new-york', 'New York', 'Salmón, palta y pepino.'),
+  roll('roll-sake', 'Sake', 'Salmón, queso crema y verdeo.'),
+  roll('roll-midori', 'Midori', 'Veggie: palta, pepino y zanahoria.'),
+  roll('roll-hikaru', 'Hikaru', 'Salmón rebozado, bien crocante.'),
+  roll('roll-sakana-maki', 'Sakana Maki', 'Salmón cocido, queso crema y verdeo.'),
+  roll('roll-tuna-spicy', 'TunaSpicy', 'Atún y ciboulette, con cobertura crujiente y picante.'),
   { id: 'nigiri-salmon', group: 'nigiris', name: 'Nigiri de salmón', step: 1, unitLabel: 'unidades', price: 2000, available: true },
   { id: 'nigiri-langostino', group: 'nigiris', name: 'Nigiri de langostino', step: 1, unitLabel: 'unidades', price: 1500, available: true },
   // TODO: the three flavors (names still to be defined)

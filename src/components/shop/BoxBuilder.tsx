@@ -160,6 +160,7 @@ function BoxItemRow({ item, steps, fits, blocked, closed, onChange, onNeedSize, 
         <h4 className={cn('font-title text-lg leading-snug wrap-anywhere', unavailable ? 'text-washi-muted' : 'text-washi')}>
           {item.name}
         </h4>
+        {item.description && <p className="text-sm leading-relaxed text-pretty text-washi-muted">{item.description}</p>}
         <p className="text-sm text-washi-muted tabular-nums">
           {formatUnits(item.step, item.unitLabel)} · {formatPrice(item.price)}
         </p>
