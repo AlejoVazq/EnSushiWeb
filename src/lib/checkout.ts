@@ -2,7 +2,7 @@ import { BUSINESS } from '@/config/business';
 import { getBestDiscount, lookUpCode } from '@/lib/discounts';
 import { getNow } from '@/lib/schedule';
 import { cartTotal } from '@/lib/cartItems';
-import type { CartItem, DeliveryMethod, OrderDetails, PaymentMethod } from '@/types';
+import type { CartItem, DeliveryMethod, DiscountCode, OrderDetails, PaymentMethod } from '@/types';
 
 export interface CheckoutForm {
   name: string;
@@ -35,8 +35,11 @@ const pickOne = <T extends string>(options: readonly T[], value: unknown): T | n
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null;
 
-/** The saved draft, or an empty form; anything malformed is ignored. sessionStorage can be missing or throw (SSR, private mode). */
-export const loadCheckoutDraft = (): CheckoutForm => {
+/**
+ * The saved draft, or an empty form; anything malformed is ignored. sessionStorage can be missing or throw (SSR, private mode).
+ * `keepUnknownCodes`: orders by app, where the server may know codes this file doesn't (the checkout checks them again).
+ */
+export const loadCheckoutDraft = (keepUnknownCodes = false): CheckoutForm => {
   try {
     const saved: unknown = JSON.parse(window.sessionStorage.getItem(DRAFT_KEY) ?? 'null');
     if (!isRecord(saved)) return EMPTY_CHECKOUT_FORM;
@@ -47,7 +50,9 @@ export const loadCheckoutDraft = (): CheckoutForm => {
       paymentMethod: pickOne(PAYMENT_METHODS, saved.paymentMethod),
       // A code that stopped working (expired, removed) since it was saved is dropped
       discountCode:
-        typeof saved.discountCode === 'string' && lookUpCode(saved.discountCode, getNow()).ok ? saved.discountCode : '',
+        typeof saved.discountCode === 'string' && (keepUnknownCodes || lookUpCode(saved.discountCode, getNow()).ok)
+          ? saved.discountCode
+          : '',
     };
   } catch {
     return EMPTY_CHECKOUT_FORM;
@@ -97,10 +102,16 @@ export const deliveryFeeFor = (method: DeliveryMethod | null): number =>
  * Builds the order from a validated form; null if a required choice is missing.
  * Total is always recomputed from the items (minus the discount, plus the delivery fee) at submit time.
  */
-export const createOrder = (form: CheckoutForm, items: readonly CartItem[], date: Date): OrderDetails | null => {
+export const createOrder = (
+  form: CheckoutForm,
+  items: readonly CartItem[],
+  date: Date,
+  /** Codes the server vouched for (see lookUpCode) */
+  extraCodes: readonly DiscountCode[] = [],
+): OrderDetails | null => {
   if (!form.deliveryMethod || !form.paymentMethod) return null;
   const deliveryFee = deliveryFeeFor(form.deliveryMethod);
-  const discount = getBestDiscount(items, { code: form.discountCode, date });
+  const discount = getBestDiscount(items, { code: form.discountCode, date, extraCodes });
   return {
     customer: { name: form.name.trim() },
     fulfillment:

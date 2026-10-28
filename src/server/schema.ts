@@ -65,4 +65,24 @@ export const MIGRATIONS: readonly string[] = [
   CREATE INDEX orders_created_at ON orders (created_at DESC);
   CREATE INDEX orders_customer ON orders (customer_id, created_at DESC);
   `,
+
+  // 2 — discount codes managed from the shop's app; each order keeps the code it used
+  `
+  CREATE TABLE discount_codes (
+    -- Upper case, as customers type it
+    code text PRIMARY KEY,
+    kind text NOT NULL CHECK (kind IN ('percent', 'amount')),
+    value integer NOT NULL CHECK (value > 0),
+    -- "YYYY-MM-DD" in the shop's time zone, both included
+    valid_from text,
+    valid_until text,
+    max_uses integer CHECK (max_uses > 0),
+    once_per_customer boolean NOT NULL DEFAULT false,
+    active boolean NOT NULL DEFAULT true,
+    created_at timestamptz NOT NULL DEFAULT now()
+  );
+
+  ALTER TABLE orders ADD COLUMN discount_code text;
+  CREATE INDEX orders_discount_code ON orders (discount_code, customer_id) WHERE discount_code IS NOT NULL;
+  `,
 ];

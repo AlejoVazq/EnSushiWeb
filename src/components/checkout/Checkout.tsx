@@ -40,7 +40,7 @@ import { lookUpCode } from '@/lib/discounts';
 import { formatPrice } from '@/lib/format';
 import { getNow } from '@/lib/schedule';
 import { normalizePhone } from '@/lib/phone';
-import { loadSavedPhone, ORDERS_BY_APP, savePhone, sendOrder } from '@/lib/pedidosApp';
+import { checkDiscountCode, loadSavedPhone, ORDERS_BY_APP, savePhone, sendOrder } from '@/lib/pedidosApp';
 import { buildWhatsAppUrl } from '@/services/whatsappService';
 import { useCartStore } from '@/store/useCartStore';
 import type { DeliveryMethod, DiscountCode, OrderDiscount, PaymentMethod } from '@/types';
@@ -152,35 +152,55 @@ const describeCode = (definition: DiscountCode): string =>
 interface DiscountCodeFieldProps {
   /** The applied code, normalized; '' when none */
   applied: string;
-  onApply: (code: string) => void;
+  /** `definition`: when the server vouched for it (orders by app), so the page can compute it */
+  onApply: (code: string, definition?: DiscountCode) => void;
+  /** Codes the server vouched for (orders by app) */
+  extraCodes: readonly DiscountCode[];
   onRemove: () => void;
   /** The discount the order ends up with (the code's, or the special day's if it saves more) */
   discount: OrderDiscount | null;
 }
 
 /** Folded by default: "¿Tenés un código de descuento?" opens the field; once applied it shows with "Quitar" */
-function DiscountCodeField({ applied, onApply, onRemove, discount }: DiscountCodeFieldProps) {
+function DiscountCodeField({ applied, onApply, onRemove, extraCodes, discount }: DiscountCodeFieldProps) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [checking, setChecking] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const errorId = 'discount-code-error';
 
-  const apply = () => {
-    const lookup = lookUpCode(value, getNow());
-    if (!lookup.ok) {
-      setError(lookup.error);
-      inputRef.current?.focus();
-      return;
-    }
+  const fail = (message: string) => {
+    setError(message);
+    inputRef.current?.focus();
+  };
+
+  const succeed = (code: string, definition?: DiscountCode) => {
     setError(null);
     setValue('');
     setOpen(false);
-    onApply(lookup.code);
+    onApply(code, definition);
+  };
+
+  const apply = async () => {
+    if (!ORDERS_BY_APP) {
+      const lookup = lookUpCode(value, getNow());
+      if (lookup.ok) succeed(lookup.code);
+      else fail(lookup.error);
+      return;
+    }
+    // Orders by app: the server also knows the codes made in the shop's app, and their use limits
+    if (checking) return;
+    if (!value.trim()) return fail('Ingresá el código.');
+    setChecking(true);
+    const result = await checkDiscountCode(value);
+    setChecking(false);
+    if (result.ok) succeed(result.data.code, result.data.definition);
+    else fail(result.error);
   };
 
   if (applied) {
-    const lookup = lookUpCode(applied, getNow());
+    const lookup = lookUpCode(applied, getNow(), extraCodes);
     // Applied, but the special day saves more: they don't stack, so the order keeps the day's
     const outdone = discount !== null && discount.label !== applied;
     return (
@@ -248,7 +268,7 @@ function DiscountCodeField({ applied, onApply, onRemove, discount }: DiscountCod
             // Enter applies the code instead of submitting the order
             if (e.key === 'Enter') {
               e.preventDefault();
-              apply();
+              void apply();
             }
           }}
           className={cn(
@@ -259,10 +279,11 @@ function DiscountCodeField({ applied, onApply, onRemove, discount }: DiscountCod
         />
         <button
           type="button"
-          onClick={apply}
-          className="h-12 shrink-0 rounded-xl border border-hairline-strong px-4 text-sm font-bold text-washi transition-colors hover:border-washi hover:bg-sumi-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi"
+          onClick={() => void apply()}
+          disabled={checking}
+          className="h-12 shrink-0 rounded-xl border border-hairline-strong px-4 text-sm font-bold text-washi transition-colors hover:border-washi hover:bg-sumi-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi disabled:opacity-60"
         >
-          Aplicar
+          {checking ? 'Revisando…' : 'Aplicar'}
         </button>
       </div>
       {error && (
@@ -328,20 +349,39 @@ export function Checkout() {
 
   const formRef = useRef<HTMLFormElement>(null);
   // Only read on the client: until the cart hydrates the page renders a skeleton, so the server's empty form never shows
-  const [form, setForm] = useState<CheckoutForm>(loadCheckoutDraft);
+  const [form, setForm] = useState<CheckoutForm>(() => loadCheckoutDraft(ORDERS_BY_APP));
+  // Orders by app: codes the server vouched for (made in the shop's app), so the page can compute them
+  const [serverCodes, setServerCodes] = useState<readonly DiscountCode[]>([]);
   const schedule = useCheckoutSchedule();
   const [errors, setErrors] = useState<CheckoutErrors>({});
   const [sent, setSent] = useState(false);
   const deliveryFee = deliveryFeeFor(form.deliveryMethod);
-  const { subtotal, discount, total: itemsTotal } = useCartTotals(form.discountCode);
+  const { subtotal, discount, total: itemsTotal } = useCartTotals(form.discountCode, serverCodes);
   const total = itemsTotal + deliveryFee;
   const now = useNow();
 
   useEffect(() => saveCheckoutDraft(form), [form]);
 
+  // Orders by app: a code kept in the draft is asked about again (it may have been paused or used up meanwhile)
+  const draftCode = useRef(form.discountCode);
+  useEffect(() => {
+    const code = draftCode.current;
+    if (!ORDERS_BY_APP || !code) return;
+    let cancelled = false;
+    void checkDiscountCode(code).then((result) => {
+      if (cancelled) return;
+      if (result.ok) setServerCodes([result.data.definition]);
+      // No connection: keep it, the server checks it again with the order
+      else if (result.status !== 0) setForm((prev) => (prev.discountCode === code ? { ...prev, discountCode: '' } : prev));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // A complete form turns the main button into a plain link to wa.me: in-app browsers (Instagram, Facebook) block window.open
   const isComplete = !CHECKOUT_FIELDS.some((field) => validateCheckout(form)[field]);
-  const order = isComplete ? createOrder(form, items, now ?? getNow()) : null;
+  const order = isComplete ? createOrder(form, items, now ?? getNow(), serverCodes) : null;
   const whatsappUrl = order ? buildWhatsAppUrl(order) : null;
   const submitLabel = ORDERS_BY_APP ? `Enviar pedido · ${formatPrice(total)}` : `Enviar pedido por WhatsApp · ${formatPrice(total)}`;
 
@@ -534,8 +574,12 @@ export function Checkout() {
           <div className="space-y-3">
             <DiscountCodeField
               applied={form.discountCode}
-              onApply={(code) => update('discountCode', code)}
+              onApply={(code, definition) => {
+                if (definition) setServerCodes([definition]);
+                update('discountCode', code);
+              }}
               onRemove={() => update('discountCode', '')}
+              extraCodes={serverCodes}
               discount={discount}
             />
             {/* On the phone the summary sits below the button: the total (and the delivery fee) shows right above it */}

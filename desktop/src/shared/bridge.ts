@@ -15,6 +15,8 @@ export interface Settings {
   pickupAddress: string;
 }
 
+export type ApiMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE';
+
 export interface ApiResponse {
   status: number;
   /** Parsed JSON body (or null) */
@@ -35,7 +37,7 @@ export interface EnsushiBridge {
   login(username: string, password: string): Promise<{ ok: true } | { ok: false; error: string }>;
   logout(): Promise<void>;
   /** A request to the server's /api/local/…, with the token */
-  api(method: 'GET' | 'PATCH', path: string, body?: unknown): Promise<ApiResponse>;
+  api(method: ApiMethod, path: string, body?: unknown): Promise<ApiResponse>;
   listPrinters(): Promise<Printer[]>;
   /** Prints the HTML on the configured printer, without a dialog */
   print(html: string): Promise<{ ok: true } | { ok: false; error: string }>;

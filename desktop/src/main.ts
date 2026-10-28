@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 import { app, BrowserWindow, ipcMain, net, safeStorage, shell } from 'electron';
 
-import type { ApiResponse, Settings } from './shared/bridge';
+import type { ApiMethod, ApiResponse, Settings } from './shared/bridge';
 
 // ─── Settings (userData/config.json) ────────────────────────────────────────
 
@@ -169,9 +169,11 @@ ipcMain.handle('auth:login', async (_event, username: string, password: string) 
 
 ipcMain.handle('auth:logout', () => setToken(null));
 
-ipcMain.handle('api:request', async (_event, method: 'GET' | 'PATCH', path: string, body?: unknown) => {
+const API_METHODS: readonly ApiMethod[] = ['GET', 'POST', 'PATCH', 'DELETE'];
+
+ipcMain.handle('api:request', async (_event, method: ApiMethod, path: string, body?: unknown) => {
   // Only the shop's own endpoints
-  if (!path.startsWith('/api/local/')) return { status: 400, data: { error: 'Ruta no permitida.' } };
+  if (!path.startsWith('/api/local/') || !API_METHODS.includes(method)) return { status: 400, data: { error: 'Ruta no permitida.' } };
   const response = await serverRequest(method, path, body, await getToken());
   if (response.status === 401) await setToken(null);
   return response;

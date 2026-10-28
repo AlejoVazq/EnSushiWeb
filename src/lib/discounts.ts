@@ -35,12 +35,15 @@ export const getSpecialDayDiscount = (items: readonly CartItem[], day: SpecialDa
 
 export type CodeLookup = { ok: true; code: string; definition: DiscountCode } | { ok: false; error: string };
 
-/** Checks a typed code against the list, on `date` in the shop's time zone */
-export const lookUpCode = (input: string, date: Date): CodeLookup => {
+/**
+ * Checks a typed code against the list, on `date` in the shop's time zone. `extraCodes` are the ones the server
+ * vouched for (orders by app: codes managed from the shop's app live in its database, not in this file).
+ */
+export const lookUpCode = (input: string, date: Date, extraCodes: readonly DiscountCode[] = []): CodeLookup => {
   const code = normalizeCode(input);
   if (!code) return { ok: false, error: 'Ingresá el código.' };
   const hash = sha256(code);
-  const definition = DISCOUNT_CODES.find((entry) => entry.hash === hash);
+  const definition = extraCodes.find((entry) => entry.hash === hash) ?? DISCOUNT_CODES.find((entry) => entry.hash === hash);
   if (!definition) return { ok: false, error: 'Ese código no existe. Revisá que esté bien escrito.' };
   const today = getShopDate(date);
   if (definition.validFrom && today < definition.validFrom) return { ok: false, error: 'Ese código todavía no está activo.' };
@@ -59,9 +62,9 @@ export const getCodeDiscount = (items: readonly CartItem[], code: string, defini
 /** The discount the order gets: the code's or the special day's, whichever saves more (they don't stack) */
 export const getBestDiscount = (
   items: readonly CartItem[],
-  { code, date }: { code: string; date: Date },
+  { code, date, extraCodes = [] }: { code: string; date: Date; extraCodes?: readonly DiscountCode[] },
 ): OrderDiscount | null => {
-  const lookup = code ? lookUpCode(code, date) : null;
+  const lookup = code ? lookUpCode(code, date, extraCodes) : null;
   const fromCode = lookup?.ok ? getCodeDiscount(items, lookup.code, lookup.definition) : null;
   const fromDay = getSpecialDayDiscount(items, getSpecialDay(date));
   if (!fromCode) return fromDay;

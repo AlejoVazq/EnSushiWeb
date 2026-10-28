@@ -77,6 +77,7 @@ En lugar de WhatsApp, el pedido va a nuestro servidor y lo recibe la app de escr
 - Pedidos: estados `nuevo` → `confirmado` (con hora `HH:MM`) o `rechazado` (con motivo); `printed_at` al imprimir. La app lista las últimas 18 h.
 - En desarrollo el checkout manda la hora simulada (`?ahora=`) y el servidor la respeta; en producción se ignora.
 - Checkout con la bandera: `AccountSection` (correo → código → "Pedís como…"), campo Celular (se recuerda en `localStorage` `ensushi-celular`), botón "Enviar pedido · $X" → `/pedido/[id]` (`OrderStatus`, consulta cada 10 s). Llamadas del cliente en `src/lib/pedidosApp.ts`.
+- Códigos de descuento desde la app (migración 2, tabla `discount_codes`; `src/server/discounts.ts`): `GET/POST /api/local/codigos`, `PATCH/DELETE /api/local/codigos/[code]` (pausar es `{ active: false }`). El checkout los valida con `POST /api/descuentos` (`checkDiscountCode`), que devuelve la definición con la misma forma que `DiscountCode`; `lookUpCode`, `getBestDiscount`, `createOrder` y `useCartTotals` reciben esos códigos como `extraCodes`, así el cálculo es el mismo en el celular y en el servidor. Límites: usos en total y una vez por cliente (cuentan los pedidos no rechazados, por `orders.discount_code`). Si al llegar el pedido el código se pausó o se agotó, el servidor responde 409 ("Quitalo para seguir") en lugar de cambiar el total. Los códigos de `discounts.ts` siguen andando. En la app, "Códigos" reemplaza el detalle del pedido a la derecha; la lista sigue consultando y pitando.
 - App (`desktop/`): esbuild + TypeScript 7 + Electron 45, React en el renderer. `contextIsolation` + `sandbox`; el renderer solo habla con el proceso principal por `window.ensushi` (preload), que hace los pedidos con `net.fetch` y solo permite rutas `/api/local/`. Token cifrado con `safeStorage` (async) en `userData/config.json` junto con los Ajustes (servidor, ticketera, ancho 58/80 mm, imprimir al confirmar, alias, dirección de retiro). Consulta cada 5 s y pita con pedidos nuevos. Textos de mensajes y comanda en `desktop/src/shared/textos.ts` (horas en 24 h; comanda en negro forzado). Una sola instancia. `ENSUSHI_SIN_WHATSAPP=1` (desarrollo) solo escribe el link en la consola.
 - `tsconfig.json` y ESLint de la raíz excluyen `desktop/` (tiene su propio `npm run typecheck`).
 - `.env.development.local` (no se sube) tiene las dos banderas y el usuario de prueba del local; la contraseña nunca va al chat ni a git.
@@ -92,7 +93,7 @@ En lugar de WhatsApp, el pedido va a nuestro servidor y lo recibe la app de escr
 - [ ] Decidir qué pasa con los pedidos que nadie responde.
 - [ ] Diseño de la app y del checkout con cuenta.
 - [ ] Backups diarios (`pg_dump`) en el servidor.
-- [ ] Idea: crear y gestionar los códigos de descuento desde la app del local (hoy se crean con `npm run codigo` y viven como SHA-256 en `src/config/discounts.ts`; con la app pasarían a la base y los validaría el servidor).
+- [x] Crear y gestionar los códigos de descuento desde la app del local (probado contra el servidor de desarrollo: API, pantalla de la app en el navegador y checkout; falta en la app real).
 
 ## Plan de implementación (un paso por vez)
 - [x] **Paso 1** — Tipos (`src/types/index.ts`), menú (`src/data/menu.ts`), config (`src/config/business.ts`).

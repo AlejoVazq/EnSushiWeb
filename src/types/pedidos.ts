@@ -58,3 +58,28 @@ export type StaffOrderAction =
   | { action: 'confirmar'; eta: string }
   | { action: 'rechazar'; reason: string }
   | { action: 'impreso' };
+
+/** A discount code as the shop's app manages it (they live in the database, not in the site's code) */
+export interface StaffDiscountCode {
+  /** As customers type it, in upper case: "VERANO10" */
+  code: string;
+  /** percent: `value` is a whole percent. amount: integer ARS off */
+  kind: 'percent' | 'amount';
+  value: number;
+  /** First and last day it works, "YYYY-MM-DD" in the shop's time zone (both included); null = no limit */
+  validFrom: string | null;
+  validUntil: string | null;
+  /** How many orders can use it in total; null = no limit */
+  maxUses: number | null;
+  /** Each customer can use it once */
+  oncePerCustomer: boolean;
+  /** Paused codes are kept (with their uses) but don't work */
+  active: boolean;
+  /** Orders that used it; rejected ones don't count */
+  uses: number;
+  /** ISO date */
+  createdAt: string;
+}
+
+/** POST /api/local/codigos (all fields) and PATCH /api/local/codigos/[code] (any of them but the code) */
+export type StaffDiscountCodeInput = Omit<StaffDiscountCode, 'uses' | 'createdAt'>;

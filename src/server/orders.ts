@@ -4,11 +4,14 @@ import { restoreItems } from '@/lib/cartItems';
 import { getLineDetail, getLineName } from '@/lib/cartLine';
 import { lineSubtotal } from '@/lib/cartItems';
 import { createOrder, validateCheckout, type CheckoutForm } from '@/lib/checkout';
+import { normalizeCode } from '@/lib/discounts';
 import { normalizePhone } from '@/lib/phone';
 import { checkSchedule, getScheduleStatus } from '@/lib/schedule';
+import type { DiscountCode } from '@/types';
 import type { CustomerOrder, OrderLineSnapshot, OrderStatus, StaffOrder } from '@/types/pedidos';
 
 import { getDb } from './db';
+import { checkServerCode } from './discounts';
 
 /** A customer can't have more than this many orders waiting for the shop's answer */
 const MAX_PENDING_PER_CUSTOMER = 3;
@@ -58,8 +61,19 @@ export const createOrderFromRequest = async (customerId: string, email: string, 
   const phone = normalizePhone(text(body.phone, 40));
   if (!phone) return { ok: false, status: 400, error: 'Revisá el celular: código de área y número.' };
 
-  const order = createOrder(form, items, date);
+  // A code from the shop's app: paused or used up since the customer applied it, the order stops here so the
+  // total they saw never changes behind their back
+  let extraCodes: DiscountCode[] = [];
+  if (form.discountCode) {
+    const check = await checkServerCode(form.discountCode, customerId);
+    if (check && !check.ok) return { ok: false, status: 409, error: `${check.error} Quitalo para seguir.` };
+    if (check?.ok) extraCodes = [check.definition];
+  }
+
+  const order = createOrder(form, items, date, extraCodes);
   if (!order) return { ok: false, status: 400, error: 'Pedido inválido.' };
+  // The code, only if it's the discount the order ended up with (a special day can save more)
+  const usedCode = order.discount?.label === normalizeCode(form.discountCode) ? order.discount.label : null;
 
   const lines: OrderLineSnapshot[] = order.items.map((item) => ({
     quantity: item.quantity,
@@ -81,8 +95,8 @@ export const createOrderFromRequest = async (customerId: string, email: string, 
   const id = randomUUID();
   await db.query(
     `INSERT INTO orders (id, customer_id, customer_name, phone, email, delivery_method, address, payment_method,
-       lines, subtotal, discount_label, discount_amount, delivery_fee, total)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
+       lines, subtotal, discount_label, discount_amount, delivery_fee, total, discount_code)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)`,
     [
       id,
       customerId,
@@ -98,6 +112,7 @@ export const createOrderFromRequest = async (customerId: string, email: string, 
       order.discount?.amount ?? 0,
       order.deliveryFee,
       order.total,
+      usedCode,
     ],
   );
   return { ok: true, id };

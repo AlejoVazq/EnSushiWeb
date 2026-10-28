@@ -4,6 +4,7 @@ import type { StaffOrder } from '../../../src/types/pedidos';
 import type { Settings } from '../shared/bridge';
 import { DELIVERY_LABELS, formatPrice, formatTime } from '../shared/textos';
 
+import { DiscountCodes } from './DiscountCodes';
 import { OrderDetail } from './OrderDetail';
 
 /** How often the list asks the server for new orders */
@@ -36,6 +37,8 @@ interface OrdersProps {
 export function Orders({ settings, onLoggedOut, onSettings }: OrdersProps) {
   const [orders, setOrders] = useState<StaffOrder[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  // The codes take the order's place on the right; the list keeps polling (and beeping) meanwhile
+  const [showCodes, setShowCodes] = useState(false);
   const [connection, setConnection] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   // Orders already seen, so only really new ones beep (null until the first load: those don't beep)
@@ -84,6 +87,7 @@ export function Orders({ settings, onLoggedOut, onSettings }: OrdersProps) {
       className={`order${order.id === selectedId ? ' selected' : ''}`}
       onClick={() => {
         setSelectedId(order.id);
+        setShowCodes(false);
         document.title = 'EnSushi Local';
       }}
     >
@@ -105,6 +109,9 @@ export function Orders({ settings, onLoggedOut, onSettings }: OrdersProps) {
       <aside className="sidebar">
         <div className="bar">
           <strong style={{ flex: 1 }}>Pedidos</strong>
+          <button className={showCodes ? 'primary' : undefined} onClick={() => setShowCodes((open) => !open)}>
+            Códigos
+          </button>
           <button onClick={onSettings}>Ajustes</button>
           <button
             onClick={async () => {
@@ -126,7 +133,9 @@ export function Orders({ settings, onLoggedOut, onSettings }: OrdersProps) {
       </aside>
 
       <main className="main">
-        {selected ? (
+        {showCodes ? (
+          <DiscountCodes />
+        ) : selected ? (
           <OrderDetail key={selected.id} order={selected} settings={settings} onUpdated={replaceOrder} />
         ) : (
           <p className="muted">Elegí un pedido de la lista.</p>

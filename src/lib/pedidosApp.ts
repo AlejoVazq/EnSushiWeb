@@ -1,7 +1,7 @@
 import { toPersistedLine } from '@/lib/cartItems';
 import type { CheckoutForm } from '@/lib/checkout';
 import { getSimulatedNow } from '@/lib/schedule';
-import type { CartItem } from '@/types';
+import type { CartItem, DiscountCode } from '@/types';
 import type { CustomerOrder } from '@/types/pedidos';
 
 /**
@@ -37,6 +37,13 @@ export const requestCode = (email: string) => request<{ ok: true }>('POST', '/ap
 export const verifyCode = (email: string, code: string) => request<{ email: string }>('POST', '/api/cuenta/verificar', { email, code });
 export const logOut = () => request<{ ok: true }>('POST', '/api/cuenta/salir');
 export const getOrder = (id: string) => request<CustomerOrder>('GET', `/api/pedidos/${encodeURIComponent(id)}`);
+
+/** Whether a typed code works (the shop's app manages codes in the server's database); answers with its definition */
+export const checkDiscountCode = (code: string) =>
+  request<{ code: string; definition: DiscountCode }>('POST', '/api/descuentos', {
+    codigo: code,
+    ...(getSimulatedNow() && { ahora: getSimulatedNow()?.toISOString() }),
+  });
 
 /** Sends the cart as menu references: the server prices everything again */
 export const sendOrder = (form: CheckoutForm, phone: string, items: readonly CartItem[]) =>

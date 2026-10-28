@@ -25,6 +25,9 @@ la API responde 404.
 - **Local:** la app muestra los pedidos de las últimas 18 horas, suena con cada pedido nuevo, deja elegir la
   hora aproximada (+15/+30/+45/+60 min o a mano) y editar el mensaje antes de abrir WhatsApp. El alias para
   transferencias se carga en Ajustes de la app y va solo en ese mensaje: nunca está en la web.
+- **Códigos de descuento:** el botón "Códigos" de la app crea, edita, pausa y borra códigos (porcentaje o monto
+  fijo, fechas opcionales, cantidad de usos en total y "una vez por cliente"). Funcionan en la web apenas se
+  guardan, sin deployar. Los pedidos rechazados no cuentan como uso. Los de `npm run codigo` siguen andando.
 
 ## Servidor
 
