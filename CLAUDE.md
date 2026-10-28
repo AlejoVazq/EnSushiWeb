@@ -66,7 +66,7 @@
 
 ## Pendientes antes de salir a producción
 - [ ] **Acompañamientos** (pestaña oculta con `hidden: true`): precios reales (hoy `PRICE_TBD`, $1.000: gyosas, langostinos, pollo y geishas), nombres de los 3 sabores de gyosas y cuántas geishas trae cada porción (hoy 5). Con eso se saca el `hidden`.
-- [ ] **Arma tu combo**: descripciones y fotos de los rolls; confirmar la lista completa de rolls.
+- [ ] **Arma tu combo**: fotos de los rolls (las descripciones ya están); confirmar la lista completa de rolls.
 - [ ] **Descuentos**: cargar los días especiales y los códigos reales en `src/config/discounts.ts` (hoy vacíos).
 - [ ] **Sushiburgers**: fotos de la versión cruda y la cocida del SushiBurger Salmón (`imageUrl` en cada valor de `option`). SushiBurger Atún y ciboulette ($ 14.000): falta la descripción completa (hoy solo "Atún y ciboulette…") y la foto.
 - [ ] **Feriados**: se cargan sobre la marcha en `extraOpenDates` / `closedDates`.
