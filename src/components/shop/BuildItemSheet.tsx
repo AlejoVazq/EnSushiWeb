@@ -105,7 +105,7 @@ export function BuildItemSheet({ item, open, onClose, steps, fits, blocked, clos
 
   return (
     <Sheet open={open} onClose={onClose} title={item.name} side="bottom" footer={footer}>
-      <div className="py-4">
+      <div className="space-y-4 py-4">
         {item.imageUrl ? (
           <div className="relative aspect-square overflow-hidden rounded-xl bg-sumi-2">
             <Image
@@ -123,6 +123,7 @@ export function BuildItemSheet({ item, open, onClose, steps, fits, blocked, clos
             </div>
           )
         )}
+        {item.description && <p className="leading-relaxed text-pretty text-washi">{item.description}</p>}
       </div>
     </Sheet>
   );
