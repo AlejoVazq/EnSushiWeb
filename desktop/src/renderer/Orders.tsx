@@ -32,9 +32,11 @@ interface OrdersProps {
   settings: Settings;
   onLoggedOut: () => void;
   onSettings: () => void;
+  /** A downloaded version waiting to be installed */
+  updateVersion: string | null;
 }
 
-export function Orders({ settings, onLoggedOut, onSettings }: OrdersProps) {
+export function Orders({ settings, onLoggedOut, onSettings, updateVersion }: OrdersProps) {
   const [orders, setOrders] = useState<StaffOrder[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   // The codes take the order's place on the right; the list keeps polling (and beeping) meanwhile
@@ -122,6 +124,12 @@ export function Orders({ settings, onLoggedOut, onSettings }: OrdersProps) {
             Salir
           </button>
         </div>
+        {updateVersion && (
+          <div className="bar" style={{ background: '#e8eefc', fontSize: 14 }}>
+            <span style={{ flex: 1 }}>Versión nueva ({updateVersion}). Se instala al cerrar la app.</span>
+            <button onClick={() => void window.ensushi.installUpdate()}>Actualizar ahora</button>
+          </div>
+        )}
         <div className="bar muted" style={{ fontSize: 13 }}>
           {connection ? <span className="error">{connection}</span> : lastUpdate ? `Actualizado ${formatTime(lastUpdate)}` : 'Cargando…'}
         </div>

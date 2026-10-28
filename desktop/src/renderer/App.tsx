@@ -11,6 +11,10 @@ type Screen = 'loading' | 'login' | 'orders' | 'settings';
 export function App() {
   const [screen, setScreen] = useState<Screen>('loading');
   const [settings, setSettings] = useState<Settings | null>(null);
+  // A new version already downloaded, waiting to be installed
+  const [updateVersion, setUpdateVersion] = useState<string | null>(null);
+
+  useEffect(() => window.ensushi.onUpdateReady(setUpdateVersion), []);
 
   useEffect(() => {
     void (async () => {
@@ -43,6 +47,7 @@ export function App() {
   return (
     <Orders
       settings={settings}
+      updateVersion={updateVersion}
       onLoggedOut={() => setScreen('login')}
       onSettings={() => setScreen('settings')}
     />

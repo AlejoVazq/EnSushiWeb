@@ -13,9 +13,11 @@ export function SettingsPanel({ settings, onSaved, onCancel }: SettingsPanelProp
   const [draft, setDraft] = useState<Settings>(settings);
   const [printers, setPrinters] = useState<Printer[]>([]);
   const [testResult, setTestResult] = useState<string | null>(null);
+  const [version, setVersion] = useState('');
 
   useEffect(() => {
     void window.ensushi.listPrinters().then(setPrinters);
+    void window.ensushi.getVersion().then(setVersion);
   }, []);
 
   const set = <K extends keyof Settings>(key: K, value: Settings[K]) => setDraft((prev) => ({ ...prev, [key]: value }));
@@ -33,6 +35,7 @@ export function SettingsPanel({ settings, onSaved, onCancel }: SettingsPanelProp
   return (
     <div className="center panel" style={{ maxWidth: 560 }}>
       <h1>Ajustes</h1>
+      {version && <p className="muted">Versión {version}. Las nuevas se descargan solas desde el servidor.</p>}
 
       <label htmlFor="server">Dirección del servidor</label>
       <input

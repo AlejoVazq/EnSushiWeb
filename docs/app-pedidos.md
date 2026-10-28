@@ -50,7 +50,8 @@ Pasos:
 1. `npm ci && npm run build`
 2. `npm run local-usuario -- cocina` (pide la contraseña; crea las tablas si no existen)
 3. `npm run start` detrás del proxy (con un servicio de systemd o pm2 para que arranque solo).
-4. Backups: `pg_dump` diario de la base a otro lugar.
+4. Backups: ver "Backups" más abajo.
+5. Carpeta para las actualizaciones de la app (ver "Instalador y actualizaciones").
 
 Las tablas se crean y actualizan solas al arrancar (`src/server/schema.ts`; nunca se edita una migración que ya
 corrió: se agrega una nueva al final).
@@ -84,4 +85,51 @@ npm run typecheck
   El corte de papel se configura en las preferencias del driver.
 - `ENSUSHI_SIN_WHATSAPP=1 npm start` (solo desarrollo) escribe el link de WhatsApp en la consola en vez de abrirlo.
 
-Pendiente: instalador (`.exe`) con actualización automática.
+### Instalador y actualizaciones
+
+```
+cd desktop
+npm run dist       # arma release/EnSushi-Local-Setup-<versión>.exe y release/latest.yml
+```
+
+- **Instalar en la PC del local:** copiar el `.exe` y abrirlo. Se instala solo (sin preguntas) con acceso
+  directo en el escritorio. Como no está firmado, Windows muestra "Windows protegió su PC": tocar
+  "Más información" → "Ejecutar de todos modos" (una sola vez). Firmarlo cuesta un certificado pago; no hace falta.
+- **Actualizaciones:** la app busca versiones nuevas al abrir y cada 6 horas en `<servidor>/app-local/` (la misma
+  dirección de Ajustes). La baja sola; se instala al cerrar la app o con "Actualizar ahora" en la barra de la
+  izquierda. Nunca se reinicia sola en medio de un pedido.
+- **Publicar una versión:** subir `version` en `desktop/package.json` (0.1.0 → 0.1.1), `npm run dist` y copiar
+  al servidor los tres archivos de `release/`: `latest.yml`, `EnSushi-Local-Setup-<versión>.exe` y su `.blockmap`.
+- **En el servidor**, Caddy sirve esa carpeta además de la web:
+
+  ```
+  ensushi.com.ar {
+      handle_path /app-local/* {
+          root * /srv/ensushi/app-local
+          file_server
+      }
+      reverse_proxy localhost:3000
+  }
+  ```
+
+## Backups
+
+`scripts/backup-db.sh` hace un `pg_dump` comprimido por día en `/var/backups/ensushi` (o `BACKUP_DIR`), guarda
+los últimos 14 (`BACKUP_DIAS`) y una copia del día 1 de cada mes durante un año. Con `BACKUP_REMOTO`
+(`usuario@otra-maquina:/carpeta`) además copia cada backup a otra máquina con `rsync`: un backup que vive solo en
+el mismo servidor no sirve si se pierde el servidor.
+
+Para que corra todos los días a las 5:00 (el local ya cerró), con systemd:
+
+```
+sudo cp deploy/ensushi-backup.service deploy/ensushi-backup.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now ensushi-backup.timer
+sudo systemctl start ensushi-backup.service   # probarlo ahora
+ls -lh /var/backups/ensushi
+```
+
+El servicio lee `DATABASE_URL` (y las variables de arriba) de `/etc/ensushi/backup.env`, que se crea una vez con
+`sudo install -m 600 /dev/null /etc/ensushi/backup.env` y se completa con `DATABASE_URL=postgres://…`. Supone la
+web en `/srv/ensushi/web`; si está en otra carpeta, cambiar `ExecStart` en el `.service`. Para volver a un backup:
+`pg_restore --clean --no-owner --dbname="$DATABASE_URL" /var/backups/ensushi/ensushi-AAAA-MM-DD.dump`.

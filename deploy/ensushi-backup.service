@@ -1,0 +1,10 @@
+# Daily database backup (docs/app-pedidos.md, "Backups"). DATABASE_URL and the BACKUP_* settings go in
+# /etc/ensushi/backup.env, readable only by root.
+[Unit]
+Description=Backup de la base de pedidos de EnSushi
+After=postgresql.service
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/ensushi/backup.env
+ExecStart=/srv/ensushi/web/scripts/backup-db.sh

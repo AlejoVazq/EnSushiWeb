@@ -1,0 +1,10 @@
+# Every day at 5:00, after closing. Persistent: if the server was off at 5:00, it runs when it comes back.
+[Unit]
+Description=Backup diario de la base de pedidos de EnSushi
+
+[Timer]
+OnCalendar=*-*-* 05:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

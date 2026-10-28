@@ -43,6 +43,12 @@ export interface EnsushiBridge {
   print(html: string): Promise<{ ok: true } | { ok: false; error: string }>;
   /** Opens WhatsApp (wa.me) with the message for the customer */
   openWhatsApp(phone: string, message: string): Promise<void>;
+  /** The installed version, e.g. "0.2.0" */
+  getVersion(): Promise<string>;
+  /** Called once a new version finished downloading (it installs when the app closes, or with installUpdate) */
+  onUpdateReady(callback: (version: string) => void): void;
+  /** Closes the app, installs the downloaded version and opens it again */
+  installUpdate(): Promise<void>;
 }
 
 declare global {

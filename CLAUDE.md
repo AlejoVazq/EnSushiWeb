@@ -89,10 +89,10 @@ En lugar de WhatsApp, el pedido va a nuestro servidor y lo recibe la app de escr
 - [ ] Cuenta SMTP real y probar que los códigos lleguen (no a spam).
 - [ ] Probar la impresión real en la TM-T20 con su driver.
 - [ ] Probar que WhatsApp se abra en la PC del local.
-- [ ] Instalador `.exe` con actualización automática.
+- [x] Instalador `.exe` con actualización automática (`cd desktop && npm run dist`, electron-builder NSIS sin firmar + electron-updater "generic" desde `<servidor>/app-local/`; la versión nueva se baja sola y se instala al cerrar o con "Actualizar ahora"). Probado acá de 0.1.0 a 0.1.1 hasta el aviso, sin instalar; falta instalarlo en la PC del local.
 - [ ] Decidir qué pasa con los pedidos que nadie responde.
 - [ ] Diseño de la app y del checkout con cuenta.
-- [ ] Backups diarios (`pg_dump`) en el servidor.
+- [x] Backups diarios: `scripts/backup-db.sh` + `deploy/ensushi-backup.{service,timer}` (5:00, 14 días + mensual, copia opcional a otra máquina). Probado con un `pg_dump` de mentira; falta instalarlo en el servidor.
 - [x] Crear y gestionar los códigos de descuento desde la app del local (probado contra el servidor de desarrollo: API, pantalla de la app en el navegador y checkout; falta en la app real).
 
 ## Plan de implementación (un paso por vez)

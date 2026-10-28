@@ -13,6 +13,11 @@ const bridge: EnsushiBridge = {
   listPrinters: () => ipcRenderer.invoke('printers:list'),
   print: (html) => ipcRenderer.invoke('print', html),
   openWhatsApp: (phone, message) => ipcRenderer.invoke('whatsapp:open', phone, message),
+  getVersion: () => ipcRenderer.invoke('app:version'),
+  onUpdateReady: (callback) => {
+    ipcRenderer.on('update:ready', (_event, version: string) => callback(version));
+  },
+  installUpdate: () => ipcRenderer.invoke('update:install'),
 };
 
 contextBridge.exposeInMainWorld('ensushi', bridge);

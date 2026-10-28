@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { app, BrowserWindow, ipcMain, net, safeStorage, shell } from 'electron';
+import { autoUpdater } from 'electron-updater';
 
 import type { ApiMethod, ApiResponse, Settings } from './shared/bridge';
 
@@ -197,6 +198,36 @@ ipcMain.handle('whatsapp:open', async (_event, phone: string, message: string) =
   await shell.openExternal(url);
 });
 
+// ─── Updates ────────────────────────────────────────────────────────────────
+
+/** Where the installer and its latest.yml live, on the same server as the web (see docs/app-pedidos.md) */
+const UPDATES_PATH = '/app-local/';
+const UPDATE_CHECK_MS = 6 * 60 * 60 * 1000;
+
+/**
+ * Looks for a new version on the shop's server and downloads it in the background. It installs when the app
+ * closes, or right away from the window's notice: the app runs all night, so it never interrupts an order.
+ */
+const checkForUpdates = () => {
+  const { serverUrl } = readConfig().settings;
+  if (!app.isPackaged || !serverUrl) return;
+  try {
+    autoUpdater.setFeedURL({ provider: 'generic', url: new URL(UPDATES_PATH, serverUrl).toString() });
+  } catch {
+    return;
+  }
+  // No server, no connection or no newer version: try again on the next check
+  autoUpdater.checkForUpdates().catch(() => undefined);
+};
+
+autoUpdater.autoDownload = true;
+autoUpdater.autoInstallOnAppQuit = true;
+autoUpdater.on('update-downloaded', (info) => mainWindow?.webContents.send('update:ready', info.version));
+autoUpdater.on('error', () => undefined);
+
+ipcMain.handle('update:install', () => autoUpdater.quitAndInstall());
+ipcMain.handle('app:version', () => app.getVersion());
+
 // ─── App ────────────────────────────────────────────────────────────────────
 
 // One copy only: a second launch brings the open one to the front
@@ -207,6 +238,10 @@ if (!app.requestSingleInstanceLock()) {
     if (mainWindow?.isMinimized()) mainWindow.restore();
     mainWindow?.focus();
   });
-  void app.whenReady().then(createWindow);
+  void app.whenReady().then(() => {
+    createWindow();
+    checkForUpdates();
+    setInterval(checkForUpdates, UPDATE_CHECK_MS);
+  });
   app.on('window-all-closed', () => app.quit());
 }
