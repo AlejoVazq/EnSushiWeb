@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { ChevronLeftIcon, ChevronRightIcon } from '@/components/ui/icons';
 import { EXTRAS_CATEGORY_ID, getBuildItemsByGroup, getProductsByCategory, isCategoryShown } from '@/data/menu';
+import { useIsAvailable } from '@/hooks/useLiveMenu';
 import { getNow } from '@/lib/schedule';
 import { formatUnits } from '@/lib/cartLine';
 import { formatItemPrice, formatPrice } from '@/lib/format';
@@ -89,12 +90,13 @@ export function CartSuggestions() {
   const addExtra = useCartStore((state) => state.addExtra);
   const addItem = useCartStore((state) => state.addItem);
   const { rowRef, edges, scroll } = useRowScroll();
+  const isAvailable = useIsAvailable();
 
   // Only while their tab is on the menu
   const extrasShown = isCategoryShown(EXTRAS_CATEGORY_ID);
-  const extras = extrasShown ? getBuildItemsByGroup('acompanamientos').filter((item) => item.available) : [];
+  const extras = extrasShown ? getBuildItemsByGroup('acompanamientos').filter(isAvailable) : [];
   // Salsas without a required option can be added straight away
-  const salsas = getProductsByCategory('salsas', getNow()).filter(isPlainProduct).filter((product) => !product.option);
+  const salsas = getProductsByCategory('salsas', getNow()).filter(isPlainProduct).filter((product) => !product.option && isAvailable(product));
   if (extras.length + salsas.length === 0) return null;
 
   return (

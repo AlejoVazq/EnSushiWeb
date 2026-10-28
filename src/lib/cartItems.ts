@@ -229,3 +229,15 @@ export const cartTotal = (items: readonly CartItem[]): number =>
 
 export const cartItemCount = (items: readonly CartItem[]): number =>
   items.reduce((sum, item) => sum + item.quantity, 0);
+
+/** The menu items a line is made of (product, a box's rolls and nigiris, or the acompañamiento), to check them against sold-out marks */
+export const lineMenuItems = (item: CartItem): { id: string; name: string; available: boolean }[] => {
+  switch (item.kind) {
+    case 'product':
+      return [item.product];
+    case 'box':
+      return item.box.entries.map((entry) => entry.item);
+    case 'extra':
+      return [item.item];
+  }
+};

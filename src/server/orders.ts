@@ -1,10 +1,10 @@
 import { randomUUID } from 'node:crypto';
 
-import { restoreItems } from '@/lib/cartItems';
+import { lineMenuItems, lineSubtotal, restoreItems } from '@/lib/cartItems';
 import { getLineDetail, getLineName } from '@/lib/cartLine';
-import { lineSubtotal } from '@/lib/cartItems';
 import { createOrder, validateCheckout, type CheckoutForm } from '@/lib/checkout';
 import { normalizeCode } from '@/lib/discounts';
+import { formatList } from '@/lib/format';
 import { normalizePhone } from '@/lib/phone';
 import { checkSchedule, getScheduleStatus } from '@/lib/schedule';
 import type { DiscountCode } from '@/types';
@@ -12,21 +12,14 @@ import type { CustomerOrder, OrderLineSnapshot, OrderStatus, StaffOrder } from '
 
 import { getDb } from './db';
 import { checkServerCode } from './discounts';
+import { requestDate } from './http';
+import { getLiveMenu } from './liveMenu';
 
 /** A customer can't have more than this many orders waiting for the shop's answer */
 const MAX_PENDING_PER_CUSTOMER = 3;
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null;
 const text = (value: unknown, max: number): string => (typeof value === 'string' ? value.slice(0, max) : '');
-
-/** In development the checkout sends its simulated time (?ahora) so the server judges the same hour */
-const orderDate = (body: Record<string, unknown>): Date => {
-  if (process.env.NODE_ENV !== 'production' && typeof body.ahora === 'string') {
-    const simulated = new Date(body.ahora);
-    if (!Number.isNaN(simulated.getTime())) return simulated;
-  }
-  return new Date();
-};
 
 export type CreateOrderResult = { ok: true; id: string } | { ok: false; status: number; error: string };
 
@@ -37,14 +30,24 @@ export type CreateOrderResult = { ok: true; id: string } | { ok: false; status: 
 export const createOrderFromRequest = async (customerId: string, email: string, body: unknown): Promise<CreateOrderResult> => {
   if (!isRecord(body) || !Array.isArray(body.items)) return { ok: false, status: 400, error: 'Pedido inválido.' };
 
-  const date = orderDate(body);
-  if (!checkSchedule(getScheduleStatus(date)).canCheckout) {
-    return { ok: false, status: 409, error: 'Ahora no estamos tomando pedidos.' };
+  const date = requestDate(body.ahora);
+  const live = await getLiveMenu(date);
+  const schedule = getScheduleStatus(date, live);
+  if (!checkSchedule(schedule).canCheckout) {
+    const error = schedule.isPaused ? 'Por hoy no tomamos más pedidos.' : 'Ahora no estamos tomando pedidos.';
+    return { ok: false, status: 409, error };
   }
 
   const items = restoreItems({ items: body.items });
   if (items.length === 0 || items.length !== body.items.length) {
     return { ok: false, status: 409, error: 'Algo de tu pedido ya no está disponible. Revisá el carrito.' };
+  }
+
+  // Marked as sold out from the shop's app after the customer added it
+  const soldOut = [...new Set(items.flatMap(lineMenuItems).filter((item) => live.soldOut.includes(item.id)).map((item) => item.name))];
+  if (soldOut.length > 0) {
+    const [verb, remove] = soldOut.length === 1 ? ['se agotó', 'Sacalo'] : ['se agotaron', 'Sacalos'];
+    return { ok: false, status: 409, error: `${formatList(soldOut)} ${verb} hoy. ${remove} del carrito para seguir.` };
   }
 
   const form: CheckoutForm = {

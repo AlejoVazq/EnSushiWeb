@@ -22,6 +22,7 @@ import { Input } from '@/components/ui/Input';
 import { BUSINESS, DELIVERY_METHOD_LABELS, PAYMENT_METHOD_LABELS } from '@/config/business';
 import { useCartHydrated } from '@/hooks/useCartHydration';
 import { useCartTotals } from '@/hooks/useCartTotals';
+import { refreshLiveMenu, useLiveMenuSync, useSoldOutInCart } from '@/hooks/useLiveMenu';
 import { useCheckoutSchedule, useNow } from '@/hooks/useScheduleStatus';
 import { useSettled } from '@/hooks/useSettled';
 import {
@@ -37,7 +38,7 @@ import {
 } from '@/lib/checkout';
 import { cn } from '@/lib/cn';
 import { lookUpCode } from '@/lib/discounts';
-import { formatPrice } from '@/lib/format';
+import { formatList, formatPrice } from '@/lib/format';
 import { getNow } from '@/lib/schedule';
 import { normalizePhone } from '@/lib/phone';
 import { checkDiscountCode, loadSavedPhone, ORDERS_BY_APP, savePhone, sendOrder } from '@/lib/pedidosApp';
@@ -353,6 +354,9 @@ export function Checkout() {
   // Orders by app: codes the server vouched for (made in the shop's app), so the page can compute them
   const [serverCodes, setServerCodes] = useState<readonly DiscountCode[]>([]);
   const schedule = useCheckoutSchedule();
+  // Orders by app: the shop may pause orders or mark something sold out while the customer fills this in
+  useLiveMenuSync();
+  const soldOutInCart = useSoldOutInCart(items);
   const [errors, setErrors] = useState<CheckoutErrors>({});
   const [sent, setSent] = useState(false);
   const deliveryFee = deliveryFeeFor(form.deliveryMethod);
@@ -422,6 +426,8 @@ export function Checkout() {
     if (!result.ok) {
       setSending(false);
       setSendError(result.error);
+      // A pause or a sold-out mark the page hadn't seen yet: show it right away
+      if (result.status === 409) void refreshLiveMenu();
       return;
     }
     savePhone(phone);
@@ -620,13 +626,19 @@ export function Checkout() {
               )}
             </dl>
             <ScheduleNotices notices={schedule.notices} />
-            {sendError && (
+            {soldOutInCart.length > 0 && (
+              <p role="alert" className="text-sm font-medium text-error">
+                {formatList(soldOutInCart)} {soldOutInCart.length === 1 ? 'se agotó' : 'se agotaron'} hoy.{' '}
+                {soldOutInCart.length === 1 ? 'Sacalo' : 'Sacalos'} del pedido para seguir (tocá Editar).
+              </p>
+            )}
+            {sendError && soldOutInCart.length === 0 && (
               <p role="alert" className="text-sm font-medium text-error">
                 {sendError}
               </p>
             )}
             {ORDERS_BY_APP ? (
-              <Button type="submit" size="lg" fullWidth disabled={!schedule.canCheckout || sending}>
+              <Button type="submit" size="lg" fullWidth disabled={!schedule.canCheckout || sending || soldOutInCart.length > 0}>
                 {sending ? 'Enviando…' : submitLabel}
               </Button>
             ) : whatsappUrl && schedule.canCheckout ? (

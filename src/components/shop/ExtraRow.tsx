@@ -1,6 +1,7 @@
 'use client';
 
 import { getBuildItemsByGroup } from '@/data/menu';
+import { useIsAvailable } from '@/hooks/useLiveMenu';
 import { useCanOrder } from '@/hooks/useScheduleStatus';
 import { formatUnits } from '@/lib/cartLine';
 import { cn } from '@/lib/cn';
@@ -14,18 +15,19 @@ import { HollowSeal, LineAction } from './LineAction';
 export function ExtraRow({ item }: { item: BuildItem }) {
   const addExtra = useCartStore((state) => state.addExtra);
   const canOrder = useCanOrder();
+  const available = useIsAvailable()(item);
 
   return (
     <div className="flex min-h-19 items-center justify-between gap-4 py-4">
       <div className="min-w-0">
-        <h3 className={cn('font-title text-lg leading-snug wrap-anywhere sm:text-xl', item.available ? 'text-washi' : 'text-washi-muted')}>
+        <h3 className={cn('font-title text-lg leading-snug wrap-anywhere sm:text-xl', available ? 'text-washi' : 'text-washi-muted')}>
           {item.name}
         </h3>
         <p className="text-sm text-washi-muted tabular-nums">
           {formatUnits(item.step, item.unitLabel)} · {formatPrice(item.price)}
         </p>
       </div>
-      {!item.available ? (
+      {!available ? (
         <HollowSeal>Agotado hoy</HollowSeal>
       ) : canOrder ? (
         <LineAction

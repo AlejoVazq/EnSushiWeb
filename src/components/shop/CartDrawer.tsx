@@ -7,7 +7,9 @@ import { MinusIcon, PlusIcon, TrashIcon } from '@/components/ui/icons';
 import { Sheet } from '@/components/ui/Sheet';
 import { BUSINESS } from '@/config/business';
 import { useCartTotals } from '@/hooks/useCartTotals';
+import { useIsAvailable, useSoldOutInCart } from '@/hooks/useLiveMenu';
 import { useCanOrder, useCartNotices, useScheduleStatus } from '@/hooks/useScheduleStatus';
+import { lineMenuItems } from '@/lib/cartItems';
 import { formatBoxContents, getLineName } from '@/lib/cartLine';
 import { formatItemPrice, formatPrice } from '@/lib/format';
 import { lineSubtotal, toBoxInput, useCartStore } from '@/store/useCartStore';
@@ -81,9 +83,11 @@ interface CartLineProps {
   canAdd: boolean;
   /** The line's title, focused when the line above it is removed */
   titleRef: (element: HTMLHeadingElement | null) => void;
+  /** Marked sold out from the shop's app after it was added: it has to come out before continuing */
+  soldOut: boolean;
 }
 
-function CartLine({ item, onEdit, onRemove, canAdd, titleRef }: CartLineProps) {
+function CartLine({ item, onEdit, onRemove, canAdd, titleRef, soldOut }: CartLineProps) {
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const name = getLineName(item);
 
@@ -100,6 +104,7 @@ function CartLine({ item, onEdit, onRemove, canAdd, titleRef }: CartLineProps) {
         {item.kind === 'box' && <p className="mt-0.5 text-sm leading-relaxed wrap-anywhere text-washi-muted">{formatBoxContents(item.box)}</p>}
         {/* Free lines already read "Sin cargo" next to the title */}
         {item.unitPrice > 0 && <p className="mt-0.5 text-sm text-washi-muted tabular-nums">{unitPriceText(item)}</p>}
+        {soldOut && <p className="mt-0.5 text-sm font-medium text-error">Se agotó hoy: sacalo para seguir.</p>}
 
         <div className="mt-2 flex items-center justify-between gap-2">
           {onEdit ? (
@@ -133,7 +138,7 @@ function CartLine({ item, onEdit, onRemove, canAdd, titleRef }: CartLineProps) {
               <button
                 type="button"
                 onClick={() => updateQuantity(item.lineId, item.quantity + 1)}
-                disabled={!canAdd}
+                disabled={!canAdd || soldOut}
                 aria-label={`Agregar uno más de ${name}`}
                 className={stepButtonClassName}
               >
@@ -174,6 +179,8 @@ export function CartDrawer({ layout, open = false, onClose, onCheckout, onEditBo
   const scheduleNotices = useCartNotices();
   // Past the cutoff the rolls and nigiris of a box can't change, so it can only be kept or removed
   const canOrder = useCanOrder();
+  const isAvailable = useIsAvailable();
+  const soldOutInCart = useSoldOutInCart(items);
   const pastCutoff = useScheduleStatus()?.isPastPreorderCutoff ?? false;
   const canEditBoxes = canOrder && !pastCutoff;
   const [confirmingClear, setConfirmingClear] = useState(false);
@@ -276,6 +283,7 @@ export function CartDrawer({ layout, open = false, onClose, onCheckout, onEditBo
       onEdit={item.kind === 'box' && canEditBoxes ? () => leave(() => onEditBox(item)) : undefined}
       onRemove={() => removeLine(item)}
       canAdd={canOrder}
+      soldOut={lineMenuItems(item).some((menuItem) => !isAvailable(menuItem))}
       titleRef={(element) => {
         if (element) titleRefs.current.set(item.lineId, element);
         else titleRefs.current.delete(item.lineId);
@@ -317,8 +325,8 @@ export function CartDrawer({ layout, open = false, onClose, onCheckout, onEditBo
             <button
               type="button"
               onClick={() => leave(onCheckout)}
-              // Closed: the notice above says when the shop opens
-              disabled={!canOrder}
+              // Closed: the notice above says when the shop opens; sold out: the line says it
+              disabled={!canOrder || soldOutInCart.length > 0}
               className="flex h-14 w-full items-center justify-center rounded-2xl bg-washi font-bold text-sumi transition-colors hover:bg-washi/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi disabled:pointer-events-none disabled:opacity-40"
             >
               Continuar con el pedido

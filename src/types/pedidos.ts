@@ -83,3 +83,32 @@ export interface StaffDiscountCode {
 
 /** POST /api/local/codigos (all fields) and PATCH /api/local/codigos/[code] (any of them but the code) */
 export type StaffDiscountCodeInput = Omit<StaffDiscountCode, 'uses' | 'createdAt'>;
+
+/** GET /api/menu: what the shop changed today from its app, for the web to show it live */
+export interface LiveMenu {
+  /** Product and build-item ids sold out today */
+  soldOut: string[];
+  /** The shop stopped taking orders for today (busy kitchen) */
+  ordersPaused: boolean;
+}
+
+/** One item the shop can mark as sold out */
+export interface StaffMenuItem {
+  /** Product or build-item id */
+  id: string;
+  name: string;
+  soldOut: boolean;
+  /** Sold out in the site's code (`available: false`): the app can't turn it back on */
+  locked: boolean;
+}
+
+/** GET /api/local/menu: today's state, with the items grouped as the menu's tabs */
+export interface StaffMenu {
+  /** "YYYY-MM-DD" in the shop's time zone: marks only last for this day */
+  day: string;
+  ordersPaused: boolean;
+  groups: { name: string; items: StaffMenuItem[] }[];
+}
+
+/** PATCH /api/local/menu */
+export type StaffMenuAction = { itemId: string; soldOut: boolean } | { ordersPaused: boolean };

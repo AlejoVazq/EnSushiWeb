@@ -11,3 +11,8 @@ export const formatPrice = (amount: number): string => priceFormatter.format(amo
 
 /** A product's price: "$ 500", or "Sin cargo" for free ones (price 0). Totals always use formatPrice. */
 export const formatItemPrice = (amount: number): string => (amount === 0 ? 'Sin cargo' : formatPrice(amount));
+
+const listFormatter = new Intl.ListFormat(BUSINESS.locale, { type: 'conjunction' });
+
+/** ["Midori", "Combo Green"] → "Midori y Combo Green" */
+export const formatList = (items: readonly string[]): string => listFormatter.format(items);

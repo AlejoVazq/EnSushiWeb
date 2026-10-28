@@ -6,6 +6,7 @@ import type { ReactNode } from 'react';
 import { MinusIcon, PlusIcon } from '@/components/ui/icons';
 import { Sheet } from '@/components/ui/Sheet';
 import { BUSINESS } from '@/config/business';
+import { useIsAvailable } from '@/hooks/useLiveMenu';
 import { formatUnits } from '@/lib/cartLine';
 import { formatPrice } from '@/lib/format';
 import type { BuildItem } from '@/types';
@@ -38,11 +39,13 @@ interface BuildItemSheetProps {
 
 /** What a roll or nigiri is made of (its photo, or the drawing), with the same controls as its row */
 export function BuildItemSheet({ item, open, onClose, steps, fits, blocked, closed, needsSize, onChange, onNeedSize }: BuildItemSheetProps) {
+  const isAvailable = useIsAvailable();
   if (!item) return null;
   const units = formatUnits(item.step, item.unitLabel);
 
   let action: ReactNode = null;
-  if (!item.available) action = <HollowSeal>Agotado hoy</HollowSeal>;
+  // Already in the box when it sold out: the row's stepper takes it out
+  if (!isAvailable(item)) action = <HollowSeal>Agotado hoy</HollowSeal>;
   else if (closed) action = null;
   else if (blocked) action = <HollowSeal>Hasta las {preorderCutoff}</HollowSeal>;
   else if (needsSize)

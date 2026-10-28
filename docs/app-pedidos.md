@@ -28,6 +28,10 @@ la API responde 404.
 - **Códigos de descuento:** el botón "Códigos" de la app crea, edita, pausa y borra códigos (porcentaje o monto
   fijo, fechas opcionales, cantidad de usos en total y "una vez por cliente"). Funcionan en la web apenas se
   guardan, sin deployar. Los pedidos rechazados no cuentan como uso. Los de `npm run codigo` siguen andando.
+- **Menú de hoy:** el botón "Menú" de la app marca productos, rolls, nigiris y acompañamientos como "Agotado hoy"
+  y pausa los pedidos del día ("Por hoy no tomamos más pedidos", con "Reanudar" siempre a mano en la lista). La
+  web lo ve en menos de un minuto; todo vuelve a la normalidad al día siguiente solo. Si alguien ya tenía algo
+  agotado en el carrito, la web le pide sacarlo, y el servidor rechaza el pedido si llega igual.
 
 ## Servidor
 

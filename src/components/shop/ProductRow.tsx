@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { useState, type ReactNode } from 'react';
 
+import { useIsAvailable } from '@/hooks/useLiveMenu';
 import { useCanOrder, useSpecialDay } from '@/hooks/useScheduleStatus';
 import { MENU_PHOTO_SIZES } from '@/hooks/useWarmMenuPhotos';
 import { cn } from '@/lib/cn';
@@ -115,7 +116,7 @@ function ChoicePicker<T extends string | number>({
 }
 
 export function ProductRow({ product, withSheet = false }: ProductRowProps) {
-  const soldOut = !product.available;
+  const soldOut = !useIsAvailable()(product);
   const canOrder = useCanOrder();
   const addItem = useCartStore((state) => state.addItem);
   // Special days take a percent off every Combo (not Arma tu combo); sold-out ones show no discount

@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import type { StaffOrder } from '../../../src/types/pedidos';
+import type { StaffMenu, StaffOrder } from '../../../src/types/pedidos';
 import type { Settings } from '../shared/bridge';
 import { DELIVERY_LABELS, formatPrice, formatTime } from '../shared/textos';
 
 import { DiscountCodes } from './DiscountCodes';
+import { MenuToday, changeMenu } from './MenuToday';
 import { OrderDetail } from './OrderDetail';
 
 /** How often the list asks the server for new orders */
 const POLL_MS = 5000;
+/** Today's menu changes only come from this app, so it's asked for less often (another PC, or a new day) */
+const MENU_POLL_MS = 60_000;
 
 /** Two short beeps: a new order came in */
 const beep = () => {
@@ -39,8 +42,10 @@ interface OrdersProps {
 export function Orders({ settings, onLoggedOut, onSettings, updateVersion }: OrdersProps) {
   const [orders, setOrders] = useState<StaffOrder[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  // The codes take the order's place on the right; the list keeps polling (and beeping) meanwhile
-  const [showCodes, setShowCodes] = useState(false);
+  // Codes and today's menu take the order's place on the right; the list keeps polling (and beeping) meanwhile
+  const [panel, setPanel] = useState<'pedido' | 'codigos' | 'menu'>('pedido');
+  const [menu, setMenu] = useState<StaffMenu | null>(null);
+  const [menuError, setMenuError] = useState<string | null>(null);
   const [connection, setConnection] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   // Orders already seen, so only really new ones beep (null until the first load: those don't beep)
@@ -75,6 +80,26 @@ export function Orders({ settings, onLoggedOut, onSettings, updateVersion }: Ord
     return () => window.clearInterval(timer);
   }, [refresh]);
 
+  const loadMenu = useCallback(async () => {
+    const response = await window.ensushi.api('GET', '/api/local/menu');
+    if (response.status === 200 && typeof response.data === 'object' && response.data !== null) {
+      setMenu(response.data as StaffMenu);
+      setMenuError(null);
+    } else setMenuError(errorText(response.data));
+  }, []);
+
+  useEffect(() => {
+    void loadMenu();
+    const timer = window.setInterval(() => void loadMenu(), MENU_POLL_MS);
+    return () => window.clearInterval(timer);
+  }, [loadMenu]);
+
+  const resumeOrders = async () => {
+    const result = await changeMenu({ ordersPaused: false });
+    if (result.ok) setMenu(result.menu);
+    else setMenuError(result.error);
+  };
+
   /** After confirming, rejecting or printing: the server's version of the order replaces ours */
   const replaceOrder = (updated: StaffOrder) =>
     setOrders((prev) => prev.map((order) => (order.id === updated.id ? updated : order)));
@@ -89,7 +114,7 @@ export function Orders({ settings, onLoggedOut, onSettings, updateVersion }: Ord
       className={`order${order.id === selectedId ? ' selected' : ''}`}
       onClick={() => {
         setSelectedId(order.id);
-        setShowCodes(false);
+        setPanel('pedido');
         document.title = 'EnSushi Local';
       }}
     >
@@ -109,9 +134,12 @@ export function Orders({ settings, onLoggedOut, onSettings, updateVersion }: Ord
   return (
     <div className="layout">
       <aside className="sidebar">
-        <div className="bar">
+        <div className="bar" style={{ flexWrap: 'wrap' }}>
           <strong style={{ flex: 1 }}>Pedidos</strong>
-          <button className={showCodes ? 'primary' : undefined} onClick={() => setShowCodes((open) => !open)}>
+          <button className={panel === 'menu' ? 'primary' : undefined} onClick={() => setPanel(panel === 'menu' ? 'pedido' : 'menu')}>
+            Menú
+          </button>
+          <button className={panel === 'codigos' ? 'primary' : undefined} onClick={() => setPanel(panel === 'codigos' ? 'pedido' : 'codigos')}>
             Códigos
           </button>
           <button onClick={onSettings}>Ajustes</button>
@@ -130,6 +158,12 @@ export function Orders({ settings, onLoggedOut, onSettings, updateVersion }: Ord
             <button onClick={() => void window.ensushi.installUpdate()}>Actualizar ahora</button>
           </div>
         )}
+        {menu?.ordersPaused && (
+          <div className="bar" style={{ background: '#fdecec', fontSize: 14 }}>
+            <strong style={{ flex: 1 }} className="error">Pedidos pausados por hoy</strong>
+            <button onClick={() => void resumeOrders()}>Reanudar</button>
+          </div>
+        )}
         <div className="bar muted" style={{ fontSize: 13 }}>
           {connection ? <span className="error">{connection}</span> : lastUpdate ? `Actualizado ${formatTime(lastUpdate)}` : 'Cargando…'}
         </div>
@@ -141,7 +175,9 @@ export function Orders({ settings, onLoggedOut, onSettings, updateVersion }: Ord
       </aside>
 
       <main className="main">
-        {showCodes ? (
+        {panel === 'menu' ? (
+          <MenuToday menu={menu} loadError={menuError} onChange={setMenu} />
+        ) : panel === 'codigos' ? (
           <DiscountCodes />
         ) : selected ? (
           <OrderDetail key={selected.id} order={selected} settings={settings} onUpdated={replaceOrder} />

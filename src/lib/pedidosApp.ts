@@ -2,7 +2,7 @@ import { toPersistedLine } from '@/lib/cartItems';
 import type { CheckoutForm } from '@/lib/checkout';
 import { getSimulatedNow } from '@/lib/schedule';
 import type { CartItem, DiscountCode } from '@/types';
-import type { CustomerOrder } from '@/types/pedidos';
+import type { CustomerOrder, LiveMenu } from '@/types/pedidos';
 
 /**
  * Orders go to the shop's desktop app (through this site's server) instead of WhatsApp.
@@ -44,6 +44,12 @@ export const checkDiscountCode = (code: string) =>
     codigo: code,
     ...(getSimulatedNow() && { ahora: getSimulatedNow()?.toISOString() }),
   });
+
+/** What's sold out today and whether orders are paused (set from the shop's app) */
+export const getLiveMenu = () => {
+  const simulated = getSimulatedNow();
+  return request<LiveMenu>('GET', simulated ? `/api/menu?ahora=${encodeURIComponent(simulated.toISOString())}` : '/api/menu');
+};
 
 /** Sends the cart as menu references: the server prices everything again */
 export const sendOrder = (form: CheckoutForm, phone: string, items: readonly CartItem[]) =>

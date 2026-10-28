@@ -5,6 +5,7 @@ import { useState } from 'react';
 
 import { BUSINESS } from '@/config/business';
 import { BUILD_CATEGORY_ID, EXTRAS_CATEGORY_ID, MENU_CATEGORIES } from '@/data/menu';
+import { useLiveMenuSync } from '@/hooks/useLiveMenu';
 import { DESKTOP_QUERY, useMediaQuery } from '@/hooks/useMediaQuery';
 import { useWarmMenuPhotos } from '@/hooks/useWarmMenuPhotos';
 import { toBoxInput } from '@/store/useCartStore';
@@ -25,6 +26,8 @@ export function Shop() {
   // From `lg` the order is a panel beside the menu, always on screen; below, a drawer
   const isDesktop = useMediaQuery(DESKTOP_QUERY);
   useWarmMenuPhotos();
+  // Orders by app: sold-out marks and paused orders from the shop's app
+  useLiveMenuSync();
 
   /** The header's bag, "Ver pedido": opens the drawer, or on desktop takes focus to the panel */
   const openCart = () => {

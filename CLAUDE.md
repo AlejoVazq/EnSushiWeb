@@ -78,11 +78,12 @@ En lugar de WhatsApp, el pedido va a nuestro servidor y lo recibe la app de escr
 - En desarrollo el checkout manda la hora simulada (`?ahora=`) y el servidor la respeta; en producción se ignora.
 - Checkout con la bandera: `AccountSection` (correo → código → "Pedís como…"), campo Celular (se recuerda en `localStorage` `ensushi-celular`), botón "Enviar pedido · $X" → `/pedido/[id]` (`OrderStatus`, consulta cada 10 s). Llamadas del cliente en `src/lib/pedidosApp.ts`.
 - Códigos de descuento desde la app (migración 2, tabla `discount_codes`; `src/server/discounts.ts`): `GET/POST /api/local/codigos`, `PATCH/DELETE /api/local/codigos/[code]` (pausar es `{ active: false }`). El checkout los valida con `POST /api/descuentos` (`checkDiscountCode`), que devuelve la definición con la misma forma que `DiscountCode`; `lookUpCode`, `getBestDiscount`, `createOrder` y `useCartTotals` reciben esos códigos como `extraCodes`, así el cálculo es el mismo en el celular y en el servidor. Límites: usos en total y una vez por cliente (cuentan los pedidos no rechazados, por `orders.discount_code`). Si al llegar el pedido el código se pausó o se agotó, el servidor responde 409 ("Quitalo para seguir") en lugar de cambiar el total. Los códigos de `discounts.ts` siguen andando. En la app, "Códigos" reemplaza el detalle del pedido a la derecha; la lista sigue consultando y pitando.
+- Menú de hoy desde la app (migración 3, tablas `sold_out` y `orders_paused` por día del local; `src/server/liveMenu.ts`): `GET/PATCH /api/local/menu` (`{ itemId, soldOut }` o `{ ordersPaused }`) y `GET /api/menu` público para la web. Las marcas valen solo ese día (nadie las tiene que deshacer). La web las lee con `useLiveMenuSync` (en `Shop` y el checkout, cada 60 s y al volver a la pestaña) en `useLiveMenuStore`; `useIsAvailable()` reemplaza a leer `available` directo, y `getScheduleStatus(date, { ordersPaused })` da `isPaused` (banda, carrito y checkout dicen "Por hoy no tomamos más pedidos."). Un agotado que ya estaba en el carrito o en la caja a medio armar se marca en la línea y bloquea seguir hasta sacarlo; el servidor rechaza con 409 nombrándolo (`lineMenuItems`). Granularidad: producto entero (todos los tamaños y opciones) o ítem de Arma tu combo. En desarrollo `?ahora` / `ahora` elige el día también en estas rutas. Sin la bandera, nada de esto corre.
 - App (`desktop/`): esbuild + TypeScript 7 + Electron 45, React en el renderer. `contextIsolation` + `sandbox`; el renderer solo habla con el proceso principal por `window.ensushi` (preload), que hace los pedidos con `net.fetch` y solo permite rutas `/api/local/`. Token cifrado con `safeStorage` (async) en `userData/config.json` junto con los Ajustes (servidor, ticketera, ancho 58/80 mm, imprimir al confirmar, alias, dirección de retiro). Consulta cada 5 s y pita con pedidos nuevos. Textos de mensajes y comanda en `desktop/src/shared/textos.ts` (horas en 24 h; comanda en negro forzado). Una sola instancia. `ENSUSHI_SIN_WHATSAPP=1` (desarrollo) solo escribe el link en la consola.
 - `tsconfig.json` y ESLint de la raíz excluyen `desktop/` (tiene su propio `npm run typecheck`).
 - `.env.development.local` (no se sube) tiene las dos banderas y el usuario de prueba del local; la contraseña nunca va al chat ni a git.
 
-**Probado:** API completa con errores (código malo, día cerrado, celular inválido, producto inexistente, total recalculado), checkout en navegador de celular de punta a punta con la página de estado, la app real (ingreso, pedido nuevo, confirmar +45 min, mensaje armado) y la comanda vista a 80 mm. `tsc`, lint y `next build` pasan.
+**Probado:** menú de hoy (API con errores, menú y Arma tu combo desteñidos, carrito y checkout bloqueados, pausa en banda/carrito/caja, rechazo del servidor con uno y dos agotados, pantalla "Menú" de la app en el navegador). API completa con errores (código malo, día cerrado, celular inválido, producto inexistente, total recalculado), checkout en navegador de celular de punta a punta con la página de estado, la app real (ingreso, pedido nuevo, confirmar +45 min, mensaje armado) y la comanda vista a 80 mm. `tsc`, lint y `next build` pasan.
 
 **Falta (app de pedidos):**
 - [ ] Contratar el servidor y ponerlo en marcha con `docs/app-pedidos.md` (PostgreSQL real nunca se probó: solo PGlite).
@@ -93,6 +94,7 @@ En lugar de WhatsApp, el pedido va a nuestro servidor y lo recibe la app de escr
 - [ ] Decidir qué pasa con los pedidos que nadie responde.
 - [ ] Diseño de la app y del checkout con cuenta.
 - [x] Backups diarios: `scripts/backup-db.sh` + `deploy/ensushi-backup.{service,timer}` (5:00, 14 días + mensual, copia opcional a otra máquina). Probado con un `pg_dump` de mentira; falta instalarlo en el servidor.
+- [x] Agotados del día y pausar pedidos desde la app del local (probado contra el servidor de desarrollo; falta en la app real).
 - [x] Crear y gestionar los códigos de descuento desde la app del local (probado contra el servidor de desarrollo: API, pantalla de la app en el navegador y checkout; falta en la app real).
 
 ## Plan de implementación (un paso por vez)
@@ -121,7 +123,7 @@ En lugar de WhatsApp, el pedido va a nuestro servidor y lo recibe la app de escr
 
 ## Ideas post-V1
 - Zona de envío (costo por zona) y pedido mínimo.
-- Marcar productos como agotados sin tocar el código.
+- Marcar productos como agotados sin tocar el código (hecho en `app-pedidos`: "Menú" de la app).
 - App de escritorio para el local (versión base en la rama `app-pedidos`).
 - Conexión entre la app del local y la web (por ejemplo, agotados y horario en vivo).
 

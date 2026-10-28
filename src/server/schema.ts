@@ -85,4 +85,20 @@ export const MIGRATIONS: readonly string[] = [
   ALTER TABLE orders ADD COLUMN discount_code text;
   CREATE INDEX orders_discount_code ON orders (discount_code, customer_id) WHERE discount_code IS NOT NULL;
   `,
+
+  // 3 — what the shop changes from its app for one day only: sold-out items and pausing orders
+  `
+  -- "day" is "YYYY-MM-DD" in the shop's time zone: the mark is gone the next day, nobody has to undo it
+  CREATE TABLE sold_out (
+    item_id text NOT NULL,
+    day text NOT NULL,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    PRIMARY KEY (item_id, day)
+  );
+
+  CREATE TABLE orders_paused (
+    day text PRIMARY KEY,
+    created_at timestamptz NOT NULL DEFAULT now()
+  );
+  `,
 ];

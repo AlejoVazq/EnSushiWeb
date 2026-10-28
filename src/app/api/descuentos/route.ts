@@ -1,16 +1,7 @@
 import { lookUpCode } from '@/lib/discounts';
-import { currentCustomer, error, json, ordersByAppEnabled, readJson } from '@/server/http';
+import { currentCustomer, error, json, ordersByAppEnabled, readJson, requestDate } from '@/server/http';
 import { checkServerCode } from '@/server/discounts';
 import { allow, clientIp } from '@/server/rateLimit';
-
-/** In development the checkout sends its simulated time (?ahora) so the dates are judged at the same hour */
-const requestDate = (body: Record<string, unknown>): Date => {
-  if (process.env.NODE_ENV !== 'production' && typeof body.ahora === 'string') {
-    const simulated = new Date(body.ahora);
-    if (!Number.isNaN(simulated.getTime())) return simulated;
-  }
-  return new Date();
-};
 
 /**
  * POST /api/descuentos { codigo }: the checkout asks whether a typed code works. Answers with its definition (the
@@ -31,7 +22,7 @@ export async function POST(request: Request) {
 
   const server = await checkServerCode(input, await currentCustomer());
   if (server && !server.ok) return error(server.error, 409);
-  const lookup = lookUpCode(input, requestDate(record), server?.ok ? [server.definition] : []);
+  const lookup = lookUpCode(input, requestDate(record.ahora), server?.ok ? [server.definition] : []);
   if (!lookup.ok) return error(lookup.error, 404);
   return json({ code: lookup.code, definition: lookup.definition });
 }

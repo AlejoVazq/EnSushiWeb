@@ -29,3 +29,12 @@ export const bearerToken = (request: Request): string | undefined =>
   request.headers.get('authorization')?.match(/^Bearer (.+)$/)?.[1];
 
 export const currentStaff = (request: Request): Promise<string | null> => readSession('staff', bearerToken(request));
+
+/** "Now" for a request; in development the page sends its simulated time (?ahora) so both judge the same hour */
+export const requestDate = (ahora: unknown): Date => {
+  if (process.env.NODE_ENV !== 'production' && typeof ahora === 'string') {
+    const simulated = new Date(ahora);
+    if (!Number.isNaN(simulated.getTime())) return simulated;
+  }
+  return new Date();
+};

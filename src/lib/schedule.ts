@@ -4,6 +4,8 @@ export interface ScheduleStatus {
   isOpenToday: boolean;
   /** Today is an opening day and the shop hasn't closed yet: orders for tonight are taken */
   isTakingOrders: boolean;
+  /** The shop stopped taking orders for today from its app (busy kitchen); isTakingOrders is false */
+  isPaused: boolean;
   /** Express kitchen is taking orders */
   isStoreOpen: boolean;
   /** Today is an opening day and still before its preorder cutoff */
@@ -129,22 +131,29 @@ const isOpeningDay = (date: Date): boolean => {
   return extraOpenDates.includes(day) || openDays.some((weekday) => weekday === date.getUTCDay());
 };
 
+/** What the shop changed from its app today (orders by app only; without it, nothing) */
+export interface LiveSchedule {
+  ordersPaused: boolean;
+}
+
 /** Opening and preorder status at `date` (the visitor's clock, read in the shop's time zone) */
-export const getScheduleStatus = (date: Date = getNow()): ScheduleStatus => {
+export const getScheduleStatus = (date: Date = getNow(), live?: LiveSchedule): ScheduleStatus => {
   const { day: today, minutes } = shopTime(date);
   const isOpenToday = isOpeningDay(addDays(today, 0));
+  const isPaused = isOpenToday && minutes < CLOSE && (live?.ordersPaused ?? false);
 
   let nextOpening: string | null = null;
   for (let offset = 0; offset <= LOOKAHEAD_DAYS && nextOpening === null; offset++) {
     const candidate = addDays(today, offset);
-    // Today only "opens next" before opening time
-    if (!isOpeningDay(candidate) || (offset === 0 && minutes >= OPEN)) continue;
+    // Today only "opens next" before opening time, and not when it stopped taking orders
+    if (!isOpeningDay(candidate) || (offset === 0 && (minutes >= OPEN || isPaused))) continue;
     nextOpening = offset === 0 ? 'hoy' : offset === 1 ? 'mañana' : `el ${weekdayFormatter.format(candidate)}`;
   }
 
   return {
     isOpenToday,
-    isTakingOrders: isOpenToday && minutes < CLOSE,
+    isTakingOrders: isOpenToday && minutes < CLOSE && !isPaused,
+    isPaused,
     isStoreOpen: isOpenToday && minutes >= OPEN && minutes < CLOSE,
     isPreorderAvailable: isOpenToday && minutes < CUTOFF,
     isPastPreorderCutoff: minutes >= CUTOFF,
@@ -156,7 +165,11 @@ export const getScheduleStatus = (date: Date = getNow()): ScheduleStatus => {
 export const checkSchedule = (status: ScheduleStatus): CartScheduleCheck => {
   if (!status.isTakingOrders) {
     const reopening = status.nextOpening ? ` Abrimos ${status.nextOpening} a las ${operatingHours.open}.` : '';
-    const closed = status.isOpenToday ? 'Ya cerramos por hoy.' : 'Hoy no abrimos.';
+    const closed = status.isPaused
+      ? 'Por hoy no tomamos más pedidos.'
+      : status.isOpenToday
+        ? 'Ya cerramos por hoy.'
+        : 'Hoy no abrimos.';
     return { canCheckout: false, notices: [{ tone: 'error', message: `${closed}${reopening}` }] };
   }
 

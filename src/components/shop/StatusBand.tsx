@@ -26,7 +26,7 @@ interface BandCopy {
 const getBandCopy = (status: ScheduleStatus): BandCopy => {
   if (!status.isTakingOrders) {
     return {
-      lead: status.isOpenToday ? 'Ya cerramos por hoy.' : 'Hoy no abrimos.',
+      lead: status.isPaused ? 'Por hoy no tomamos más pedidos.' : status.isOpenToday ? 'Ya cerramos por hoy.' : 'Hoy no abrimos.',
       detail: status.nextOpening ? `Abrimos ${status.nextOpening} a las ${operatingHours.open}.` : null,
     };
   }

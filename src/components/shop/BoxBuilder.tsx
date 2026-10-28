@@ -14,6 +14,7 @@ import {
   isBoxItem,
   isCategoryShown,
 } from '@/data/menu';
+import { useIsAvailable } from '@/hooks/useLiveMenu';
 import { useCanOrder, useScheduleStatus } from '@/hooks/useScheduleStatus';
 import { useSettled } from '@/hooks/useSettled';
 import {
@@ -111,10 +112,12 @@ interface BoxItemRowProps {
 
 function BoxItemRow({ item, steps, fits, blocked, closed, onChange, onNeedSize, needsSize, onOpen }: BoxItemRowProps) {
   const units = item.step * steps;
-  const unavailable = !item.available || blocked;
+  const available = useIsAvailable()(item);
+  const unavailable = !available || blocked;
 
   let control;
-  if (!item.available) control = <HollowSeal>Agotado hoy</HollowSeal>;
+  // Sold out while already in the box (marked from the shop's app): the stepper stays so it can come out
+  if (!available && steps === 0) control = <HollowSeal>Agotado hoy</HollowSeal>;
   else if (closed) control = null;
   else if (blocked) control = <HollowSeal title={CUTOFF_TITLE}>Hasta las {preorderCutoff}</HollowSeal>;
   else if (steps === 0)
@@ -148,7 +151,7 @@ function BoxItemRow({ item, steps, fits, blocked, closed, onChange, onNeedSize, 
         <button
           type="button"
           onClick={() => onChange(steps + 1)}
-          disabled={!fits}
+          disabled={!fits || !available}
           aria-label={`Sumar ${formatUnits(item.step, item.unitLabel)} más de ${item.name}`}
           className={stepButtonClassName}
         >
@@ -209,6 +212,12 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
   const fill = getBoxFill(steps);
   const total = boxTotal(steps);
   const complete = boxSize !== undefined && isValidFill(boxSize, fill);
+  // Marked sold out from the shop's app while already in the box: it has to come out first
+  const isAvailable = useIsAvailable();
+  const soldOutInBox = Object.keys(steps).some((id) => {
+    const item = getBuildItemById(id);
+    return item !== undefined && !isAvailable(item);
+  });
   const missing = boxSize ? getMissing(boxSize, fill) : null;
   // The other box, when the contents as they are would fit there
   const fitsElsewhere =
@@ -244,7 +253,7 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
   };
 
   const submit = () => {
-    if (size === null || !complete) return;
+    if (size === null || !complete || soldOutInBox) return;
     const input: BoxInput = { size, steps };
     const stillInCart = editingLineId && useCartStore.getState().items.some((item) => item.lineId === editingLineId);
     if (editingLineId && stillInCart) replaceBox(editingLineId, input);
@@ -439,6 +448,8 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
                 <BarButton onClick={requestSize} outline>
                   Elegí la caja
                 </BarButton>
+              ) : soldOutInBox ? (
+                <BarButton disabled>Sacá lo agotado</BarButton>
               ) : complete ? (
                 <BarButton onClick={submit}>
                   {editingLineId ? 'Guardar' : 'Agregar'} · {formatPrice(total)}

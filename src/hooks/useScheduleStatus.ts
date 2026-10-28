@@ -12,6 +12,7 @@ import {
   type CartScheduleNotice,
   type ScheduleStatus,
 } from '@/lib/schedule';
+import { useLiveMenuStore } from '@/store/useLiveMenuStore';
 import type { SpecialDay } from '@/types';
 
 const MINUTE = 60_000;
@@ -31,10 +32,11 @@ export function useNow(): Date | null {
   return useMemo(() => (minute === null ? null : new Date(minute * MINUTE)), [minute]);
 }
 
-/** null during SSR and hydration: the status depends on the visitor's clock */
+/** null during SSR and hydration: the status depends on the visitor's clock (and, by app, on orders being paused) */
 export function useScheduleStatus(): ScheduleStatus | null {
   const now = useNow();
-  return useMemo(() => (now ? getScheduleStatus(now) : null), [now]);
+  const ordersPaused = useLiveMenuStore((state) => state.ordersPaused);
+  return useMemo(() => (now ? getScheduleStatus(now, { ordersPaused }) : null), [now, ordersPaused]);
 }
 
 /** Today's special day (a discount on every Combo), or null; null until the clock is known */
