@@ -95,6 +95,28 @@ export type Product = StandardProduct | SizedProduct;
 /** Sections of the "Arma tu combo" builder */
 export type BuildItemGroup = 'rolls' | 'nigiris' | 'acompanamientos';
 
+/** What goes inside a roll, as drawn in its cross-section */
+export type RollFillingKind =
+  | 'salmon'
+  | 'salmon-cooked'
+  | 'salmon-tempura'
+  | 'tuna'
+  | 'avocado'
+  | 'cucumber'
+  | 'carrot'
+  | 'cream-cheese'
+  | 'scallion'
+  | 'chive';
+
+/** Cross-section of a roll, drawn in its detail sheet until it has a photo of its own */
+export interface RollCut {
+  /** uramaki: rice outside the nori. hosomaki: nori outside */
+  wrap: 'uramaki' | 'hosomaki';
+  /** Coating over the rice, e.g. "Crujiente picante" */
+  topping?: { label: string; kind: 'crunchy-spicy' };
+  fillings: readonly { label: string; kind: RollFillingKind }[];
+}
+
 /**
  * Something the customer adds in "Arma tu combo", in fixed steps, each with its own price.
  * Rolls and nigiris fill a box (one piece each unit) and stop at the preorder cutoff;
@@ -105,7 +127,10 @@ export interface BuildItem {
   group: BuildItemGroup;
   name: string;
   description?: string;
+  /** Photo; in a roll's detail sheet it takes the place of the drawn `cut` */
   imageUrl?: string;
+  /** Rolls: what's inside, drawn in the detail sheet */
+  cut?: RollCut;
   /** Units added per step: 5 pieces of a roll, 1 nigiri, 3 gyosas, 5 langostinos */
   step: number;
   /** Plural unit shown next to `step`, e.g. "piezas", "unidades", "palitos" */

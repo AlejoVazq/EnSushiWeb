@@ -31,6 +31,7 @@
      - Cualquier otra combinación no se puede (los nigiris ocupan más lugar que las piezas de roll, por eso la lista es explícita). La chica incluye 1 salsa y 1 palito, la grande 2 y 2; el armado no lo muestra (lo agrega el local).
      - Rolls de autor, de a 5 piezas, $ 9.000 cada 5: New York, Sake, Midori, Hikaru, Sakana Maki, TunaSpicy (la lista puede crecer).
      - Nigiris, por unidad: salmón $ 2.000, langostino $ 1.500; los dos cuentan igual en las combinaciones.
+     - Ficha de cada roll: en la lista el roll muestra solo nombre, flechita › y precio (sin descripción); tocar el nombre abre `RollSheet` con lo que trae y el mismo control para sumar (el "+" de la fila suma directo, sin abrirla). Mientras no haya foto, la ficha dibuja el corte del roll con cada ingrediente señalado (`RollCut`, datos en `BuildItem.cut` de `menu.ts`, como las fotos de referencia de `inspiracion/Fotos sushi/`). Cuando el roll tenga `imageUrl`, la ficha muestra la foto en lugar del dibujo: los dibujos se van a reemplazar por fotos.
      - Debajo de la caja elegida se listan sus combinaciones (`describeCombinations`). El "+" de un roll o nigiri se apaga si con un paso más ya no se llega a ninguna combinación (`canReachFill`, `src/lib/boxRules.ts`); la caja a la que ya no se llega con lo cargado queda apagada ("Para la caja chica, sacá piezas").
      - El botón de agregar está deshabilitado hasta que la caja es una combinación válida y dice lo más simple que falta (`getMissing`: "Faltan 10 piezas", "Falta 1 nigiri"). Si lo cargado ya entra en la otra caja, la barra ofrece "Así como está, entra en la caja chica".
      - Acompañamientos: tienen su propia pestaña, después de Sushiburgers, y no aparecen en el armado. Son ítems de `BUILD_ITEMS` (grupo `acompanamientos`) que se piden solos, sin caja: gyosas en 3 sabores (todavía sin nombre: "Sabor 1/2/3") de a 3 unidades; langostinos empanados, pollo tandoori y geishas de a 5 unidades. No tienen corte: se pueden pedir también después de las 19:30. Como rolls y nigiris sí cortan a las 19:30, pasado el corte no se puede armar una caja.
@@ -107,7 +108,7 @@ En lugar de WhatsApp, el pedido va a nuestro servidor y lo recibe la app de escr
 
 ## Pendientes antes de salir a producción
 - [ ] **Acompañamientos** (pestaña oculta con `hidden: true`): precios reales (hoy `PRICE_TBD`, $1.000: gyosas, langostinos, pollo y geishas), nombres de los 3 sabores de gyosas y cuántas geishas trae cada porción (hoy 5). Con eso se saca el `hidden`.
-- [ ] **Arma tu combo**: fotos de los rolls (las descripciones ya están); confirmar la lista completa de rolls.
+- [ ] **Arma tu combo**: fotos de los rolls para la ficha (`imageUrl` en cada roll de `BUILD_ITEMS`; reemplazan al dibujo del corte); confirmar la lista completa de rolls.
 - [ ] **Descuentos**: cargar los días especiales y los códigos reales en `src/config/discounts.ts` (hoy vacíos).
 - [ ] **Sushiburgers**: fotos de la versión cruda y la cocida del SushiBurger Salmón (`imageUrl` en cada valor de `option`). SushiBurger Atún y ciboulette ($ 14.000): falta la descripción completa (hoy solo "Atún y ciboulette…") y la foto.
 - [ ] **Feriados**: se cargan sobre la marcha en `extraOpenDates` / `closedDates`.
