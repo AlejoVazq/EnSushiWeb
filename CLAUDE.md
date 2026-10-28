@@ -92,6 +92,7 @@ En lugar de WhatsApp, el pedido va a nuestro servidor y lo recibe la app de escr
 - [ ] Decidir qué pasa con los pedidos que nadie responde.
 - [ ] Diseño de la app y del checkout con cuenta.
 - [ ] Backups diarios (`pg_dump`) en el servidor.
+- [ ] Idea: crear y gestionar los códigos de descuento desde la app del local (hoy se crean con `npm run codigo` y viven como SHA-256 en `src/config/discounts.ts`; con la app pasarían a la base y los validaría el servidor).
 
 ## Plan de implementación (un paso por vez)
 - [x] **Paso 1** — Tipos (`src/types/index.ts`), menú (`src/data/menu.ts`), config (`src/config/business.ts`).
