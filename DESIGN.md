@@ -37,7 +37,7 @@ typography:
     lineHeight: 1.625
   tab:
     fontFamily: "Figtree, ui-sans-serif, system-ui, sans-serif"
-    fontSize: "0.9375rem"
+    fontSize: "0.8125rem"
     fontWeight: 500
     lineHeight: 1.5
   label:
@@ -82,13 +82,13 @@ components:
   tab-active:
     textColor: "{colors.washi}"
     typography: "{typography.tab}"
-    padding: "0 8px"
-    height: "48px"
+    padding: "0 10px"
+    height: "68px"
   tab-inactive:
     textColor: "{colors.washi-muted}"
     typography: "{typography.tab}"
-    padding: "0 8px"
-    height: "48px"
+    padding: "0 10px"
+    height: "68px"
   choice-chip:
     textColor: "{colors.washi-muted}"
     rounded: "{rounded.lg}"
@@ -197,7 +197,7 @@ Una paleta de tinta y papel: negros cálidos con un dejo marrón, crema de papel
 - **Title** (700, 18px y 20px desde `sm`, interlineado 1.375, `text-balance`): nombre del producto en la fila.
 - **Body** (400, 16px, interlineado 1.5): descripción de la categoría y bajada del pie.
 - **Body-sm** (400, 14px, interlineado 1.625, `text-pretty`): descripción del producto y texto de la banda de estado (la primera frase en 700, la segunda en 500).
-- **Tab** (15px; 500 inactiva, 700 activa): pestañas de categoría.
+- **Tab** (13px; 500 inactiva, 700 activa): nombre de la categoría, debajo de su ícono.
 - **Label** (500, 12px): cantidad de piezas dentro del chip de tamaño y etiquetas (Más pedido, Picante, Veggie).
 - **Price** (700, 16px; 14px dentro del chip; tabular): todos los importes.
 - **Seal** (M PLUS Rounded 700, tabular): 18px en el stepper, 14px en la placa, 12px en el header y 11px sobre los chips.
@@ -215,9 +215,9 @@ Mobile-first, una columna con márgenes laterales de 16px (24px desde `sm`) dent
 - **Escritorio (≥ 1024px, `lg`):** dos columnas, el menú (`minmax(0,1fr)`) y "Tu pedido" fijo a la derecha (352px, 40px de separación, pegado a 72px del borde de arriba y con scroll propio). La bolsa del header y la placa se ocultan, porque el pedido ya está a la vista; "Ver pedido" lleva el foco al panel. El checkout usa la misma grilla: formulario de hasta 672px y el resumen en el lugar del panel.
 - **Grillas por contenedor, no por pantalla:** las listas de filas pasan a dos columnas cuando su columna mide 672px o más (`@2xl`), así que son dos en tablet, una en escritorio chico (al lado del panel) y dos desde 1280px. Cada fila decide su forma según su propio ancho: debajo de 352px los chips de tamaño van a lo ancho, debajo de la foto.
 
-El menú arranca sin hero: header pegajoso de 56px; banda de estado con 16px arriba y 8px abajo; barra de pestañas pegajosa de 48px debajo del header; una sola categoría visible. El texto de portada vive al pie de la página, después de los productos, con 48px arriba y 128px abajo en el celular (lugar para la placa flotante; 56px desde `sm`).
+El menú arranca sin hero: header pegajoso de 56px; banda de estado con 16px arriba y 8px abajo; barra de pestañas pegajosa de 68px debajo del header; una sola categoría visible. El texto de portada vive al pie de la página, después de los productos, con 48px arriba y 128px abajo en el celular (lugar para la placa flotante; 56px desde `sm`).
 
-Las filas forman una lista con un filete arriba de la primera y uno debajo de cada fila. Cada fila tiene 20px de padding vertical y una columna de foto de 88px (104px cuando la fila mide 448px o más) con 16px de separación; sin foto, el texto ocupa todo el ancho. Dentro del texto: 4px entre nombre y descripción, 12px entre bloques (texto, chips, acción). Los chips van en 2 o 3 columnas iguales con 8px de separación. Desde `lg` (1024px) las filas pasan a dos columnas con 48px de separación. La sección hace scroll con un margen de 112px para no quedar bajo las barras pegajosas.
+Las filas forman una lista con un filete arriba de la primera y uno debajo de cada fila. Cada fila tiene 20px de padding vertical y una columna de foto de 88px (104px cuando la fila mide 448px o más) con 16px de separación; sin foto, el texto ocupa todo el ancho. Dentro del texto: 4px entre nombre y descripción, 12px entre bloques (texto, chips, acción). Los chips van en 2 o 3 columnas iguales con 8px de separación. Desde `lg` (1024px) las filas pasan a dos columnas con 48px de separación. La sección hace scroll con un margen de 132px para no quedar bajo las barras pegajosas.
 
 En el celular las pestañas hacen scroll horizontal sin barra visible y se desvanecen en los últimos 32px para avisar que hay más.
 
@@ -263,7 +263,7 @@ Banda crema de 44px como mínimo, 12px de radio, texto `sumi` de 14px. La primer
 
 ### Navigation
 - **Header:** pegajoso, 56px, logo de 28px de alto a la izquierda y botón del carrito a la derecha; filete abajo.
-- **Pestañas:** botones de texto de 48px de alto, 15px, con 12px entre sí. La inactiva va en `washi-muted` (en hover, `washi`); la activa en `washi` 700 con un subrayado interno de 2px del mismo color. Patrón de pestañas WAI-ARIA con flechas.
+- **Pestañas:** botones de 68px de alto con 12px entre sí: un ícono de línea de 24px (del mismo trazo que el resto, uno por categoría, incluidas las ocultas) y debajo el nombre en 13px. Ícono y nombre toman el color de la pestaña: la inactiva en `washi-muted` (en hover, `washi`) y la activa en `washi` 700 con un subrayado interno de 2px del mismo color. Sin círculos ni colores propios. Patrón de pestañas WAI-ARIA con flechas.
 - **Placa "Ver pedido" (celular):** placa `washi` de 56px a todo el ancho, 16px de radio, con el sello y "Ver pedido" a la izquierda y el total a la derecha, en `sumi` 700. Desaparece desde `sm`.
 
 ### Sugerencias del carrito

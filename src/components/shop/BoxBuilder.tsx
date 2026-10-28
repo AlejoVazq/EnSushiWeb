@@ -283,7 +283,7 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
         ref={sizeRef}
         disabled={blocked || closed}
         className={cn(
-          'scroll-mt-32 rounded-xl transition-[outline-color] duration-300',
+          'scroll-mt-37 rounded-xl transition-[outline-color] duration-300',
           askSize ? 'outline-2 outline-offset-8 outline-washi' : 'outline-transparent',
         )}
       >
