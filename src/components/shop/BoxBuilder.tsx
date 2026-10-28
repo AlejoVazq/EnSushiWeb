@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 
-import { MinusIcon, PlusIcon } from '@/components/ui/icons';
+import { ChevronRightIcon, MinusIcon, PlusIcon } from '@/components/ui/icons';
 import { BUSINESS } from '@/config/business';
 import {
   BUILD_BOX_SIZES,
@@ -34,6 +34,7 @@ import { useCartStore, type BoxInput } from '@/store/useCartStore';
 import type { BuildBoxSizeId, BuildItem, BuildItemGroup } from '@/types';
 
 import { addButtonClassName, HollowSeal, stepButtonClassName } from './LineAction';
+import { RollSheet } from './RollSheet';
 
 const { preorderCutoff } = BUSINESS.schedule;
 
@@ -104,9 +105,11 @@ interface BoxItemRowProps {
   /** "+" before choosing a size: sends the customer to the size picker */
   onNeedSize: () => void;
   needsSize: boolean;
+  /** Rolls: opens the sheet with what the roll has inside */
+  onOpen?: () => void;
 }
 
-function BoxItemRow({ item, steps, fits, blocked, closed, onChange, onNeedSize, needsSize }: BoxItemRowProps) {
+function BoxItemRow({ item, steps, fits, blocked, closed, onChange, onNeedSize, needsSize, onOpen }: BoxItemRowProps) {
   const units = item.step * steps;
   const unavailable = !item.available || blocked;
 
@@ -156,11 +159,24 @@ function BoxItemRow({ item, steps, fits, blocked, closed, onChange, onNeedSize, 
 
   return (
     <div className="flex min-h-19 items-center justify-between gap-4 py-3.5">
-      <div className="min-w-0">
+      {/* The name's button covers the whole text, so tapping the price opens the sheet too */}
+      <div className="relative min-w-0 flex-1">
         <h4 className={cn('font-title text-lg leading-snug wrap-anywhere', unavailable ? 'text-washi-muted' : 'text-washi')}>
-          {item.name}
+          {onOpen ? (
+            <button
+              type="button"
+              onClick={onOpen}
+              aria-haspopup="dialog"
+              className="inline-flex items-center gap-1 text-left after:absolute after:inset-0 after:rounded-lg focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-4 focus-visible:after:outline-washi"
+            >
+              {item.name}
+              <ChevronRightIcon className="size-4 shrink-0 text-washi-muted" />
+              <span className="sr-only">: ver qué trae</span>
+            </button>
+          ) : (
+            item.name
+          )}
         </h4>
-        {item.description && <p className="text-sm leading-relaxed text-pretty text-washi-muted">{item.description}</p>}
         <p className="text-sm text-washi-muted tabular-nums">
           {formatUnits(item.step, item.unitLabel)} · {formatPrice(item.price)}
         </p>
@@ -185,6 +201,8 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
   const { closed, blocked } = lock;
   const sizeRef = useRef<HTMLFieldSetElement>(null);
   const [askSize, setAskSize] = useState(false);
+  // Roll whose sheet is open; the id stays while the sheet closes
+  const [sheet, setSheet] = useState<{ id: string; open: boolean } | null>(null);
 
   const { size, steps, editingLineId, notice } = draft;
   const boxSize = size === null ? undefined : getBoxSize(size);
@@ -235,6 +253,9 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
   };
 
   const cancelEdit = () => onDraftChange(EMPTY_BOX_DRAFT);
+
+  const sheetItem = sheet ? getBuildItemById(sheet.id) : undefined;
+  const closeSheet = () => setSheet((current) => current && { ...current, open: false });
 
   // A box the contents no longer fit in
   const outgrown = BUILD_BOX_SIZES.find((candidate) => !canReachFill(candidate, fill));
@@ -343,6 +364,7 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
                     needsSize={size === null}
                     onNeedSize={requestSize}
                     onChange={(count) => setSteps(item, count)}
+                    onOpen={item.cut || item.imageUrl ? () => setSheet({ id: item.id, open: true }) : undefined}
                   />
                 </li>
               ))}
@@ -350,6 +372,25 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
           </section>
         );
       })}
+
+      {sheetItem && (
+        <RollSheet
+          item={sheetItem}
+          open={sheet?.open ?? false}
+          onClose={closeSheet}
+          steps={steps[sheetItem.id] ?? 0}
+          fits={boxSize !== undefined && canReachFill(boxSize, withOneMore(fill, sheetItem))}
+          blocked={blocked}
+          closed={closed}
+          needsSize={size === null}
+          onNeedSize={() => {
+            closeSheet();
+            // After the dialog gives focus back to the row, so the size picker keeps it
+            setTimeout(requestSize, 0);
+          }}
+          onChange={(count) => setSteps(sheetItem, count)}
+        />
+      )}
 
       <p aria-live="polite" className="sr-only">
         {boxSize && !notice ? `${boxSize.name}: ${fillText || 'vacía'}. ${missing ? formatMissing(missing) : 'Completa'}.` : ''}

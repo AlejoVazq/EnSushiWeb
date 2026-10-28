@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Qué trae cada roll · decisiones</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700&family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--sumi:#141210;--s1:#1d1a17;--s2:#262220;--line:#34302b;--line2:#4d463e;--washi:#f1ebe0;--muted:#b9b0a2;--shu:#c8432b;--shu-fg:#fff6ee}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0b0a09;color:var(--washi);font:400 15px/1.5 Figtree,sans-serif;padding:32px 16px 80px}
+.wrap{max-width:1180px;margin:0 auto}
+h1{font:700 32px/1.15 "M PLUS Rounded 1c";margin-bottom:8px}
+.lead{color:var(--muted);max-width:760px;margin-bottom:24px}
+section{border-top:1px solid var(--line);padding:32px 0}
+h2{font:700 22px "M PLUS Rounded 1c";margin-bottom:4px}
+.q{color:var(--muted);margin-bottom:20px;max-width:760px}
+.opts{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.opt{width:360px}
+.opt>b{display:block;font:700 16px "M PLUS Rounded 1c";margin-bottom:4px}
+.opt>p{color:var(--muted);font-size:13px;margin-bottom:10px;min-height:40px}
+.tag{display:inline-block;font:700 11px Figtree;padding:2px 8px;border-radius:6px;background:var(--washi);color:var(--sumi);margin-left:6px;vertical-align:2px}
+.ph{width:360px;height:720px;background:var(--sumi);border:1px solid var(--line);border-radius:22px;overflow:hidden;position:relative}
+.ph.auto{height:auto;padding-bottom:12px}
+.gh{display:flex;justify-content:space-between;align-items:baseline;padding:18px 14px 4px;border-bottom:1px solid var(--line)}
+.gh b{font:700 16px "M PLUS Rounded 1c"}.gh span{font-size:12px;color:var(--muted)}
+.it{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);min-height:76px}
+.it .tx{min-width:0;flex:1;border-radius:8px}
+.it.tap .tx{outline:2px dashed #8a7f70;outline-offset:4px}
+.nm{font:700 17px "M PLUS Rounded 1c";display:flex;align-items:center;gap:6px}
+.nm .chev{color:var(--muted);font:500 16px Figtree}
+.ds{font-size:13px;color:var(--muted);line-height:1.5}
+.pr{font-size:13px;color:var(--muted)}
+.add{width:44px;height:44px;flex:none;border-radius:10px;border:1px solid var(--line2);display:grid;place-items:center;font-size:20px}
+.add.hl{outline:2px dashed #8a7f70;outline-offset:4px}
+.st{display:flex;align-items:center;gap:2px}
+.st i{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-style:normal;color:var(--muted);font-size:20px}
+.st .n{min-width:40px;text-align:center;font:700 18px "M PLUS Rounded 1c"}
+.call{font-size:12px;color:#d8cdb9;padding:6px 14px 0}
+/* sheet */
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.6)}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--sumi);border-top:1px solid var(--line2);border-radius:16px 16px 0 0;padding:8px 16px 16px}
+.grab{width:40px;height:4px;border-radius:2px;background:var(--line2);margin:0 auto 6px}
+.x{position:absolute;right:10px;top:10px;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;color:var(--muted);font-size:16px}
+.sheet h4{font:700 26px/1.2 "M PLUS Rounded 1c";margin-top:6px}
+.sheet .kind{font-size:13px;color:var(--muted)}
+.art{margin:6px -6px 4px;border-radius:12px;background:var(--s1)}
+.art svg{display:block;width:100%;height:auto}
+.lbl{font:700 12px Figtree;letter-spacing:.06em;fill:var(--washi)}
+.lead-l{fill:none;stroke:var(--muted);stroke-width:1.2;stroke-linecap:round}
+.ings{display:flex;flex-direction:column;margin:12px 0 4px;border-top:1px solid var(--line)}
+.ings div{display:flex;align-items:center;gap:12px;padding:11px 2px;border-bottom:1px solid var(--line);font-size:15px}
+.ings i{width:14px;height:14px;border-radius:4px;flex:none}
+.ings small{margin-left:auto;color:var(--muted);font-size:12px}
+.meta{display:flex;justify-content:space-between;align-items:baseline;margin:10px 0 12px;font-size:14px;color:var(--muted)}
+.meta b{color:var(--washi);font-size:16px}
+.act{display:flex;gap:10px;align-items:center}
+.plate{flex:1;height:52px;border-radius:14px;background:var(--washi);color:var(--sumi);display:grid;place-items:center;font-weight:700;font-size:15px}
+.plate.ghost{background:transparent;border:1px solid var(--line2);color:var(--washi)}
+.photo{height:150px;border-radius:12px;background:var(--s2);display:grid;place-items:center;color:var(--muted);font-size:12px;margin:8px 0 0}
+</style></head><body><div class="wrap">
+
+<h1>Qué trae cada roll · decisiones</h1>
+<p class="lead">Como las fotos de Shizen: tocás un roll y se abre su ficha con lo que trae, y desde ahí lo sumás a la caja. El "+" de la lista sigue sumando directo, sin abrir nada. Abajo, la lista (igual para las dos opciones) y dos formas de la ficha.</p>
+
+<section><h2>1 · La lista</h2>
+<p class="q">El nombre lleva una flechita "›" para que se note que se abre. Tocar el texto (marcado con punteado) abre la ficha; tocar el "+" o el stepper suma directo, como hoy.</p>
+<div class="opts"><div class="opt"><b>Rolls de autor · caja grande elegida</b><p>Así se ve la pestaña. Nada cambia en el armado ni en la barra.</p>
+<div class="ph auto">
+<div class="gh"><b>Rolls de autor</b><span>De a 5 piezas</span></div>
+<div class="it tap"><div class="tx"><div class="nm">New York <span class="chev">›</span></div><div class="ds">Salmón, palta y pepino.</div><div class="pr">5 piezas · $ 9.000</div></div><div class="add hl">+</div></div>
+<div class="it"><div class="tx"><div class="nm">Sake <span class="chev">›</span></div><div class="ds">Salmón, queso crema y verdeo.</div><div class="pr">5 piezas · $ 9.000</div></div><div class="st"><i>−</i><span class="n">10</span><i>+</i></div></div>
+<div class="it"><div class="tx"><div class="nm">Midori <span class="chev">›</span></div><div class="ds">Veggie: palta, pepino y zanahoria.</div><div class="pr">5 piezas · $ 9.000</div></div><div class="add">+</div></div>
+<div class="it"><div class="tx"><div class="nm">Hikaru <span class="chev">›</span></div><div class="ds">Salmón rebozado, bien crocante.</div><div class="pr">5 piezas · $ 9.000</div></div><div class="add">+</div></div>
+<div class="it"><div class="tx"><div class="nm">TunaSpicy <span class="chev">›</span></div><div class="ds">Atún y ciboulette, con cobertura crujiente y picante.</div><div class="pr">5 piezas · $ 9.000</div></div><div class="add">+</div></div>
+<p class="call">Punteado: el texto abre la ficha · el "+" suma sin abrir.</p>
+</div></div></div>
+</section>
+
+<section><h2>2 · La ficha (elegí una)</h2>
+<p class="q">Se abre desde abajo en el celu (en la compu, centrada). Abajo, el mismo control para sumar: "Sumar a la caja" y, si ya hay, el stepper con las piezas. Si todavía no elegiste caja, el botón dice "Elegí la caja" y te lleva arriba.</p>
+<div class="opts">
+
+<div class="opt"><b>A · Corte dibujado <span class="tag">como Shizen</span></b><p>Un dibujo del corte del roll con cada ingrediente señalado. Se arma con código, así que sirve para todos los rolls ya, sin esperar fotos.</p>
+<div class="ph">
+<div class="it"><div class="tx"><div class="nm">New York <span class="chev">›</span></div><div class="ds">Salmón, palta y pepino.</div></div><div class="add">+</div></div>
+<div class="scrim"></div>
+<div class="sheet"><div class="grab"></div><div class="x">✕</div>
+<h4>New York</h4><div class="kind">Roll de autor</div>
+<div class="art"><svg id="ny" viewBox="0 0 320 250"></svg></div>
+<div class="meta"><span>De a 5 piezas</span><b>$ 9.000</b></div>
+<div class="act"><div class="plate">Sumar 5 piezas · $ 9.000</div></div>
+</div></div></div>
+
+<div class="opt"><b>A · otro roll, ya en la caja</b><p>Con 10 piezas cargadas: el botón pasa a stepper. El crujiente picante se ve como cobertura.</p>
+<div class="ph">
+<div class="it"><div class="tx"><div class="nm">TunaSpicy <span class="chev">›</span></div><div class="ds">Atún y ciboulette…</div></div><div class="add">+</div></div>
+<div class="scrim"></div>
+<div class="sheet"><div class="grab"></div><div class="x">✕</div>
+<h4>TunaSpicy</h4><div class="kind">Roll de autor</div>
+<div class="art"><svg id="ts" viewBox="0 0 320 250"></svg></div>
+<div class="meta"><span>10 piezas en la caja</span><b>$ 18.000</b></div>
+<div class="act"><div class="st"><i>−</i><span class="n">10</span><i>+</i></div><div class="plate ghost">Listo</div></div>
+</div></div></div>
+
+<div class="opt"><b>B · Ficha con lista</b><p>Más simple: lo que trae en una lista con un color por ingrediente. Cuando estén las fotos de los rolls, van arriba (hoy ese lugar no se muestra).</p>
+<div class="ph">
+<div class="it"><div class="tx"><div class="nm">New York <span class="chev">›</span></div><div class="ds">Salmón, palta y pepino.</div></div><div class="add">+</div></div>
+<div class="scrim"></div>
+<div class="sheet"><div class="grab"></div><div class="x">✕</div>
+<h4>New York</h4><div class="kind">Roll de autor</div>
+<div class="photo">acá va la foto cuando la tengamos</div>
+<div class="ings"><div><i style="background:#e8845e"></i>Salmón</div><div><i style="background:#a9c062"></i>Palta</div><div><i style="background:#6f9e4f"></i>Pepino</div></div>
+<div class="meta"><span>De a 5 piezas</span><b>$ 9.000</b></div>
+<div class="act"><div class="plate">Sumar 5 piezas · $ 9.000</div></div>
+</div></div></div>
+
+</div></section>
+</div>
+<script>
+const NS='http://www.w3.org/2000/svg';
+function el(svg,tag,attrs){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);svg.appendChild(e);return e}
+let seed=7;const rnd=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
+function rice(svg,cx,cy,r1,r2,crumb){
+  el(svg,'circle',{cx,cy,r:r2,fill:'#e6dfd1'});
+  for(let i=0;i<260;i++){const a=rnd()*Math.PI*2,d=r1+rnd()*(r2-r1);el(svg,'ellipse',{cx:cx+Math.cos(a)*d,cy:cy+Math.sin(a)*d,rx:3.4,ry:2,transform:`rotate(${rnd()*180} ${cx+Math.cos(a)*d} ${cy+Math.sin(a)*d})`,fill:rnd()>.5?'#f6f1e7':'#d6cebf'})}
+  if(crumb)for(let i=0;i<170;i++){const a=rnd()*Math.PI*2,d=r2-8+rnd()*12;el(svg,'circle',{cx:cx+Math.cos(a)*d,cy:cy+Math.sin(a)*d,r:1.6+rnd()*2.2,fill:crumb[Math.floor(rnd()*crumb.length)]})}
+  el(svg,'circle',{cx,cy,r:r1,fill:'#1c2620'});
+  el(svg,'circle',{cx,cy,r:r1-4,fill:'#ece6d9'});
+}
+function label(svg,text,lx,ly,anchor,path){el(svg,'path',{d:path,class:'lead-l'});const t=el(svg,'text',{x:lx,y:ly,'text-anchor':anchor,class:'lbl'});t.textContent=text}
+// New York
+(()=>{const s=document.getElementById('ny'),cx=168,cy=122;rice(s,cx,cy,52,84);
+ el(s,'path',{d:`M${cx-44} ${cy-8} Q${cx-40} ${cy-42} ${cx-4} ${cy-44} L${cx+6} ${cy+6} Q${cx-20} ${cy+16} ${cx-44} ${cy-8}Z`,fill:'#e8845e'});
+ for(let i=0;i<4;i++)el(s,'path',{d:`M${cx-38+i*8} ${cy-22+i*5} Q${cx-20+i*6} ${cy-34+i*4} ${cx-4+i*2} ${cy-30+i*7}`,stroke:'#f6c2a8',fill:'none','stroke-width':2});
+ el(s,'path',{d:`M${cx+6} ${cy-44} Q${cx+44} ${cy-36} ${cx+44} ${cy+2} L${cx+10} ${cy+4}Z`,fill:'#a9c062'});
+ el(s,'path',{d:`M${cx+10} ${cy-40} Q${cx+38} ${cy-32} ${cx+40} ${cy-4}`,stroke:'#d7e39a',fill:'none','stroke-width':3});
+ [[-24,14],[-8,20],[8,14],[24,12],[-14,32],[4,32],[20,28]].forEach(([x,y])=>{el(s,'rect',{x:cx+x-8,y:cy+y-6,width:15,height:13,rx:2,fill:'#6f9e4f',stroke:'#cfe0a6','stroke-width':1.5,transform:`rotate(${(x+y)%17} ${cx+x} ${cy+y})`})});
+ label(s,'SALMÓN',22,60,'start',`M60 66 Q96 70 ${cx-26} ${cy-22}`);
+ label(s,'PALTA',300,52,'end',`M262 58 Q228 64 ${cx+30} ${cy-20}`);
+ label(s,'PEPINO',300,226,'end',`M258 218 Q226 200 ${cx+18} ${cy+30}`);
+})();
+// TunaSpicy
+(()=>{const s=document.getElementById('ts'),cx=168,cy=122;seed=31;rice(s,cx,cy,52,84,['#e0a24a','#c9782f','#f0c46a','#b8362c','#d9542f']);
+ el(s,'path',{d:`M${cx-44} ${cy+6} Q${cx-44} ${cy-40} ${cx} ${cy-44} Q${cx+40} ${cy-40} ${cx+42} ${cy+4} Q${cx} ${cy+20} ${cx-44} ${cy+6}Z`,fill:'#a8303c'});
+ for(let i=0;i<5;i++)el(s,'path',{d:`M${cx-36+i*14} ${cy-30} Q${cx-30+i*14} ${cy-12} ${cx-34+i*14} ${cy+6}`,stroke:'#c95561',fill:'none','stroke-width':2});
+ for(let i=0;i<9;i++){const x=cx-34+i*8.5;el(s,'rect',{x,y:cy+16+(i%2)*5,width:6,height:20,rx:3,fill:'#5f9a46',stroke:'#b9d98c','stroke-width':1.2})}
+ label(s,'ATÚN',22,58,'start',`M50 64 Q90 70 ${cx-24} ${cy-20}`);
+ label(s,'CIBOULETTE',300,228,'end',`M226 220 Q206 200 ${cx+20} ${cy+28}`);
+ label(s,'CRUJIENTE PICANTE',300,36,'end',`M252 42 Q240 52 ${cx+66} ${cy-50}`);
+})();
+</script>
+</body></html>
