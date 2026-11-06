@@ -74,6 +74,16 @@ export const PhoneIcon = (props: IconProps) => (
   </svg>
 );
 
+/** Efectivo y transferencia: a bill and a phone side by side */
+export const SplitPayIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <rect x="2" y="8" width="12" height="8" rx="1.2" />
+    <circle cx="8" cy="12" r="1.8" />
+    <rect x="15.5" y="4" width="6.5" height="16" rx="1.5" />
+    <path d="M18 17h1.5" />
+  </svg>
+);
+
 export const CheckIcon = (props: IconProps) => (
   <svg {...base} {...props}>
     <path d="m5 12 5 5L20 7" />

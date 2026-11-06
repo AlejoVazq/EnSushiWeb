@@ -225,7 +225,8 @@ export type CartItem = ProductCartItem | BoxCartItem | ExtraCartItem;
 
 // ─── Checkout ───────────────────────────────────────────────────────────────
 
-export type PaymentMethod = 'cash' | 'transfer';
+/** mixed: part cash, part transfer; how much of each is arranged by WhatsApp */
+export type PaymentMethod = 'cash' | 'transfer' | 'mixed';
 
 export type DeliveryMethod = 'pickup' | 'delivery';
 
@@ -240,6 +241,8 @@ export interface OrderDetails {
   customer: CustomerInfo;
   fulfillment: Fulfillment;
   paymentMethod: PaymentMethod;
+  /** The customer's notes for the kitchen ("la hamburguesa sin palta"); '' when none */
+  notes: string;
   items: readonly CartItem[];
   /** The one discount applied (code or special day; they don't stack), or null */
   discount: OrderDiscount | null;

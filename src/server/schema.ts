@@ -101,4 +101,18 @@ export const MIGRATIONS: readonly string[] = [
     created_at timestamptz NOT NULL DEFAULT now()
   );
   `,
+
+  // 4 — the customer's notes, and mixed payments (cash + transfer) with the cash part loaded by the shop
+  `
+  ALTER TABLE orders DROP CONSTRAINT orders_payment_method_check;
+  ALTER TABLE orders ADD CONSTRAINT orders_payment_method_check CHECK (payment_method IN ('cash', 'transfer', 'mixed'));
+  ALTER TABLE orders ADD COLUMN notes text;
+  ALTER TABLE orders ADD COLUMN cash_amount integer CHECK (cash_amount >= 0);
+  `,
+
+  // 5 — orders loaded by hand from the shop's app: no customer account behind them (customer_id is null)
+  `
+  ALTER TABLE orders ALTER COLUMN customer_id DROP NOT NULL;
+  ALTER TABLE orders ALTER COLUMN email DROP NOT NULL;
+  `,
 ];

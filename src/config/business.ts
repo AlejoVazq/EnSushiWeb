@@ -43,6 +43,7 @@ export const BUSINESS = {
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   cash: 'Efectivo',
   transfer: 'Transferencia / Mercado Pago',
+  mixed: 'Efectivo y transferencia',
 };
 
 /** Labels used both in the UI and in the WhatsApp message */

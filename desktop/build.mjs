@@ -8,8 +8,15 @@ mkdirSync('dist', { recursive: true });
 const common = { bundle: true, sourcemap: true, logLevel: 'warning', target: 'es2022' };
 
 await Promise.all([
-  // electron-updater stays out of the bundle: the installer ships it from node_modules
-  build({ ...common, entryPoints: ['src/main.ts'], outfile: 'dist/main.js', platform: 'node', format: 'cjs', external: ['electron', 'electron-updater'] }),
+  // electron-updater and exceljs stay out of the bundle: the installer ships them from node_modules
+  build({
+    ...common,
+    entryPoints: ['src/main.ts'],
+    outfile: 'dist/main.js',
+    platform: 'node',
+    format: 'cjs',
+    external: ['electron', 'electron-updater', 'exceljs'],
+  }),
   build({ ...common, entryPoints: ['src/preload.ts'], outfile: 'dist/preload.js', platform: 'node', format: 'cjs', external: ['electron'] }),
   build({
     ...common,

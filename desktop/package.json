@@ -12,7 +12,8 @@
     "dist": "node build.mjs && electron-builder --win --publish never"
   },
   "dependencies": {
-    "electron-updater": "^6.8.11"
+    "electron-updater": "^6.8.11",
+    "exceljs": "^4.4.0"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",

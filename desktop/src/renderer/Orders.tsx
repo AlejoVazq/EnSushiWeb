@@ -6,7 +6,9 @@ import { DELIVERY_LABELS, formatPrice, formatTime } from '../shared/textos';
 
 import { DiscountCodes } from './DiscountCodes';
 import { MenuToday, changeMenu } from './MenuToday';
+import { NewOrder } from './NewOrder';
 import { OrderDetail } from './OrderDetail';
+import { Sales } from './Sales';
 
 /** How often the list asks the server for new orders */
 const POLL_MS = 5000;
@@ -52,8 +54,10 @@ interface OrdersProps {
 export function Orders({ settings, onLoggedOut, onSettings, updateVersion }: OrdersProps) {
   const [orders, setOrders] = useState<StaffOrder[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  // Codes and today's menu take the order's place on the right; the list keeps polling (and beeping) meanwhile
-  const [panel, setPanel] = useState<'pedido' | 'codigos' | 'menu'>('pedido');
+  // A new order, codes, today's menu and sales take the order's place on the right; the list keeps polling (and beeping) meanwhile
+  const [panel, setPanel] = useState<'pedido' | 'nuevo' | 'codigos' | 'menu' | 'ventas'>('pedido');
+  // Changing it starts the new order over
+  const [newOrderKey, setNewOrderKey] = useState(0);
   const [menu, setMenu] = useState<StaffMenu | null>(null);
   const [menuError, setMenuError] = useState<string | null>(null);
   const [connection, setConnection] = useState<string | null>(null);
@@ -76,7 +80,8 @@ export function Orders({ settings, onLoggedOut, onSettings, updateVersion }: Ord
     setLastUpdate(new Date());
     setOrders(list);
 
-    const fresh = list.filter((order) => order.status === 'nuevo' && !seen.current?.has(order.id));
+    // The ones loaded by hand were just loaded here: nobody needs a beep for them
+    const fresh = list.filter((order) => order.status === 'nuevo' && !order.manual && !seen.current?.has(order.id));
     if (seen.current && fresh.length > 0) {
       beep();
       document.title = `(${fresh.length}) Pedido nuevo · EnSushi Local`;
@@ -130,6 +135,14 @@ export function Orders({ settings, onLoggedOut, onSettings, updateVersion }: Ord
   const replaceOrder = (updated: StaffOrder) =>
     setOrders((prev) => prev.map((order) => (order.id === updated.id ? updated : order)));
 
+  /** A new order was saved: on to giving it a time, like any other */
+  const orderCreated = (created: StaffOrder) => {
+    setOrders((prev) => [created, ...prev]);
+    setSelectedId(created.id);
+    setPanel('pedido');
+    setNewOrderKey((key) => key + 1);
+  };
+
   const pending = orders.filter((order) => order.status === 'nuevo');
   const others = orders.filter((order) => order.status !== 'nuevo');
   const selected = orders.find((order) => order.id === selectedId) ?? null;
@@ -159,6 +172,11 @@ export function Orders({ settings, onLoggedOut, onSettings, updateVersion }: Ord
         {order.status === 'nuevo' && <strong className="error"> ({waitingFor(order.createdAt, now)})</strong>} ·{' '}
         {DELIVERY_LABELS[order.deliveryMethod]} · {formatPrice(order.total)}
         {order.eta ? ` · sale ${order.eta}` : ''}
+        {order.manual && ' · cargado a mano'}
+        {order.notes && ' · con observaciones'}
+        {order.status === 'confirmado' && order.paymentMethod === 'mixed' && order.cashAmount === null && (
+          <strong className="error"> · falta el cobro</strong>
+        )}
       </div>
     </button>
   );
@@ -168,11 +186,17 @@ export function Orders({ settings, onLoggedOut, onSettings, updateVersion }: Ord
       <aside className="sidebar">
         <div className="bar" style={{ flexWrap: 'wrap' }}>
           <strong style={{ flex: 1 }}>Pedidos</strong>
+          <button className={panel === 'nuevo' ? 'primary' : undefined} onClick={() => setPanel(panel === 'nuevo' ? 'pedido' : 'nuevo')}>
+            + Nuevo
+          </button>
           <button className={panel === 'menu' ? 'primary' : undefined} onClick={() => setPanel(panel === 'menu' ? 'pedido' : 'menu')}>
             Menú
           </button>
           <button className={panel === 'codigos' ? 'primary' : undefined} onClick={() => setPanel(panel === 'codigos' ? 'pedido' : 'codigos')}>
             Códigos
+          </button>
+          <button className={panel === 'ventas' ? 'primary' : undefined} onClick={() => setPanel(panel === 'ventas' ? 'pedido' : 'ventas')}>
+            Ventas
           </button>
           <button onClick={onSettings}>Ajustes</button>
           <button
@@ -212,10 +236,15 @@ export function Orders({ settings, onLoggedOut, onSettings, updateVersion }: Ord
       </aside>
 
       <main className="main">
-        {panel === 'menu' ? (
+        <div hidden={panel !== 'nuevo'}>
+          <NewOrder key={newOrderKey} visible={panel === 'nuevo'} onCreated={orderCreated} onCancel={() => setNewOrderKey((key) => key + 1)} />
+        </div>
+        {panel === 'nuevo' ? null : panel === 'menu' ? (
           <MenuToday menu={menu} loadError={menuError} onChange={setMenu} />
         ) : panel === 'codigos' ? (
           <DiscountCodes />
+        ) : panel === 'ventas' ? (
+          <Sales />
         ) : selected ? (
           <OrderDetail key={selected.id} order={selected} settings={settings} onUpdated={replaceOrder} />
         ) : (

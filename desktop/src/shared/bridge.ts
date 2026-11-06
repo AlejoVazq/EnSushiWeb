@@ -1,3 +1,5 @@
+import type { StaffOrder } from '../../../src/types/pedidos';
+
 /** What the main process offers the window (exposed as `window.ensushi` by the preload) */
 
 export interface Settings {
@@ -41,6 +43,13 @@ export interface EnsushiBridge {
   listPrinters(): Promise<Printer[]>;
   /** Prints the HTML on the configured printer, without a dialog */
   print(html: string): Promise<{ ok: true } | { ok: false; error: string }>;
+  /**
+   * Saves the sales of a period as an Excel file (asks where, Documents by default); `canceled` when the person
+   * closed the dialog
+   */
+  exportSales(orders: StaffOrder[], from: string, to: string): Promise<{ ok: true } | { ok: false; canceled: boolean; error: string }>;
+  /** Opens the last exported file in Excel */
+  openLastExport(): Promise<void>;
   /** Opens WhatsApp (wa.me) with the message for the customer */
   openWhatsApp(phone: string, message: string): Promise<void>;
   /** The installed version, e.g. "0.2.0" */

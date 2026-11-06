@@ -33,6 +33,15 @@ Para probar en local:
 - [ ] En **Códigos**, creá uno (%, y otro de monto fijo). Usalo en el checkout: el total baja igual en la web y en el pedido que llega a la app.
 - [ ] Pausalo y probá usarlo: el checkout lo rechaza.
 
+## 4b. Pedido cargado a mano (para los que piden por WhatsApp)
+- [ ] **+ Nuevo**: sumá una caja de Arma tu combo, un combo y una salsa; el total cambia al elegir Envío a domicilio.
+- [ ] Sin completar los datos, "Guardar pedido" queda apagado y dice qué falta. Un celular mal escrito muestra el error.
+- [ ] Mientras cargás, andá a otro pedido y volvé: lo cargado sigue ahí.
+- [ ] Guardalo: no pita, abre el pedido y sale "cargado a mano" en la lista.
+- [ ] Confirmá con +30: se abre WhatsApp con el mensaje y se imprime la comanda. Después aparece en **Ventas** y en el Excel.
+- [ ] Cargá otro y usá "Descartar (se cargó mal)": no abre WhatsApp y no cuenta en Ventas.
+- [ ] ¿Te alcanza con el celular obligatorio, o también te piden por teléfono fijo o en el mostrador?
+
 ## 5. Que `main` no cambió
 - [ ] Nada de esto aparece sin las banderas. (Lo verifico yo antes de cualquier push si querés: `main` sigue siendo la versión con WhatsApp.)
 

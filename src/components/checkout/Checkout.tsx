@@ -17,8 +17,8 @@ import {
 import { ScheduleNotices } from '@/components/shop/ScheduleNotices';
 import { AccountSection } from './AccountSection';
 import { Button, buttonClassName } from '@/components/ui/Button';
-import { CashIcon, CheckIcon, HomeIcon, PhoneIcon, StoreIcon } from '@/components/ui/icons';
-import { Input } from '@/components/ui/Input';
+import { CashIcon, CheckIcon, HomeIcon, PhoneIcon, SplitPayIcon, StoreIcon } from '@/components/ui/icons';
+import { Input, Textarea } from '@/components/ui/Input';
 import { BUSINESS, DELIVERY_METHOD_LABELS, PAYMENT_METHOD_LABELS } from '@/config/business';
 import { useCartHydrated } from '@/hooks/useCartHydration';
 import { useCartTotals } from '@/hooks/useCartTotals';
@@ -31,6 +31,7 @@ import {
   createOrder,
   deliveryFeeFor,
   loadCheckoutDraft,
+  NOTES_MAX_LENGTH,
   saveCheckoutDraft,
   validateCheckout,
   type CheckoutErrors,
@@ -66,6 +67,12 @@ const PAYMENT_OPTIONS: readonly ChoiceOption<PaymentMethod>[] = [
     description: `Por ${BUSINESS.transfer.provider}.`,
     icon: PhoneIcon,
   },
+  {
+    value: 'mixed',
+    label: PAYMENT_METHOD_LABELS.mixed,
+    description: 'Una parte de cada forma. Cuánto de cada una lo arreglamos por WhatsApp.',
+    icon: SplitPayIcon,
+  },
 ];
 
 interface ChoiceOption<T extends string> {
@@ -93,14 +100,17 @@ function ChoiceCards<T extends string>({ name, legend, options, value, onChange,
     <fieldset aria-describedby={error ? errorId : undefined} className="space-y-4">
       <legend className="mb-3 font-title text-xl text-washi sm:text-2xl">{legend}</legend>
       <div className="grid grid-cols-2 gap-3">
-        {options.map((option) => {
+        {options.map((option, index) => {
           const selected = value === option.value;
           const Icon = option.icon;
+          // An odd one out takes the whole last row
+          const spansRow = options.length % 2 === 1 && index === options.length - 1;
           return (
             <label
               key={option.value}
               className={cn(
-                'relative flex min-h-32 cursor-pointer flex-col gap-2 rounded-xl border p-4 transition-colors',
+                'relative flex cursor-pointer flex-col gap-2 rounded-xl border p-4 transition-colors',
+                spansRow ? 'col-span-2' : 'min-h-32',
                 'has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-washi',
                 selected
                   ? 'border-washi bg-sumi-2'
@@ -137,11 +147,20 @@ function ChoiceCards<T extends string>({ name, legend, options, value, onChange,
 }
 
 /** Account data is never shown on the site: it's sent by WhatsApp once the order is confirmed */
-function TransferNotice() {
+function TransferNotice({ mixed = false }: { mixed?: boolean }) {
   return (
     <p role="note" className="rounded-xl border border-hairline-strong p-4 text-left text-sm leading-relaxed text-washi">
-      No transfieras todavía: cuando confirmemos tu pedido por WhatsApp te pasamos el alias y el total. Después
-      mandás el comprobante por el mismo chat.
+      {mixed ? (
+        <>
+          No transfieras todavía: cuando confirmemos tu pedido por WhatsApp arreglamos cuánto pagás de cada forma y te
+          pasamos el alias. Después mandás el comprobante por el mismo chat.
+        </>
+      ) : (
+        <>
+          No transfieras todavía: cuando confirmemos tu pedido por WhatsApp te pasamos el alias y el total. Después
+          mandás el comprobante por el mismo chat.
+        </>
+      )}
     </p>
   );
 }
@@ -310,9 +329,9 @@ function PageShell({ children }: { children: ReactNode }) {
   );
 }
 
-function SentScreen({ url, isTransfer, onEdit, onNewOrder }: {
+function SentScreen({ url, paymentMethod, onEdit, onNewOrder }: {
   url: string;
-  isTransfer: boolean;
+  paymentMethod: PaymentMethod | null;
   onEdit: () => void;
   onNewOrder: () => void;
 }) {
@@ -326,7 +345,7 @@ function SentScreen({ url, isTransfer, onEdit, onNewOrder }: {
         Tu pedido ya está escrito en WhatsApp: solo tenés que tocar <strong className="text-washi">Enviar</strong>. Si no se
         abrió, tocá Abrir WhatsApp.
       </p>
-      {isTransfer && <TransferNotice />}
+      {(paymentMethod === 'transfer' || paymentMethod === 'mixed') && <TransferNotice mixed={paymentMethod === 'mixed'} />}
       <div className={cn('space-y-3', !settled && 'pointer-events-none')}>
         <a href={url} target="_blank" rel="noopener noreferrer" className={buttonClassName({ size: 'lg', fullWidth: true })}>
           Abrir WhatsApp
@@ -466,7 +485,7 @@ export function Checkout() {
       <PageShell>
         <SentScreen
           url={whatsappUrl}
-          isTransfer={form.paymentMethod === 'transfer'}
+          paymentMethod={form.paymentMethod}
           onEdit={() => {
             openedRef.current = false;
             setSent(false);
@@ -572,8 +591,20 @@ export function Checkout() {
             onChange={(method) => update('paymentMethod', method)}
             error={errors.paymentMethod}
           >
-            {form.paymentMethod === 'transfer' && <TransferNotice />}
+            {(form.paymentMethod === 'transfer' || form.paymentMethod === 'mixed') && (
+              <TransferNotice mixed={form.paymentMethod === 'mixed'} />
+            )}
           </ChoiceCards>
+
+          <Textarea
+            label="Observaciones (opcional)"
+            name="notes"
+            rows={3}
+            maxLength={NOTES_MAX_LENGTH}
+            placeholder="Ej.: la hamburguesa sin palta"
+            value={form.notes}
+            onChange={(e) => update('notes', e.target.value)}
+          />
 
           <p className="text-sm text-washi-muted">Para hoy · el horario lo coordinamos por WhatsApp</p>
 

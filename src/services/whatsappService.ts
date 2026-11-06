@@ -43,6 +43,7 @@ export const buildOrderMessage = (order: OrderDetails): string =>
     `Entrega: ${DELIVERY_METHOD_LABELS[order.fulfillment.method]}`,
     ...(order.fulfillment.method === 'delivery' ? [`Dirección: ${oneLine(order.fulfillment.address)}`] : []),
     `Pago: ${PAYMENT_METHOD_LABELS[order.paymentMethod]}`,
+    ...(order.notes ? [`Observaciones: ${oneLine(order.notes)}`] : []),
   ].join('\n');
 
 export const buildWhatsAppUrl = (order: OrderDetails): string =>

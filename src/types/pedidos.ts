@@ -24,10 +24,20 @@ export interface StaffOrder {
   customerName: string;
   /** wa.me format: "5492478567168" */
   phone: string;
-  email: string;
+  /** null for orders loaded by hand: those customers have no account */
+  email: string | null;
+  /** Loaded from the shop's app (a customer who ordered by WhatsApp) instead of arriving from the web */
+  manual: boolean;
   deliveryMethod: 'pickup' | 'delivery';
   address: string | null;
-  paymentMethod: 'cash' | 'transfer';
+  paymentMethod: 'cash' | 'transfer' | 'mixed';
+  /**
+   * Mixed payments: how much of the total was paid in cash (the rest by transfer), loaded by the shop once it's
+   * settled by WhatsApp; null until then. Cash and transfer orders don't use it.
+   */
+  cashAmount: number | null;
+  /** The customer's notes for the kitchen ("la hamburguesa sin palta") */
+  notes: string | null;
   lines: OrderLineSnapshot[];
   subtotal: number;
   discountLabel: string | null;
@@ -57,7 +67,81 @@ export interface CustomerOrder {
 export type StaffOrderAction =
   | { action: 'confirmar'; eta: string }
   | { action: 'rechazar'; reason: string }
-  | { action: 'impreso' };
+  | { action: 'impreso' }
+  | { action: 'cobro'; cashAmount: number };
+
+/** What the app can add to an order loaded by hand, as menu references: the server puts the prices */
+export type ManualLineRef =
+  | { kind: 'product'; productId: string; pieces?: number; optionId?: string }
+  | { kind: 'extra'; itemId: string }
+  | { kind: 'box'; size: string; steps: Record<string, number> };
+
+export type ManualOrderLine = ManualLineRef & { quantity: number };
+
+/** POST /api/local/pedidos */
+export interface ManualOrderInput {
+  name: string;
+  /** However it was typed; the server normalizes it */
+  phone: string;
+  deliveryMethod: StaffOrder['deliveryMethod'] | null;
+  address: string;
+  paymentMethod: StaffOrder['paymentMethod'] | null;
+  notes: string;
+  discountCode: string;
+  items: ManualOrderLine[];
+}
+
+/** POST /api/local/pedidos/presupuesto: an order's amounts as the server would save them */
+export interface OrderQuote {
+  subtotal: number;
+  discountLabel: string | null;
+  discountAmount: number;
+  deliveryFee: number;
+  total: number;
+}
+
+/** One way to order a catalog item: a combo's size, a sushiburger's option, or the item itself (`label` null) */
+export interface StaffCatalogChoice {
+  label: string | null;
+  /** Integer ARS, before any discount */
+  price: number;
+  line: ManualLineRef;
+}
+
+export interface StaffCatalogItem {
+  id: string;
+  name: string;
+  soldOut: boolean;
+  choices: StaffCatalogChoice[];
+}
+
+/** A roll or nigiri for a box; `price` is per step */
+export interface StaffBoxItem {
+  id: string;
+  name: string;
+  group: 'rolls' | 'nigiris';
+  /** Units per step: 5 pieces of a roll, 1 nigiri */
+  step: number;
+  price: number;
+  soldOut: boolean;
+}
+
+export interface StaffBoxSize {
+  id: string;
+  name: string;
+  combinations: { rollPieces: number; nigiris: { min: number; max: number } }[];
+  /** The same combinations as text: "20 piezas + hasta 6 nigiris" */
+  fits: string[];
+}
+
+/** GET /api/local/catalogo: the menu as the app needs it to load an order by hand */
+export interface StaffCatalog {
+  /** The menu's tabs, without Arma tu combo */
+  groups: { name: string; items: StaffCatalogItem[] }[];
+  box: { name: string; sizes: StaffBoxSize[]; items: StaffBoxItem[] };
+  /** The time rolls and nigiris stop on the web, once it has passed ("19:30"); null before that */
+  cutoffPassed: string | null;
+}
 
 /** A discount code as the shop's app manages it (they live in the database, not in the site's code) */
 export interface StaffDiscountCode {

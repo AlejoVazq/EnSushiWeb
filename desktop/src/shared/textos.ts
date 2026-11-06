@@ -11,6 +11,22 @@ export const formatPrice = (amount: number): string =>
 export const PAYMENT_LABELS: Record<StaffOrder['paymentMethod'], string> = {
   cash: 'Efectivo',
   transfer: 'Transferencia',
+  mixed: 'Efectivo y transferencia',
+};
+
+/**
+ * How much came in cash and how much by transfer; null for a mixed payment whose split the shop hasn't loaded
+ * yet (it's settled by WhatsApp)
+ */
+export const paymentSplit = (order: StaffOrder): { cash: number; transfer: number } | null => {
+  switch (order.paymentMethod) {
+    case 'cash':
+      return { cash: order.total, transfer: 0 };
+    case 'transfer':
+      return { cash: 0, transfer: order.total };
+    case 'mixed':
+      return order.cashAmount === null ? null : { cash: order.cashAmount, transfer: order.total - order.cashAmount };
+  }
 };
 
 export const DELIVERY_LABELS: Record<StaffOrder['deliveryMethod'], string> = {
@@ -49,6 +65,13 @@ export const confirmMessage = (order: StaffOrder, eta: string, settings: Setting
             : `Para pagar, te pasamos el alias por acá.`,
         ]
       : []),
+    ...(order.paymentMethod === 'mixed'
+      ? [
+          settings.transferAlias
+            ? `Contanos cuánto pagás en efectivo; el resto lo transferís al alias ${settings.transferAlias} y nos mandás el comprobante por acá.`
+            : `Contanos cuánto pagás en efectivo y te pasamos el alias para el resto.`,
+        ]
+      : []),
     '¡Gracias!',
   ].join('\n');
 
@@ -68,6 +91,8 @@ const escapeHtml = (text: string): string =>
 /** The comanda for the ticket printer: plain black text, large where the kitchen looks first */
 export const comandaHtml = (order: StaffOrder, paperWidth: number): string => {
   const e = escapeHtml;
+  // What the TM-T20 actually prints of each paper: 72 mm of the 80, 48 of the 58
+  const printableWidth = paperWidth === 58 ? 48 : 72;
   const row = (left: string, right: string) => `<div class="row"><span>${left}</span><span>${right}</span></div>`;
   const lines = order.lines
     .map(
@@ -81,12 +106,13 @@ export const comandaHtml = (order: StaffOrder, paperWidth: number): string => {
   return `<!doctype html><html><head><meta charset="utf-8"><style>
     @page { margin: 0; }
     * { color: #000 !important; }
-    body { margin: 0; padding: 2mm 3mm; width: ${paperWidth - 8}mm; font: 12px/1.35 Arial, sans-serif; }
+    body { box-sizing: border-box; margin: 0; padding: 2mm; width: ${printableWidth}mm; font: 12px/1.35 Arial, sans-serif; }
     h1 { font-size: 20px; margin: 0; }
     .big { font-size: 16px; font-weight: bold; }
     .row { display: flex; justify-content: space-between; gap: 6px; }
     .item { margin: 4px 0; }
     .detail { padding-left: 8px; }
+    .notes { border: 2px solid #000; padding: 4px 6px; margin: 6px 0; font-size: 14px; font-weight: bold; }
     hr { border: 0; border-top: 1px dashed #000; margin: 6px 0; }
   </style></head><body>
     <h1>${SHOP_NAME} · #${order.number}</h1>
@@ -98,6 +124,7 @@ export const comandaHtml = (order: StaffOrder, paperWidth: number): string => {
     <div class="big">${DELIVERY_LABELS[order.deliveryMethod]}</div>
     ${order.address ? `<div>${e(order.address)}</div>` : ''}
     <div>Pago: ${PAYMENT_LABELS[order.paymentMethod]}</div>
+    ${order.notes ? `<div class="notes">Obs.: ${e(order.notes)}</div>` : ''}
     <hr>
     ${lines}
     <hr>

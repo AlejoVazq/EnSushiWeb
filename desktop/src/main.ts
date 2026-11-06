@@ -1,9 +1,12 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { app, BrowserWindow, ipcMain, net, safeStorage, shell } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, net, safeStorage, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 
+import type { StaffOrder } from '../../src/types/pedidos';
+
+import { salesWorkbook } from './excel';
 import type { ApiMethod, ApiResponse, Settings } from './shared/bridge';
 
 // ─── Settings (userData/config.json) ────────────────────────────────────────
@@ -186,6 +189,28 @@ ipcMain.handle('printers:list', async () => {
 });
 
 ipcMain.handle('print', (_event, html: string) => printHtml(html));
+
+// Only the file this app just wrote can be opened from the window
+let lastExport: string | null = null;
+
+ipcMain.handle('sales:export', async (_event, orders: StaffOrder[], from: string, to: string) => {
+  const name = from === to ? `Ventas EnSushi ${from}.xlsx` : `Ventas EnSushi ${from} a ${to}.xlsx`;
+  const options = { defaultPath: join(app.getPath('documents'), name), filters: [{ name: 'Excel', extensions: ['xlsx'] }] };
+  const choice = mainWindow ? await dialog.showSaveDialog(mainWindow, options) : await dialog.showSaveDialog(options);
+  if (choice.canceled || !choice.filePath) return { ok: false, canceled: true, error: '' };
+  try {
+    writeFileSync(choice.filePath, await salesWorkbook(orders, from, to));
+  } catch {
+    // Usually the same file open in Excel
+    return { ok: false, canceled: false, error: 'No se pudo guardar. Si ese archivo está abierto en Excel, cerralo y probá de nuevo.' };
+  }
+  lastExport = choice.filePath;
+  return { ok: true };
+});
+
+ipcMain.handle('sales:open', async () => {
+  if (lastExport) await shell.openPath(lastExport);
+});
 
 ipcMain.handle('whatsapp:open', async (_event, phone: string, message: string) => {
   if (!/^\d{10,15}$/.test(phone)) return;

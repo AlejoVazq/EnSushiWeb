@@ -10,6 +10,8 @@ export interface CheckoutForm {
   /** Only used (and required) for delivery */
   address: string;
   paymentMethod: PaymentMethod | null;
+  /** Optional notes for the kitchen */
+  notes: string;
   /** Applied discount code, normalized; '' when none */
   discountCode: string;
 }
@@ -21,14 +23,18 @@ export const EMPTY_CHECKOUT_FORM: CheckoutForm = {
   deliveryMethod: null,
   address: '',
   paymentMethod: null,
+  notes: '',
   discountCode: '',
 };
+
+/** Long enough for "la hamburguesa sin palta y el combo sin wasabi", short enough for the comanda */
+export const NOTES_MAX_LENGTH = 200;
 
 /** The form survives "Editar" / "Volver al menú" for this tab only, and is dropped once the order is sent */
 const DRAFT_KEY = 'ensushi-checkout';
 
 const DELIVERY_METHODS: readonly DeliveryMethod[] = ['pickup', 'delivery'];
-const PAYMENT_METHODS: readonly PaymentMethod[] = ['cash', 'transfer'];
+const PAYMENT_METHODS: readonly PaymentMethod[] = ['cash', 'transfer', 'mixed'];
 
 const pickOne = <T extends string>(options: readonly T[], value: unknown): T | null =>
   options.find((option) => option === value) ?? null;
@@ -48,6 +54,7 @@ export const loadCheckoutDraft = (keepUnknownCodes = false): CheckoutForm => {
       deliveryMethod: pickOne(DELIVERY_METHODS, saved.deliveryMethod),
       address: typeof saved.address === 'string' ? saved.address : '',
       paymentMethod: pickOne(PAYMENT_METHODS, saved.paymentMethod),
+      notes: typeof saved.notes === 'string' ? saved.notes.slice(0, NOTES_MAX_LENGTH) : '',
       // A code that stopped working (expired, removed) since it was saved is dropped
       discountCode:
         typeof saved.discountCode === 'string' && (keepUnknownCodes || lookUpCode(saved.discountCode, getNow()).ok)
@@ -119,6 +126,7 @@ export const createOrder = (
         ? { method: 'delivery', address: form.address.trim() }
         : { method: 'pickup' },
     paymentMethod: form.paymentMethod,
+    notes: form.notes.trim().slice(0, NOTES_MAX_LENGTH),
     items,
     discount,
     deliveryFee,

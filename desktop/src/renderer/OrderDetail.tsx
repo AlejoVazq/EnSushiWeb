@@ -16,6 +16,51 @@ import {
 } from '../shared/textos';
 
 const QUICK_MINUTES = [15, 30, 45, 60] as const;
+const DISCARD_REASON = 'Cargado por error';
+
+interface MixedPaymentProps {
+  order: StaffOrder;
+  send: (action: StaffOrderAction) => Promise<StaffOrder | null>;
+}
+
+/** Mixed payments are settled by WhatsApp; the cash part is loaded here so the sales add up */
+function MixedPayment({ order, send }: MixedPaymentProps) {
+  const [cash, setCash] = useState(order.cashAmount === null ? '' : String(order.cashAmount));
+  const [saving, setSaving] = useState(false);
+  const amount = cash === '' ? null : Number(cash);
+  const valid = amount !== null && amount <= order.total;
+
+  const save = async () => {
+    if (amount === null) return;
+    setSaving(true);
+    await send({ action: 'cobro', cashAmount: amount });
+    setSaving(false);
+  };
+
+  return (
+    <div className="panel">
+      <strong>Cobro mixto</strong> <span className="muted">· cuando lo arreglen por WhatsApp, cargá cuánto fue en efectivo</span>
+      <div className="row" style={{ marginTop: 8 }}>
+        <label htmlFor="cash" style={{ margin: 0 }}>
+          En efectivo $
+        </label>
+        <input
+          id="cash"
+          inputMode="numeric"
+          style={{ width: 140 }}
+          value={cash}
+          onChange={(e) => setCash(e.target.value.replace(/\D/g, ''))}
+        />
+        <span>Transferencia: {valid && amount !== null ? formatPrice(order.total - amount) : '—'}</span>
+        <button className="primary" disabled={!valid || saving || amount === order.cashAmount} onClick={() => void save()}>
+          {saving ? 'Guardando…' : 'Guardar'}
+        </button>
+      </div>
+      {amount !== null && !valid && <p className="error">No puede pasar el total ({formatPrice(order.total)}).</p>}
+      {order.cashAmount === null && <p className="error">Falta cargar el cobro.</p>}
+    </div>
+  );
+}
 
 interface OrderDetailProps {
   order: StaffOrder;
@@ -34,6 +79,7 @@ export function OrderDetail({ order, settings, onUpdated }: OrderDetailProps) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [confirmDiscard, setConfirmDiscard] = useState(false);
 
   const message = customMessage ?? (mode === 'confirmar' ? confirmMessage(order, eta, settings) : rejectMessage(order, reason));
   const decided = order.status !== 'nuevo';
@@ -61,6 +107,14 @@ export function OrderDetail({ order, settings, onUpdated }: OrderDetailProps) {
     await send({ action: 'impreso' });
   };
 
+  /** A hand-loaded order with a mistake: out of the way without writing to the customer (rejected orders don't count as sales) */
+  const discard = async () => {
+    setBusy(true);
+    setError(null);
+    await send({ action: 'rechazar', reason: DISCARD_REASON });
+    setBusy(false);
+  };
+
   const answer = async () => {
     setBusy(true);
     setError(null);
@@ -83,11 +137,12 @@ export function OrderDetail({ order, settings, onUpdated }: OrderDetailProps) {
           <span className={`tag ${order.status}`}>{order.status}</span>
         </div>
         <p>
-          <strong>{order.customerName}</strong> · Tel {formatPhone(order.phone)} · {order.email}
+          <strong>{order.customerName}</strong> · Tel {formatPhone(order.phone)} · {order.email ?? 'Cargado a mano'}
           <br />
           <strong>{DELIVERY_LABELS[order.deliveryMethod]}</strong>
           {order.address ? ` · ${order.address}` : ''} · Pago: {PAYMENT_LABELS[order.paymentMethod]}
         </p>
+        {order.notes && <p className="notes">Observaciones: {order.notes}</p>}
         <table>
           <tbody>
             {order.lines.map((line, index) => (
@@ -131,6 +186,10 @@ export function OrderDetail({ order, settings, onUpdated }: OrderDetailProps) {
           {!settings.printerName && <span className="muted">Elegí la ticketera en Ajustes.</span>}
         </p>
       </div>
+
+      {order.paymentMethod === 'mixed' && order.status !== 'rechazado' && (
+        <MixedPayment key={order.cashAmount ?? 'none'} order={order} send={send} />
+      )}
 
       <div className="panel">
         {decided ? (
@@ -201,7 +260,15 @@ export function OrderDetail({ order, settings, onUpdated }: OrderDetailProps) {
               {busy ? 'Guardando…' : mode === 'confirmar' ? 'Confirmar y abrir WhatsApp' : 'Rechazar y abrir WhatsApp'}
             </button>
           )}
-          {decided && (
+          {!decided && order.manual && !confirmDiscard && <button onClick={() => setConfirmDiscard(true)}>Descartar (se cargó mal)</button>}
+          {!decided && order.manual && confirmDiscard && (
+            <>
+              ¿Descartarlo sin avisarle al cliente?
+              <button className="danger" disabled={busy} onClick={() => void discard()}>Sí, descartar</button>
+              <button onClick={() => setConfirmDiscard(false)}>No</button>
+            </>
+          )}
+          {decided && order.rejectReason !== DISCARD_REASON && (
             <button
               onClick={() =>
                 window.ensushi.openWhatsApp(

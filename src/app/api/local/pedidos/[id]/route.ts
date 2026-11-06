@@ -1,7 +1,7 @@
 import { currentStaff, error, json, ordersByAppEnabled, readJson } from '@/server/http';
 import { applyStaffAction } from '@/server/orders';
 
-/** PATCH /api/local/pedidos/[id]: confirm with a time, reject with a reason, or mark as printed */
+/** PATCH /api/local/pedidos/[id]: confirm with a time, reject with a reason, mark as printed, or split a mixed payment */
 export async function PATCH(request: Request, { params }: RouteContext<'/api/local/pedidos/[id]'>) {
   if (!ordersByAppEnabled()) return error('No disponible.', 404);
   if (!(await currentStaff(request))) return error('Sesión vencida.', 401);
