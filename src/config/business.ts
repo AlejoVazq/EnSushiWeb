@@ -27,7 +27,7 @@ export const BUSINESS = {
     /** Regular opening days, 0 = Sunday … 6 = Saturday (Friday to Sunday) */
     openDays: [5, 6, 0],
     /** Holidays outside `openDays` the shop works, "YYYY-MM-DD" */
-    extraOpenDates: [] as readonly string[],
+    extraOpenDates: ['2026-11-11'] as readonly string[],
     /** `openDays` the shop doesn't work (e.g. Christmas), "YYYY-MM-DD" */
     closedDates: [] as readonly string[],
     /** Express kitchen, same day (`close` after `open`) */
