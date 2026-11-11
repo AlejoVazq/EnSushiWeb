@@ -12,7 +12,7 @@ import type { ApiMethod, ApiResponse, Settings } from './shared/bridge';
 // ─── Settings (userData/config.json) ────────────────────────────────────────
 
 const DEFAULT_SETTINGS: Settings = {
-  serverUrl: app.isPackaged ? '' : 'http://localhost:3000',
+  serverUrl: app.isPackaged ? 'https://ensushi.ar' : 'http://localhost:3000',
   printerName: '',
   paperWidth: 80,
   printOnConfirm: false,
