@@ -256,7 +256,7 @@ export const PRODUCTS: readonly Product[] = [
     name: 'SushiBurger Atún y ciboulette',
     description: 'Atún, queso philly y ciboulette entre dos panes de arroz empanizados y fritos. Incluye nachos y guacamole.',
     price: 14000,
-    imageUrl: '/images/menu/sb-atun.jpg',
+    imageUrl: '/images/menu/sb-atun-centrada.jpg',
   }),
 
   // Salsas: one product each, so the order says exactly which one
