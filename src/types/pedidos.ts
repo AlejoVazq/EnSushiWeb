@@ -196,3 +196,14 @@ export interface StaffMenu {
 
 /** PATCH /api/local/menu */
 export type StaffMenuAction = { itemId: string; soldOut: boolean } | { ordersPaused: boolean };
+
+/** GET /api/cuenta: who is logged in, and what their last order used, to fill the checkout (all of it editable) */
+export interface CustomerAccount {
+  email: string;
+  /** From the last order; '' when there's none yet */
+  name: string;
+  /** Area code + number, as the customer types it ("2478567168"); '' when there's none yet */
+  phone: string;
+  /** From the last delivery order; '' when there's none yet */
+  address: string;
+}

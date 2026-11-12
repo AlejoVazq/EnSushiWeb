@@ -309,3 +309,26 @@ export const applyStaffAction = async (orderId: string, body: unknown): Promise<
   const [row] = rows;
   return row ? { ok: true, order: toStaffOrder(row) } : { ok: false, status: 404, error: 'No existe ese pedido.' };
 };
+
+/** The name and phone of the customer's last order and the address of their last delivery, to fill the checkout */
+export const getLastOrderDetails = async (
+  customerId: string,
+): Promise<{ name: string; phone: string; address: string }> => {
+  const db = await getDb();
+  const [last] = await db.query<{ customer_name: string; phone: string }>(
+    'SELECT customer_name, phone FROM orders WHERE customer_id = $1 ORDER BY created_at DESC LIMIT 1',
+    [customerId],
+  );
+  const [delivery] = await db.query<{ address: string }>(
+    `SELECT address FROM orders
+       WHERE customer_id = $1 AND delivery_method = 'delivery' AND coalesce(address, '') <> ''
+       ORDER BY created_at DESC LIMIT 1`,
+    [customerId],
+  );
+  return {
+    name: last?.customer_name ?? '',
+    // Stored as 549 + area code + number (wa.me); the checkout shows it the way people type it
+    phone: last?.phone.replace(/^549/, '') ?? '',
+    address: delivery?.address ?? '',
+  };
+};

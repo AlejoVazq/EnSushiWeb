@@ -46,6 +46,7 @@ import { checkDiscountCode, loadSavedPhone, ORDERS_BY_APP, savePhone, sendOrder 
 import { buildWhatsAppUrl } from '@/services/whatsappService';
 import { useCartStore } from '@/store/useCartStore';
 import type { DeliveryMethod, DiscountCode, OrderDiscount, PaymentMethod } from '@/types';
+import type { CustomerAccount } from '@/types/pedidos';
 
 import { OrderSummary } from './OrderSummary';
 
@@ -410,8 +411,17 @@ export function Checkout() {
 
   // Orders by app (ORDERS_BY_APP): an account, a phone for the shop's WhatsApp answer, and a POST instead of wa.me
   const [accountEmail, setAccountEmail] = useState<string | null>(null);
-  const onAccountChange = useCallback((email: string | null) => setAccountEmail(email), []);
   const [phone, setPhone] = useState(loadSavedPhone);
+  // The address of the last delivery, while it's the one in the field: the hint says it can be changed
+  const [lastAddress, setLastAddress] = useState('');
+  /** Fills only what's still empty with the last order's details; everything stays editable */
+  const onAccountChange = useCallback((account: CustomerAccount | null) => {
+    setAccountEmail(account?.email ?? null);
+    if (!account) return;
+    setForm((prev) => ({ ...prev, name: prev.name || account.name, address: prev.address || account.address }));
+    setPhone((prev) => prev || account.phone);
+    setLastAddress(account.address);
+  }, []);
   const [phoneError, setPhoneError] = useState<string | undefined>();
   const [sendError, setSendError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
@@ -569,7 +579,11 @@ export function Checkout() {
                 autoComplete="street-address"
                 maxLength={160}
                 placeholder="Calle y número"
-                hint="Sumá piso, depto o alguna referencia si hace falta."
+                hint={
+                  lastAddress && form.address === lastAddress
+                    ? 'Es la de tu último pedido. Si hoy estás en otro lado, cambiala.'
+                    : 'Sumá piso, depto o alguna referencia si hace falta.'
+                }
                 value={form.address}
                 onChange={(e) => update('address', e.target.value)}
                 error={errors.address}

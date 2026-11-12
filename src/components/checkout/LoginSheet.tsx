@@ -16,7 +16,7 @@ const CODE_LENGTH = 6;
 
 const noSubscribe = () => () => {};
 
-type Step = { name: 'email' } | { name: 'code'; email: string; sentAt: number };
+type Step = { name: 'email' } | { name: 'code'; email: string; sentAt: number; alreadySent: boolean };
 
 interface LoginSheetProps {
   open: boolean;
@@ -64,7 +64,7 @@ export function LoginSheet({ open, onClose, onLoggedIn }: LoginSheetProps) {
     }
     setCode('');
     setNow(Date.now());
-    setStep({ name: 'code', email: to.trim().toLowerCase(), sentAt: Date.now() });
+    setStep({ name: 'code', email: to.trim().toLowerCase(), sentAt: Date.now(), alreadySent: result.data.alreadySent });
   };
 
   const checkCode = async (forEmail: string, typed: string) => {
@@ -144,7 +144,8 @@ export function LoginSheet({ open, onClose, onLoggedIn }: LoginSheetProps) {
         ) : (
           <div>
             <p className="text-washi-muted">
-              Te mandamos un código de 6 números a <strong className="text-washi">{step.email}</strong>.
+              {step.alreadySent ? 'Hace un momento te mandamos' : 'Te mandamos'} un código de 6 números a{' '}
+              <strong className="text-washi">{step.email}</strong>.{step.alreadySent && ' Usá ese, sigue sirviendo.'}
             </p>
 
             <label htmlFor="login-code" className="mt-5 mb-1.5 block text-sm font-bold">

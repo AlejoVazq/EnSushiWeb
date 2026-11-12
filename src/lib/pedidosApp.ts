@@ -2,7 +2,7 @@ import { toPersistedLine } from '@/lib/cartItems';
 import type { CheckoutForm } from '@/lib/checkout';
 import { getSimulatedNow } from '@/lib/schedule';
 import type { CartItem, DiscountCode } from '@/types';
-import type { CustomerOrder, LiveMenu } from '@/types/pedidos';
+import type { CustomerAccount, CustomerOrder, LiveMenu } from '@/types/pedidos';
 
 /**
  * Orders go to the shop's desktop app (through this site's server) instead of WhatsApp.
@@ -32,8 +32,10 @@ const request = async <T>(method: 'GET' | 'POST', path: string, body?: unknown):
   }
 };
 
-export const getAccount = () => request<{ email: string }>('GET', '/api/cuenta');
-export const requestCode = (email: string) => request<{ ok: true }>('POST', '/api/cuenta/codigo', { email });
+export const getAccount = () => request<CustomerAccount>('GET', '/api/cuenta');
+/** `alreadySent`: one went out less than a minute ago and still works, so no new one was sent */
+export const requestCode = (email: string) =>
+  request<{ ok: true; alreadySent: boolean; waitSeconds: number }>('POST', '/api/cuenta/codigo', { email });
 export const verifyCode = (email: string, code: string) => request<{ email: string }>('POST', '/api/cuenta/verificar', { email, code });
 export const logOut = () => request<{ ok: true }>('POST', '/api/cuenta/salir');
 export const getOrder = (id: string) => request<CustomerOrder>('GET', `/api/pedidos/${encodeURIComponent(id)}`);

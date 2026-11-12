@@ -4,14 +4,15 @@ import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
 import { getAccount, logOut } from '@/lib/pedidosApp';
+import type { CustomerAccount } from '@/types/pedidos';
 
 import { LoginSheet } from './LoginSheet';
 
 type Step = { name: 'loading' } | { name: 'out' } | { name: 'in'; email: string };
 
 interface AccountSectionProps {
-  /** The logged-in email, or null while there's none */
-  onChange: (email: string | null) => void;
+  /** The logged-in account (with its last order's details, to fill the form), or null while there's none */
+  onChange: (account: CustomerAccount | null) => void;
 }
 
 /**
@@ -28,7 +29,7 @@ export function AccountSection({ onChange }: AccountSectionProps) {
       if (!active) return;
       if (result.ok) {
         setStep({ name: 'in', email: result.data.email });
-        onChange(result.data.email);
+        onChange(result.data);
       } else {
         setStep({ name: 'out' });
         setLoginOpen(true);
@@ -76,7 +77,10 @@ export function AccountSection({ onChange }: AccountSectionProps) {
         onLoggedIn={(email) => {
           setLoginOpen(false);
           setStep({ name: 'in', email });
-          onChange(email);
+          // Asked again for the details: a customer on a new phone gets their last order's ones too
+          void getAccount().then((result) =>
+            onChange(result.ok ? result.data : { email, name: '', phone: '', address: '' }),
+          );
         }}
       />
     </section>

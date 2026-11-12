@@ -16,12 +16,13 @@ export async function POST(request: Request) {
   if (!isValidEmail(email)) return error('Revisá el correo.', 400);
 
   const code = await createLoginCode(email);
-  if (!code) return error(`Ya te mandamos un código. Para pedir otro esperá ${RESEND_SECONDS} segundos.`, 429);
+  // One went out less than a minute ago (the sheet was closed and opened again): that one still works
+  if (!code) return json({ ok: true, alreadySent: true, waitSeconds: RESEND_SECONDS });
   try {
     await sendLoginCode(email, code);
   } catch (cause) {
     console.error('No se pudo mandar el código', cause);
     return error('No pudimos mandarte el correo. Probá de nuevo en un rato.', 502);
   }
-  return json({ ok: true });
+  return json({ ok: true, alreadySent: false, waitSeconds: RESEND_SECONDS });
 }
