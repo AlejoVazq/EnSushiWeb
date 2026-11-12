@@ -233,12 +233,12 @@ export const PRODUCTS: readonly Product[] = [
     name: 'SushiBurger Salmón',
     description: 'Salmón (cocido o crudo), palta y queso philly entre dos panes de arroz empanizados y fritos. Incluye nachos y guacamole.',
     price: 15000,
-    imageUrl: '/images/menu/sb-salmon-crudo.jpg',
+    imageUrl: '/images/menu/sb-salmoncrudo.jpg',
     option: {
       name: 'Salmón',
       values: [
-        { id: 'crudo', label: 'Crudo', imageUrl: '/images/menu/sb-salmon-crudo.jpg' },
-        { id: 'cocido', label: 'Cocido', imageUrl: '/images/menu/sb-salmon-cocido.jpg' },
+        { id: 'crudo', label: 'Crudo' },
+        { id: 'cocido', label: 'Cocido' },
       ],
     },
   }),
@@ -248,7 +248,7 @@ export const PRODUCTS: readonly Product[] = [
     name: 'SushiBurger Langostinos',
     description: 'Langostinos empanados en panko, palta y queso philly entre dos panes de arroz empanizados y fritos. Incluye nachos y guacamole.',
     price: 14000,
-    imageUrl: '/images/menu/sb-langostinos.jpg',
+    imageUrl: '/images/menu/sb-langos.jpg',
   }),
   express({
     id: 'sb-atun-ciboulette',
@@ -256,7 +256,7 @@ export const PRODUCTS: readonly Product[] = [
     name: 'SushiBurger Atún y ciboulette',
     description: 'Atún, queso philly y ciboulette entre dos panes de arroz empanizados y fritos. Incluye nachos y guacamole.',
     price: 14000,
-    imageUrl: '/images/menu/sb-atun-ciboulette.jpg',
+    imageUrl: '/images/menu/sb-atun.jpg',
   }),
 
   // Salsas: one product each, so the order says exactly which one
