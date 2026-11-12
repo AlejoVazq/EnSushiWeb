@@ -233,13 +233,12 @@ export const PRODUCTS: readonly Product[] = [
     name: 'SushiBurger Salmón',
     description: 'Salmón (cocido o crudo), palta y queso philly entre dos panes de arroz empanizados y fritos. Incluye nachos y guacamole.',
     price: 15000,
-    imageUrl: '/images/menu/sb-salmon.jpg',
-    // TODO: one photo per version (imageUrl on each value) once they're taken
+    imageUrl: '/images/menu/sb-salmon-crudo.jpg',
     option: {
       name: 'Salmón',
       values: [
-        { id: 'crudo', label: 'Crudo' },
-        { id: 'cocido', label: 'Cocido' },
+        { id: 'crudo', label: 'Crudo', imageUrl: '/images/menu/sb-salmon-crudo.jpg' },
+        { id: 'cocido', label: 'Cocido', imageUrl: '/images/menu/sb-salmon-cocido.jpg' },
       ],
     },
   }),

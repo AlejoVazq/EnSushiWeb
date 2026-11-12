@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import {
   createSession,
   CUSTOMER_COOKIE,
-  CUSTOMER_SESSION_SECONDS,
+  customerCookieOptions,
   isValidEmail,
   normalizeEmail,
   verifyLoginCode,
@@ -28,12 +28,6 @@ export async function POST(request: Request) {
   if (!check.ok) return error(check.error, 400);
 
   const token = await createSession('customer', check.customerId);
-  (await cookies()).set(CUSTOMER_COOKIE, token, {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    path: '/',
-    maxAge: CUSTOMER_SESSION_SECONDS,
-  });
+  (await cookies()).set(CUSTOMER_COOKIE, token, customerCookieOptions());
   return json({ email });
 }

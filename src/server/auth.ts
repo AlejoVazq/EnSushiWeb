@@ -15,6 +15,16 @@ export const CUSTOMER_COOKIE = 'ensushi_sesion';
 const SESSION_DAYS: Record<SessionKind, number> = { customer: 60, staff: 14 };
 export const CUSTOMER_SESSION_SECONDS = SESSION_DAYS.customer * 24 * 60 * 60;
 
+/** The customer cookie, the same when it's created and each time it's renewed */
+export const customerCookieOptions = () =>
+  ({
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+    maxAge: CUSTOMER_SESSION_SECONDS,
+  }) as const;
+
 /** A new random token; only its hash is stored, so a copy of the database can't be used to log in */
 export const createSession = async (kind: SessionKind, subjectId: string): Promise<string> => {
   const token = randomBytes(32).toString('base64url');
@@ -36,6 +46,24 @@ export const readSession = async (kind: SessionKind, token: string | undefined):
     [sha256(token), kind],
   );
   return row?.subject_id ?? null;
+};
+
+/**
+ * Gives a valid session its full length again, so a regular customer never has to log in again.
+ * At most once a day (it only writes when a day of it was used). True if the token is still valid.
+ */
+export const renewSession = async (kind: SessionKind, token: string | undefined): Promise<boolean> => {
+  if (!token) return false;
+  const db = await getDb();
+  const [row] = await db.query<{ renewed: boolean }>(
+    `UPDATE sessions SET expires_at = CASE
+         WHEN expires_at < now() + make_interval(days => $3 - 1) THEN now() + make_interval(days => $3)
+         ELSE expires_at END
+       WHERE token_hash = $1 AND kind = $2 AND expires_at > now()
+       RETURNING true AS renewed`,
+    [sha256(token), kind, SESSION_DAYS[kind]],
+  );
+  return row?.renewed ?? false;
 };
 
 export const deleteSession = async (token: string | undefined): Promise<void> => {

@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ingreso con correo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700&family=M+PLUS+Rounded+1c:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sumi: #141210; --sumi-1: #1d1a17; --sumi-2: #262220;
+    --hairline: #34302b; --hairline-strong: #4d463e;
+    --washi: #f1ebe0; --washi-muted: #b9b0a2; --shu: #c8432b; --shu-fg: #fff6ee;
+    --field-edge: #7a7268;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: #0c0b0a; color: var(--washi); font: 16px/1.45 Figtree, system-ui, sans-serif; padding: 32px 16px 80px; }
+  h1 { font: 700 30px 'M PLUS Rounded 1c'; margin-bottom: 6px; }
+  .lead { color: var(--washi-muted); max-width: 70ch; margin-bottom: 40px; }
+  section.decision { margin-bottom: 72px; }
+  section.decision > h2 { font: 700 22px 'M PLUS Rounded 1c'; margin-bottom: 4px; }
+  section.decision > p { color: var(--washi-muted); margin-bottom: 20px; max-width: 70ch; }
+  .options { display: flex; flex-wrap: wrap; gap: 28px; }
+  .opt > h3 { font: 700 15px Figtree; margin-bottom: 8px; color: var(--washi-muted); text-transform: uppercase; letter-spacing: .06em; }
+  .t { font-family: 'M PLUS Rounded 1c'; font-weight: 700; }
+  .muted { color: var(--washi-muted); }
+  .sm { font-size: 14px; } .xs { font-size: 12px; }
+
+  /* Phone frame with the shop dimmed behind */
+  .phone { position: relative; width: 360px; height: 720px; max-width: 100%; background: var(--sumi); border: 1px solid var(--hairline); border-radius: 28px; overflow: hidden; }
+  .shop { padding: 18px 16px; opacity: .9; }
+  .shop .hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .shop .logo { font: 700 20px 'M PLUS Rounded 1c'; }
+  .shop .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .shop .tabs span { border: 1px solid var(--hairline); border-radius: 99px; padding: 6px 12px; font-size: 13px; color: var(--washi-muted); white-space: nowrap; }
+  .shop .item { display: flex; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--hairline); }
+  .shop .img { width: 64px; height: 64px; border-radius: 12px; background: linear-gradient(135deg, #3a332c, #241f1b); flex: none; }
+  .shop .bar { height: 10px; border-radius: 5px; background: var(--sumi-2); }
+  .scrim { position: absolute; inset: 0; background: rgba(8,7,6,.72); }
+
+  /* A: bottom sheet */
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--sumi-1); border-top: 1px solid var(--hairline-strong); border-radius: 24px 24px 0 0; padding: 10px 20px 24px; }
+  .grab { width: 40px; height: 4px; border-radius: 2px; background: var(--hairline-strong); margin: 0 auto 16px; }
+  /* B: centered dialog */
+  .dialog { position: absolute; left: 16px; right: 16px; top: 50%; transform: translateY(-50%); background: var(--sumi-1); border: 1px solid var(--hairline-strong); border-radius: 20px; padding: 22px 20px 20px; }
+  /* C: full step inside the cart panel */
+  .panel { position: absolute; inset: 0; background: var(--sumi); padding: 16px 20px 24px; display: flex; flex-direction: column; }
+  .panel .top { display: flex; align-items: center; gap: 8px; margin-bottom: 22px; }
+  .back { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 99px; color: var(--washi-muted); font-size: 22px; margin-left: -12px; }
+  .dots { display: flex; gap: 6px; margin-left: auto; }
+  .dots i { width: 22px; height: 4px; border-radius: 2px; background: var(--hairline-strong); }
+  .dots i.on { background: var(--washi); }
+
+  .x { position: absolute; top: 12px; right: 12px; width: 44px; height: 44px; display: grid; place-items: center; color: var(--washi-muted); font-size: 22px; }
+  .title { font: 700 22px/1.25 'M PLUS Rounded 1c'; margin-bottom: 10px; padding-right: 32px; }
+  .why { color: var(--washi-muted); font-size: 15px; margin-bottom: 16px; }
+  .points { list-style: none; padding: 0; margin: 0 0 18px; display: grid; gap: 10px; font-size: 14px; }
+  .points li { display: flex; gap: 10px; align-items: flex-start; }
+  .points li svg { flex: none; margin-top: 1px; }
+  .label { font-size: 14px; font-weight: 700; margin-bottom: 6px; display: block; }
+  .field { height: 48px; border: 1px solid var(--field-edge); border-radius: 12px; background: var(--sumi); padding: 0 14px; display: flex; align-items: center; color: var(--washi); font-size: 16px; margin-bottom: 12px; }
+  .field.ph { color: var(--washi-muted); }
+  .btn { height: 56px; border-radius: 16px; background: var(--washi); color: var(--sumi); display: grid; place-items: center; font-weight: 700; font-size: 16px; }
+  .btn.off { opacity: .45; }
+  .ghost { height: 44px; display: grid; place-items: center; color: var(--washi-muted); font-size: 14px; font-weight: 700; margin-top: 6px; }
+  .codes { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 8px; }
+  .codes span { height: 54px; border: 1px solid var(--field-edge); border-radius: 12px; background: var(--sumi); display: grid; place-items: center; font: 700 22px 'M PLUS Rounded 1c'; }
+  .codes span.cur { border-color: var(--washi); box-shadow: 0 0 0 1px var(--washi); }
+  .hint { font-size: 13px; color: var(--washi-muted); margin-bottom: 16px; }
+  .mail { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--hairline-strong); border-radius: 99px; padding: 6px 12px; font-size: 14px; margin-bottom: 16px; }
+  .spacer { flex: 1; }
+
+  .flow { display: flex; flex-wrap: wrap; gap: 20px; }
+  .cap { font-size: 13px; color: var(--washi-muted); margin-top: 8px; max-width: 360px; }
+  .copybox { border: 1px solid var(--hairline-strong); border-radius: 14px; padding: 16px 18px; max-width: 70ch; background: var(--sumi); }
+  .copybox p + p { margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<h1>Ingreso con correo</h1>
+<p class="lead">La ventana sale una sola vez: cuando alguien sin sesión toca “Continuar” en el carrito. Si el teléfono ya ingresó, el carrito pasa directo al checkout y esto no aparece. La sesión se renueva con cada visita, así que un cliente habitual no la vuelve a ver.</p>
+
+<!-- Shared bits -->
+<template id="shop">
+  <div class="shop">
+    <div class="hdr"><span class="logo">EnSushi</span><span class="muted sm">Carrito · 2</span></div>
+    <div class="tabs"><span>Arma tu combo</span><span>Sushiburgers</span><span>Combos</span></div>
+    <div class="item"><div class="img"></div><div style="flex:1"><div class="bar" style="width:70%;margin-bottom:8px"></div><div class="bar" style="width:40%"></div></div></div>
+    <div class="item"><div class="img"></div><div style="flex:1"><div class="bar" style="width:60%;margin-bottom:8px"></div><div class="bar" style="width:35%"></div></div></div>
+    <div class="item"><div class="img"></div><div style="flex:1"><div class="bar" style="width:75%;margin-bottom:8px"></div><div class="bar" style="width:45%"></div></div></div>
+    <div class="item"><div class="img"></div><div style="flex:1"><div class="bar" style="width:55%;margin-bottom:8px"></div><div class="bar" style="width:30%"></div></div></div>
+    <div class="item"><div class="img"></div><div style="flex:1"><div class="bar" style="width:65%;margin-bottom:8px"></div><div class="bar" style="width:40%"></div></div></div>
+  </div>
+  <div class="scrim"></div>
+</template>
+
+<template id="ask">
+  <h2 class="title">Antes de tu primer pedido</h2>
+  <p class="why">Te mandamos un código a tu correo para confirmar que sos vos. Así evitamos pedidos falsos y la cocina solo prepara pedidos reales.</p>
+  <ul class="points">
+    <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f1ebe0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg><span>Lo hacés <strong>una sola vez</strong>: este teléfono queda recordado.</span></li>
+    <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f1ebe0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4 10-10"/></svg><span>No te mandamos publicidad.</span></li>
+  </ul>
+  <label class="label">Tu correo</label>
+  <div class="field ph">tu@correo.com</div>
+  <div class="btn">Mandarme el código</div>
+</template>
+
+<template id="code">
+  <h2 class="title">Revisá tu correo</h2>
+  <div class="mail"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b9b0a2" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>juli.perez@gmail.com</div>
+  <label class="label">Código de 6 números</label>
+  <div class="codes"><span>4</span><span>8</span><span>2</span><span class="cur"></span><span></span><span></span></div>
+  <p class="hint">Si no llega en un minuto, mirá en spam o promociones.</p>
+  <div class="btn off">Confirmar y seguir</div>
+  <div class="ghost">Usar otro correo · Reenviar en 0:42</div>
+</template>
+
+<section class="decision">
+  <h2>A · Ventana desde abajo</h2>
+  <p>Sube desde abajo, como el carrito y las fichas de producto. Se alcanza con el pulgar y el menú se sigue viendo arriba, así que se entiende que no te sacó de la tienda.</p>
+  <div class="flow">
+    <div class="opt"><h3>1 · Por qué y correo</h3>
+      <div class="phone"><div data-use="shop"></div><div class="sheet"><div class="grab"></div><span class="x">✕</span><div data-use="ask"></div></div></div>
+    </div>
+    <div class="opt"><h3>2 · Código</h3>
+      <div class="phone"><div data-use="shop"></div><div class="sheet"><div class="grab"></div><span class="x">✕</span><div data-use="code"></div></div></div>
+      <p class="cap">Con el último número se confirma solo y pasa al checkout.</p>
+    </div>
+  </div>
+</section>
+
+<section class="decision">
+  <h2>B · Ventana en el centro</h2>
+  <p>Una caja en el medio de la pantalla. Se lee más como un aviso aparte del pedido. Con el teclado abierto queda más apretada que la A.</p>
+  <div class="flow">
+    <div class="opt"><h3>1 · Por qué y correo</h3>
+      <div class="phone"><div data-use="shop"></div><div class="dialog"><span class="x">✕</span><div data-use="ask"></div></div></div>
+    </div>
+    <div class="opt"><h3>2 · Código</h3>
+      <div class="phone"><div data-use="shop"></div><div class="dialog"><span class="x">✕</span><div data-use="code"></div></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="decision">
+  <h2>C · Paso propio en el carrito</h2>
+  <p>No es una ventana: el carrito cambia a una pantalla entera con “‹ Volver” y una rayita de pasos (cuenta → datos del pedido). Es la que menos parece una interrupción, pero también la que menos se ve como “algo que pasa una sola vez”.</p>
+  <div class="flow">
+    <div class="opt"><h3>1 · Por qué y correo</h3>
+      <div class="phone"><div class="panel"><div class="top"><span class="back">‹</span><span class="sm muted">Volver al carrito</span><span class="dots"><i class="on"></i><i></i></span></div><div data-use="ask"></div></div></div>
+    </div>
+    <div class="opt"><h3>2 · Código</h3>
+      <div class="phone"><div class="panel"><div class="top"><span class="back">‹</span><span class="sm muted">Volver al carrito</span><span class="dots"><i class="on"></i><i></i></span></div><div data-use="code"></div></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="decision">
+  <h2>El texto (igual en las tres)</h2>
+  <div class="copybox">
+    <p class="t" style="font-size:18px">Antes de tu primer pedido</p>
+    <p class="muted">Te mandamos un código a tu correo para confirmar que sos vos. Así evitamos pedidos falsos y la cocina solo prepara pedidos reales.</p>
+    <p>✓ Lo hacés una sola vez: este teléfono queda recordado.<br>✓ No te mandamos publicidad.</p>
+  </div>
+  <p class="cap" style="max-width:70ch;margin-top:12px">En el checkout, arriba, queda solo “Pedís como juli.perez@gmail.com · Salir”.</p>
+</section>
+
+<script>
+  document.querySelectorAll('[data-use]').forEach((el) => {
+    const tpl = document.getElementById(el.dataset.use);
+    el.replaceWith(tpl.content.cloneNode(true));
+  });
+</script>
+</body>
+</html>

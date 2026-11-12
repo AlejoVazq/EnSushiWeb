@@ -1,13 +1,15 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
+import { LoginSheet } from '@/components/checkout/LoginSheet';
 import { BUSINESS } from '@/config/business';
 import { BUILD_CATEGORY_ID, EXTRAS_CATEGORY_ID, MENU_CATEGORIES } from '@/data/menu';
 import { useLiveMenuSync } from '@/hooks/useLiveMenu';
 import { DESKTOP_QUERY, useMediaQuery } from '@/hooks/useMediaQuery';
 import { useWarmMenuPhotos } from '@/hooks/useWarmMenuPhotos';
+import { getAccount, ORDERS_BY_APP } from '@/lib/pedidosApp';
 import { toBoxInput } from '@/store/useCartStore';
 import type { BoxCartItem, CategoryId } from '@/types';
 
@@ -35,8 +37,31 @@ export function Shop() {
     else setCartOpen(true);
   };
 
-  const checkout = () => {
+  // Orders by app: a phone without a session verifies its email (once) before the checkout
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
+  useEffect(() => {
+    if (!ORDERS_BY_APP) return;
+    let active = true;
+    void getAccount().then((result) => {
+      if (active) setLoggedIn(result.ok);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const checkout = async () => {
     setCartOpen(false);
+    if (ORDERS_BY_APP && !loggedIn) {
+      // Asked again: it may have logged in from another tab since the page loaded
+      const account = await getAccount();
+      if (!account.ok) {
+        setLoginOpen(true);
+        return;
+      }
+      setLoggedIn(true);
+    }
     router.push('/checkout');
   };
   const [activeCategory, setActiveCategory] = useState<CategoryId>(MENU_CATEGORIES[0]?.id ?? BUILD_CATEGORY_ID);
@@ -89,7 +114,7 @@ export function Shop() {
 
           {/* The column is reserved from the first paint; its contents wait for the clock and the saved cart */}
           <aside className="sticky top-14 hidden pt-4 lg:block">
-            {isDesktop && <CartDrawer layout="panel" onClose={() => {}} onCheckout={checkout} onEditBox={editBox} />}
+            {isDesktop && <CartDrawer layout="panel" onClose={() => {}} onCheckout={() => void checkout()} onEditBox={editBox} />}
           </aside>
         </div>
 
@@ -110,8 +135,19 @@ export function Shop() {
           layout="sheet"
           open={cartOpen}
           onClose={() => setCartOpen(false)}
-          onCheckout={checkout}
+          onCheckout={() => void checkout()}
           onEditBox={editBox}
+        />
+      )}
+      {ORDERS_BY_APP && (
+        <LoginSheet
+          open={loginOpen}
+          onClose={() => setLoginOpen(false)}
+          onLoggedIn={() => {
+            setLoggedIn(true);
+            setLoginOpen(false);
+            router.push('/checkout');
+          }}
         />
       )}
     </>
