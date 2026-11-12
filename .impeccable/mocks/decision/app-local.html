@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8" />
+<title>App del local · maqueta</title>
+<style>
+  @font-face { font-family: 'Figtree'; src: url('../../../desktop/src/renderer/fonts/figtree-latin-wght-normal.woff2') format('woff2'); font-weight: 300 900; }
+  @font-face { font-family: 'M PLUS Rounded 1c'; src: url('../../../desktop/src/renderer/fonts/mplus-rounded-1c-700-latin.woff2') format('woff2'); font-weight: 700; }
+
+  :root {
+    --sumi: #e4e6ea; --sumi-1: #eceef1; --sumi-2: #d7dae0;
+    --hairline: #cbced5; --hairline-strong: #a9adb6; --field-edge: #7d818a;
+    --washi: #2b2d33; --washi-muted: #5c5f68;
+    --error: #b3264d; --kin: #a87400;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --display: 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif;
+    --ui: 'Figtree', ui-sans-serif, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { background: #c9ccd2; }
+  body { margin: 0; padding: 32px; font: 16px/1.5 var(--ui); color: var(--washi); }
+  ::selection { background: var(--washi); color: var(--sumi); }
+  .caption { max-width: 1280px; margin: 0 auto 12px; font-size: 15px; }
+  .caption strong { font-family: var(--display); font-size: 18px; }
+  .frame { width: 1280px; height: 820px; margin: 0 auto 48px; background: var(--sumi); display: grid; grid-template-columns: 200px 1fr; overflow: hidden; border-radius: 8px; box-shadow: 0 12px 40px rgb(0 0 0 / 0.25); }
+  svg.i { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  svg.sm { width: 18px; height: 18px; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* ── Nav rail ── */
+  .rail { background: var(--sumi-1); border-right: 1px solid var(--hairline); display: flex; flex-direction: column; padding: 20px 12px 16px; }
+  .rail .logo { height: 30px; margin: 0 10px 28px; filter: brightness(0); opacity: 0.85; align-self: flex-start; }
+  .rail nav { display: flex; flex-direction: column; gap: 2px; }
+  .rail a { display: flex; align-items: center; gap: 12px; height: 46px; padding: 0 12px; border-radius: 10px; color: var(--washi-muted); text-decoration: none; font-weight: 500; font-size: 15px; }
+  .rail a:hover { background: var(--sumi-2); color: var(--washi); }
+  .rail a.on { background: var(--sumi-2); color: var(--washi); font-weight: 700; box-shadow: inset 0 0 0 1px var(--washi); }
+  .rail a .count { margin-left: auto; min-width: 26px; height: 26px; padding: 0 7px; border-radius: 6px; background: var(--washi); color: var(--sumi); font: 700 14px/26px var(--display); text-align: center; font-variant-numeric: tabular-nums; }
+  .rail .sep { height: 1px; background: var(--hairline); margin: 10px 12px; }
+  .rail .foot { margin-top: auto; padding: 0 12px; font-size: 13px; color: var(--washi-muted); display: flex; flex-direction: column; gap: 10px; }
+  .rail .live { display: flex; align-items: center; gap: 8px; }
+  .rail .live::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--washi); }
+  .rail .foot a { height: 40px; padding: 0; }
+
+  /* ── Content ── */
+  .content { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  .alert { margin: 16px 24px 0; min-height: 56px; border-radius: 12px; background: var(--washi); color: var(--sumi); display: flex; align-items: center; gap: 14px; padding: 8px 8px 8px 18px; }
+  .alert strong { font-size: 17px; }
+  .alert span { opacity: 0.85; font-weight: 500; }
+  .alert button { margin-left: auto; height: 40px; padding: 0 16px; border-radius: 8px; border: 1px solid var(--sumi); background: transparent; color: var(--sumi); font: 700 15px var(--ui); display: flex; align-items: center; gap: 10px; }
+
+  .split { display: grid; grid-template-columns: 340px minmax(0, 1fr); flex: 1; min-height: 0; }
+
+  /* list */
+  .list { border-right: 1px solid var(--hairline); overflow: hidden; display: flex; flex-direction: column; }
+  .list header { padding: 20px 20px 12px; }
+  h1 { font: 700 26px/1.25 var(--display); margin: 0; }
+  .list .today { font-size: 14px; color: var(--washi-muted); margin-top: 2px; }
+  .group { font-size: 13px; font-weight: 700; color: var(--washi-muted); padding: 14px 20px 6px; display: flex; justify-content: space-between; }
+  .order { display: grid; grid-template-columns: 52px 1fr auto; gap: 2px 12px; padding: 12px 20px; border-top: 1px solid var(--hairline); cursor: pointer; }
+  .order:last-child { border-bottom: 1px solid var(--hairline); }
+  .order .n { grid-row: span 2; font: 700 22px/1.2 var(--display); font-variant-numeric: tabular-nums; }
+  .order .who { font-weight: 700; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .order .meta { grid-column: 2 / 4; font-size: 14px; color: var(--washi-muted); display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .order .meta svg { width: 15px; height: 15px; }
+  .order.nuevo { background: var(--sumi-1); }
+  .order.sel { background: var(--sumi-2); box-shadow: inset 0 0 0 1.5px var(--washi); }
+  .order.rechazado .n, .order.rechazado .who { color: var(--washi-muted); }
+  .wait { font-weight: 700; font-size: 14px; color: var(--washi); white-space: nowrap; }
+  .wait.late { color: var(--error); }
+  .tag { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 8px; border-radius: 6px; font-size: 13px; font-weight: 700; white-space: nowrap; }
+  .tag.nuevo { background: var(--washi); color: var(--sumi); }
+  .tag.conf { border: 1px solid var(--hairline-strong); color: var(--washi); }
+  .tag.rech { border: 1px dashed var(--hairline-strong); color: var(--washi-muted); font-weight: 500; }
+  .flag { color: var(--error); font-weight: 700; }
+
+  /* detail */
+  .detail { min-width: 0; display: flex; flex-direction: column; min-height: 0; }
+  .ticket { flex: 1; overflow: hidden; padding: 18px 32px 0; }
+  .dhead { display: flex; align-items: baseline; gap: 14px; }
+  .dhead h2 { font: 700 30px/1.2 var(--display); margin: 0; }
+  .dhead .when { color: var(--washi-muted); font-size: 15px; }
+  .dhead .when b { color: var(--error); }
+  .dhead .print { margin-left: auto; align-self: center; }
+  .facts { display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 4px 36px; margin: 10px 0 12px; font-size: 15px; }
+  .facts dt { font-size: 13px; color: var(--washi-muted); font-weight: 500; }
+  .facts dd { margin: 0; font-weight: 700; }
+  .facts dd small { display: block; font-weight: 400; color: var(--washi-muted); font-size: 14px; }
+  .note { display: flex; gap: 12px; align-items: flex-start; border: 1.5px solid var(--washi); border-radius: 12px; padding: 12px 16px; background: var(--sumi-1); font-size: 17px; font-weight: 700; margin-bottom: 14px; }
+  .note small { display: block; font-size: 13px; font-weight: 500; color: var(--washi-muted); }
+  table { width: 100%; border-collapse: collapse; font-size: 16px; }
+  td { padding: 7px 0; border-top: 1px solid var(--hairline); vertical-align: top; }
+  td.q { width: 44px; font: 700 18px/1.3 var(--display); font-variant-numeric: tabular-nums; }
+  td.name { font: 700 17px/1.3 var(--display); }
+  td.name small { display: block; font: 400 14px/1.4 var(--ui); color: var(--washi-muted); }
+  td.amt { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr.sub td { color: var(--washi-muted); font-size: 15px; padding: 6px 0; }
+  tr.sub td.amt { color: var(--washi); }
+  tr.total td { font-weight: 700; font-size: 19px; border-top: 1.5px solid var(--washi); }
+
+  .btn { height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--hairline-strong); background: transparent; color: var(--washi); font: 700 15px var(--ui); display: inline-flex; align-items: center; gap: 10px; cursor: pointer; }
+  .btn:hover { border-color: var(--washi); background: var(--sumi-1); }
+  kbd { font: 700 12px/1 var(--ui); min-width: 20px; height: 20px; padding: 0 5px; border-radius: 5px; border: 1px solid currentColor; display: inline-grid; place-items: center; opacity: 0.6; }
+
+  /* answer dock */
+  .dock { border-top: 1px solid var(--hairline); background: var(--sumi-1); padding: 12px 32px 16px; display: grid; gap: 10px; }
+  .dock > * { min-width: 0; }
+  .dock-top { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+  .dock-top > div { display: flex; align-items: center; gap: 12px; }
+  .dock-top .lbl { white-space: nowrap; margin: 0 4px 0 0; }
+  .dock-top .lbl { margin-top: 0; }
+  .seg { display: inline-flex; padding: 3px; border-radius: 10px; background: var(--sumi-2); gap: 2px; }
+  .seg button { height: 38px; padding: 0 18px; border: 0; border-radius: 8px; background: transparent; font: 600 15px var(--ui); color: var(--washi-muted); }
+  .seg button.on { background: var(--sumi-1); color: var(--washi); font-weight: 700; box-shadow: 0 1px 2px rgb(0 0 0 / 0.12), inset 0 0 0 1px var(--hairline-strong); }
+  .lbl { font-size: 14px; font-weight: 700; margin: 14px 0 6px; }
+  .eta { display: flex; gap: 8px; align-items: center; }
+  .time { width: 112px; height: 52px; border-radius: 12px; border: 1px solid var(--field-edge); background: var(--sumi); font: 700 26px var(--display); font-variant-numeric: tabular-nums; text-align: center; color: var(--washi); }
+  .time.empty { color: var(--washi-muted); font: 500 16px var(--ui); display: grid; place-items: center; }
+  .chip { height: 52px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--hairline-strong); background: var(--sumi); font: 700 16px var(--ui); color: var(--washi); display: inline-flex; align-items: center; gap: 10px; font-variant-numeric: tabular-nums; }
+  .chip.on { border-color: var(--washi); background: var(--sumi-2); box-shadow: inset 0 0 0 1px var(--washi); }
+  .msg { height: 66px; border-radius: 12px; border: 1px solid var(--field-edge); background: var(--sumi); padding: 10px 12px; font-size: 14px; line-height: 1.5; overflow: hidden; }
+  .msg-l { display: flex; justify-content: space-between; align-items: baseline; }
+  .msg-l span { font-weight: 400; color: var(--washi-muted); font-size: 13px; }
+  .plate { height: 56px; border-radius: 16px; background: var(--washi); color: var(--sumi); border: 0; font: 700 17px var(--ui); display: flex; align-items: center; justify-content: center; gap: 12px; box-shadow: 0 6px 18px rgb(43 45 51 / 0.28); }
+  .plate kbd { opacity: 0.75; }
+
+  /* ── En cocina ── */
+  .kitchen { flex: 1; overflow: hidden; padding: 22px 28px 0; }
+  .khead { display: flex; align-items: baseline; gap: 16px; margin-bottom: 14px; }
+  .khead p { margin: 0; color: var(--washi-muted); font-size: 15px; }
+  .khead .clock { margin-left: auto; font: 700 30px var(--display); font-variant-numeric: tabular-nums; }
+  .krow { display: grid; grid-template-columns: 118px 1fr 260px 130px; gap: 20px; align-items: center; padding: 14px 18px; border-top: 1px solid var(--hairline); }
+  .krow:last-of-type { border-bottom: 1px solid var(--hairline); }
+  .krow .t { font: 700 34px/1 var(--display); font-variant-numeric: tabular-nums; }
+  .krow .t small { display: block; font: 700 14px/1.6 var(--ui); margin-top: 6px; color: var(--washi-muted); }
+  .krow.late .t small { color: var(--error); }
+  .krow.late { background: var(--sumi-1); }
+  .krow .items { font: 700 16px/1.45 var(--display); }
+  .krow .items span { display: block; }
+  .krow .items em { font: 700 14px/1.4 var(--ui); font-style: normal; display: inline-flex; gap: 6px; margin-top: 4px; align-items: center; }
+  .krow .who { font-size: 15px; }
+  .krow .who b { font: 700 18px var(--display); display: block; }
+  .krow .who div { color: var(--washi-muted); display: flex; gap: 6px; align-items: center; }
+  .krow .who svg { width: 16px; height: 16px; }
+  .krow .btn { justify-self: end; height: 52px; padding: 0 18px; font-size: 16px; }
+  .gone { margin-top: 18px; font-size: 14px; color: var(--washi-muted); display: flex; gap: 10px; align-items: center; }
+  .gone .btn { height: 36px; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="i-inbox" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></symbol>
+  <symbol id="i-pot" viewBox="0 0 24 24"><path d="M2 12h20"/><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8"/><path d="m4 8 16-4"/><path d="m8.86 6.78-.45-1.81a2 2 0 0 1 1.45-2.43l1.94-.48a2 2 0 0 1 2.43 1.46l.45 1.8"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+  <symbol id="i-utensils" viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></symbol>
+  <symbol id="i-tag" viewBox="0 0 24 24"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r="1"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M21 4h-7M10 4H3M21 12h-9M8 12H3M21 20h-5M12 20H3M14 2v4M8 10v4M16 18v4"/></symbol>
+  <symbol id="i-printer" viewBox="0 0 24 24"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6"/><rect x="6" y="14" width="12" height="8" rx="1"/></symbol>
+  <symbol id="i-bike" viewBox="0 0 24 24"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+  <symbol id="i-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-note" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+</svg>
+
+<!-- ═════════ 1. Pedidos ═════════ -->
+<p class="caption"><strong>1 · Pedidos</strong> — ventana real (1280 × 820). Un pedido nuevo seleccionado, con la respuesta abajo.</p>
+<div class="frame">
+  <aside class="rail">
+    <img class="logo" src="../../../public/logo.png" alt="EnSushi" />
+    <nav>
+      <a class="on" href="#"><svg class="i"><use href="#i-inbox"/></svg>Pedidos<span class="count">2</span></a>
+      <a href="#"><svg class="i"><use href="#i-pot"/></svg>En cocina</a>
+      <a href="#"><svg class="i"><use href="#i-plus"/></svg>Nuevo pedido</a>
+      <div class="sep"></div>
+      <a href="#"><svg class="i"><use href="#i-utensils"/></svg>Menú de hoy</a>
+      <a href="#"><svg class="i"><use href="#i-tag"/></svg>Códigos</a>
+      <a href="#"><svg class="i"><use href="#i-chart"/></svg>Ventas</a>
+      <a href="#"><svg class="i"><use href="#i-sliders"/></svg>Ajustes</a>
+    </nav>
+    <div class="foot">
+      <div class="live">Actualizado 21:18</div>
+      <a href="#"><svg class="i sm"><use href="#i-out"/></svg>Salir</a>
+    </div>
+  </aside>
+
+  <div class="content">
+    <div class="split">
+      <section class="list">
+        <header>
+          <h1>Pedidos</h1>
+          <div class="today num">Hoy: 4 confirmados · $ 112.300</div>
+        </header>
+        <div class="group"><span>Por responder</span><span>↑ ↓ para moverte</span></div>
+        <div class="order nuevo sel">
+          <div class="n">#14</div>
+          <div class="who">Martina Gómez</div>
+          <div class="wait late num">hace 6 min</div>
+          <div class="meta num"><svg class="i"><use href="#i-bike"/></svg>Envío · $ 66.000 · <span class="flag">con observaciones</span></div>
+        </div>
+        <div class="order nuevo">
+          <div class="n">#15</div>
+          <div class="who">Julián Pereyra</div>
+          <div class="wait num">hace 1 min</div>
+          <div class="meta num"><svg class="i"><use href="#i-bag"/></svg>Retiro · $ 30.000</div>
+        </div>
+        <div class="group"><span>Respondidos</span></div>
+        <div class="order">
+          <div class="n">#13</div>
+          <div class="who">Lucía Ferreyra</div>
+          <span class="tag conf num"><svg class="i sm"><use href="#i-check"/></svg>sale 21:40</span>
+          <div class="meta num"><svg class="i"><use href="#i-bike"/></svg>Envío · $ 39.000</div>
+        </div>
+        <div class="order">
+          <div class="n">#12</div>
+          <div class="who">Carlos Medina</div>
+          <span class="tag conf num"><svg class="i sm"><use href="#i-check"/></svg>sale 21:30</span>
+          <div class="meta num"><svg class="i"><use href="#i-bag"/></svg>Retiro · $ 47.000 · a mano · <span class="flag">falta el cobro</span></div>
+        </div>
+        <div class="order rechazado">
+          <div class="n">#11</div>
+          <div class="who">Sofía Benítez</div>
+          <span class="tag rech">rechazado</span>
+          <div class="meta">Estamos completos por hoy</div>
+        </div>
+        <div class="order">
+          <div class="n">#10</div>
+          <div class="who">Tomás Acosta</div>
+          <span class="tag conf num"><svg class="i sm"><use href="#i-check"/></svg>sale 21:00</span>
+          <div class="meta num"><svg class="i"><use href="#i-bike"/></svg>Envío · $ 26.300</div>
+        </div>
+      </section>
+
+      <section class="detail">
+        <div class="ticket">
+          <div class="dhead">
+            <h2>Pedido #14</h2>
+            <span class="when num">Llegó 21:12 · <b>hace 6 min</b></span>
+            <button class="btn print"><svg class="i sm"><use href="#i-printer"/></svg>Imprimir comanda <kbd>P</kbd></button>
+          </div>
+          <dl class="facts">
+            <div><dt>Cliente</dt><dd>Martina Gómez<small class="num">2478 56-7168</small></dd></div>
+            <div><dt>Envío a domicilio</dt><dd>Belgrano 1450<small>Arrecifes</small></dd></div>
+            <div><dt>Pago</dt><dd>Transferencia<small>le pasás el alias al confirmar</small></dd></div>
+          </dl>
+          <div class="note"><svg class="i"><use href="#i-note"/></svg><div><small>Observaciones</small>La hamburguesa sin palta, por favor. Timbre 2B.</div></div>
+          <table>
+            <tr><td class="q">1×</td><td class="name">Combo Ensushi<small>25 piezas</small></td><td class="amt">$ 45.000</td></tr>
+            <tr><td class="q">1×</td><td class="name">SushiBurger Salmón<small>Crudo</small></td><td class="amt">$ 15.000</td></tr>
+            <tr><td class="q">2×</td><td class="name">Salsa Teriyaki</td><td class="amt">$ 3.000</td></tr>
+            <tr class="sub"><td></td><td>Envío</td><td class="amt">$ 3.000</td></tr>
+            <tr class="total"><td></td><td>Total</td><td class="amt">$ 66.000</td></tr>
+          </table>
+        </div>
+
+        <div class="dock">
+          <div class="dock-top">
+            <div class="seg"><button class="on">Confirmar</button><button>Rechazar</button></div>
+            <div>
+            <div class="lbl">Sale aprox. a las</div>
+            <div class="eta">
+              <div class="time">21:55</div>
+              <button class="chip">+15 <kbd>1</kbd></button>
+              <button class="chip">+30 <kbd>2</kbd></button>
+              <button class="chip on">+45 <kbd>3</kbd></button>
+              <button class="chip">+60 <kbd>4</kbd></button>
+            </div>
+            </div>
+          </div>
+          <div>
+            <div class="lbl msg-l">Mensaje <span>se puede editar</span></div>
+            <div class="msg">¡Hola Martina! Confirmamos tu pedido #14 de EnSushi. Te lo llevamos a Belgrano 1450 aprox. a las 21:55. Total: $ 66.000 (Transferencia)…</div>
+          </div>
+          <button class="plate"><svg class="i"><use href="#i-chat"/></svg>Confirmar y abrir WhatsApp <kbd>Enter</kbd></button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- ═════════ 2. En cocina ═════════ -->
+<p class="caption"><strong>2 · En cocina</strong> — confirmados por hora de salida. La banda de arriba aparece en cualquier pantalla mientras haya pedidos sin responder.</p>
+<div class="frame">
+  <aside class="rail">
+    <img class="logo" src="../../../public/logo.png" alt="EnSushi" />
+    <nav>
+      <a href="#"><svg class="i"><use href="#i-inbox"/></svg>Pedidos<span class="count">2</span></a>
+      <a class="on" href="#"><svg class="i"><use href="#i-pot"/></svg>En cocina</a>
+      <a href="#"><svg class="i"><use href="#i-plus"/></svg>Nuevo pedido</a>
+      <div class="sep"></div>
+      <a href="#"><svg class="i"><use href="#i-utensils"/></svg>Menú de hoy</a>
+      <a href="#"><svg class="i"><use href="#i-tag"/></svg>Códigos</a>
+      <a href="#"><svg class="i"><use href="#i-chart"/></svg>Ventas</a>
+      <a href="#"><svg class="i"><use href="#i-sliders"/></svg>Ajustes</a>
+    </nav>
+    <div class="foot">
+      <div class="live">Actualizado 21:35</div>
+      <a href="#"><svg class="i sm"><use href="#i-out"/></svg>Salir</a>
+    </div>
+  </aside>
+
+  <div class="content">
+    <div class="alert">
+      <svg class="i"><use href="#i-bell"/></svg>
+      <strong>2 pedidos por responder</strong>
+      <span class="num">el más viejo llegó hace 6 min</span>
+      <button>Ver pedidos <svg class="i sm"><use href="#i-arrow"/></svg></button>
+    </div>
+    <div class="kitchen">
+      <div class="khead">
+        <h1>En cocina</h1>
+        <p>4 pedidos por salir</p>
+        <span class="clock">21:35</span>
+      </div>
+
+      <div class="krow late">
+        <div class="t">21:30<small class="num">atrasado 5 min</small></div>
+        <div class="items"><span>1× Combo Salmón · 40 piezas</span><span>2× Salsa Buenos Aires</span></div>
+        <div class="who"><b>#12 Carlos Medina</b><div><svg class="i"><use href="#i-bag"/></svg>Retiro en el local</div></div>
+        <button class="btn"><svg class="i sm"><use href="#i-check"/></svg>Salió</button>
+      </div>
+      <div class="krow">
+        <div class="t">21:40<small class="num">en 5 min</small></div>
+        <div class="items"><span>1× Arma tu combo · Caja grande</span><em>New York 10, Midori 10, Nigiri de salmón 6</em><span>1× Wasabi</span></div>
+        <div class="who"><b>#13 Lucía Ferreyra</b><div><svg class="i"><use href="#i-bike"/></svg>Envío · San Martín 820</div></div>
+        <button class="btn"><svg class="i sm"><use href="#i-check"/></svg>Salió</button>
+      </div>
+      <div class="krow">
+        <div class="t">21:55<small class="num">en 20 min</small></div>
+        <div class="items"><span>1× Combo Ensushi · 25 piezas</span><span>1× SushiBurger Salmón · Crudo</span><em><svg class="i sm"><use href="#i-note"/></svg>La hamburguesa sin palta</em></div>
+        <div class="who"><b>#14 Martina Gómez</b><div><svg class="i"><use href="#i-bike"/></svg>Envío · Belgrano 1450</div></div>
+        <button class="btn"><svg class="i sm"><use href="#i-check"/></svg>Salió</button>
+      </div>
+      <div class="krow">
+        <div class="t">22:10<small class="num">en 35 min</small></div>
+        <div class="items"><span>2× SushiBurger Langostinos</span></div>
+        <div class="who"><b>#16 Ana Ruiz</b><div><svg class="i"><use href="#i-bag"/></svg>Retiro en el local</div></div>
+        <button class="btn"><svg class="i sm"><use href="#i-check"/></svg>Salió</button>
+      </div>
+
+      <div class="gone">Ya salieron 3 hoy <button class="btn">Ver</button></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

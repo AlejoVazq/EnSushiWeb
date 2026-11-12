@@ -14,6 +14,7 @@ const bridge: EnsushiBridge = {
   print: (html) => ipcRenderer.invoke('print', html),
   exportSales: (orders, from, to) => ipcRenderer.invoke('sales:export', orders, from, to),
   openLastExport: () => ipcRenderer.invoke('sales:open'),
+  notifyNewOrders: (title, body) => ipcRenderer.invoke('orders:notify', title, body),
   openWhatsApp: (phone, message) => ipcRenderer.invoke('whatsapp:open', phone, message),
   getVersion: () => ipcRenderer.invoke('app:version'),
   onUpdateReady: (callback) => {

@@ -1,5 +1,5 @@
 // Bundles the app into dist/: main process and preload for Node (Electron), the window for the browser.
-import { copyFileSync, mkdirSync } from 'node:fs';
+import { copyFileSync, cpSync, mkdirSync } from 'node:fs';
 
 import { build } from 'esbuild';
 
@@ -30,4 +30,7 @@ await Promise.all([
 ]);
 
 copyFileSync('src/renderer/index.html', 'dist/index.html');
+// Fonts travel with the app (the window can't load anything from the internet) and the logo is the web's own
+cpSync('src/renderer/fonts', 'dist/fonts', { recursive: true });
+copyFileSync('../public/logo.png', 'dist/logo.png');
 console.log('Listo: dist/');

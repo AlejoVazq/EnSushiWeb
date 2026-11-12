@@ -27,29 +27,33 @@ export function App() {
 
   const toLoginOrOrders = async () => setScreen((await window.ensushi.hasToken()) ? 'orders' : 'login');
 
-  if (screen === 'loading' || !settings) return <p className="center">Cargando…</p>;
+  if (screen === 'loading' || !settings) {
+    return (
+      <div className="center-screen">
+        <p className="muted">Cargando…</p>
+      </div>
+    );
+  }
 
+  // Before logging in (first run, or from the login screen); once inside, Ajustes lives in the rail
   if (screen === 'settings') {
     return (
-      <SettingsPanel
-        settings={settings}
-        onSaved={(saved) => {
-          setSettings(saved);
-          void toLoginOrOrders();
-        }}
-        onCancel={settings.serverUrl ? () => void toLoginOrOrders() : undefined}
-      />
+      <div className="center-screen">
+        <div style={{ maxWidth: 640 }}>
+          <SettingsPanel
+            settings={settings}
+            onSaved={(saved) => {
+              setSettings(saved);
+              void toLoginOrOrders();
+            }}
+            onCancel={settings.serverUrl ? () => void toLoginOrOrders() : undefined}
+          />
+        </div>
+      </div>
     );
   }
 
   if (screen === 'login') return <Login onLoggedIn={() => setScreen('orders')} onSettings={() => setScreen('settings')} />;
 
-  return (
-    <Orders
-      settings={settings}
-      updateVersion={updateVersion}
-      onLoggedOut={() => setScreen('login')}
-      onSettings={() => setScreen('settings')}
-    />
-  );
+  return <Orders settings={settings} updateVersion={updateVersion} onLoggedOut={() => setScreen('login')} onSettingsSaved={setSettings} />;
 }

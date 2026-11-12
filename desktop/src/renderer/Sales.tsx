@@ -4,6 +4,8 @@ import type { StaffOrder } from '../../../src/types/pedidos';
 import { formatPrice } from '../shared/textos';
 import { formatDay, salesByProduct, summarizeSales, today } from '../shared/ventas';
 
+import { Icon } from './ui';
+
 const errorText = (data: unknown): string =>
   typeof data === 'object' && data !== null && 'error' in data && typeof data.error === 'string' ? data.error : 'Error del servidor.';
 
@@ -62,85 +64,111 @@ export function Sales() {
   const summary = orders ? summarizeSales(orders) : null;
   const products = orders ? salesByProduct(orders).slice(0, 10) : [];
 
+  const isPeriod = ([start, end]: [string, string]) => from === start && to === end;
+  const periods: { label: string; range: [string, string] }[] = [
+    { label: 'Hoy', range: [today(), today()] },
+    { label: 'Este mes', range: [monthOf(today(), 0)[0], today()] },
+    { label: 'Mes pasado', range: monthOf(today(), 1) },
+  ];
+
   return (
-    <div style={{ maxWidth: 820 }}>
-      <div className="panel">
-        <h2 style={{ marginTop: 0 }}>Ventas</h2>
-        <div className="row">
-          <button onClick={() => setPeriod([today(), today()])}>Hoy</button>
-          <button onClick={() => setPeriod(monthOf(today(), 0))}>Este mes</button>
-          <button onClick={() => setPeriod(monthOf(today(), 1))}>Mes pasado</button>
+    <div className="page">
+      <div className="page-head">
+        <div>
+          <h1>Ventas</h1>
+          <p className="muted">Solo pedidos confirmados. Todo el detalle va en el Excel.</p>
         </div>
-        <div className="row" style={{ marginTop: 8 }}>
-          <label htmlFor="from" style={{ margin: 0 }}>
-            Desde
-          </label>
-          <input id="from" type="date" style={{ width: 170 }} value={from} onChange={(e) => setFrom(e.target.value)} />
-          <label htmlFor="to" style={{ margin: 0 }}>
-            Hasta
-          </label>
-          <input id="to" type="date" style={{ width: 170 }} value={to} onChange={(e) => setTo(e.target.value)} />
-        </div>
-
-        {summary && (
-          <>
-            <p className="muted">
-              Del {formatDay(from)} al {formatDay(to)} · solo pedidos confirmados
-            </p>
-            <div className="stats">
-              <div>
-                Pedidos <strong>{summary.orders}</strong>
-              </div>
-              <div>
-                Total vendido <strong>{formatPrice(summary.total)}</strong>
-              </div>
-              <div>
-                Efectivo <strong>{formatPrice(summary.cash)}</strong>
-              </div>
-              <div>
-                Transferencia <strong>{formatPrice(summary.transfer)}</strong>
-              </div>
-            </div>
-            {summary.unsplitOrders > 0 && (
-              <p className="error">
-                {summary.unsplitOrders === 1 ? '1 pedido mixto' : `${summary.unsplitOrders} pedidos mixtos`} sin cargar el cobro (
-                {formatPrice(summary.unsplitTotal)}): no suman en efectivo ni en transferencia hasta que lo cargues en el pedido.
-              </p>
-            )}
-          </>
-        )}
-
-        <p className="row">
-          <button className="primary" disabled={!orders || orders.length === 0 || exporting} onClick={() => void exportExcel()}>
-            {exporting ? 'Guardando…' : 'Exportar a Excel'}
-          </button>
-          {orders?.length === 0 && <span className="muted">No hay pedidos confirmados en esas fechas.</span>}
+        <div className="end inline">
           {notice && (
             <>
-              <span>Listo, guardado.</span>
-              <button onClick={() => void window.ensushi.openLastExport()}>Abrir</button>
+              <span className="ok small">Listo, guardado.</span>
+              <button className="btn sm" onClick={() => void window.ensushi.openLastExport()}>
+                Abrir
+              </button>
             </>
           )}
-        </p>
-        {error && <p className="error">{error}</p>}
+          <button className="btn primary" disabled={!orders || orders.length === 0 || exporting} onClick={() => void exportExcel()}>
+            <Icon name="download" size="sm" />
+            {exporting ? 'Guardando…' : 'Exportar a Excel'}
+          </button>
+        </div>
       </div>
 
+      <div className="inline" style={{ gap: 12 }}>
+        <div className="choices" role="group" aria-label="Período">
+          {periods.map((period) => (
+            <button key={period.label} className="choice" aria-pressed={isPeriod(period.range)} onClick={() => setPeriod(period.range)}>
+              {period.label}
+            </button>
+          ))}
+        </div>
+        <span className="inline" style={{ marginLeft: 'auto' }}>
+          <label htmlFor="from" className="label">
+            Desde
+          </label>
+          <input id="from" type="date" className="w-md" value={from} onChange={(e) => setFrom(e.target.value)} />
+          <label htmlFor="to" className="label">
+            Hasta
+          </label>
+          <input id="to" type="date" className="w-md" value={to} onChange={(e) => setTo(e.target.value)} />
+        </span>
+      </div>
+
+      {error && <p className="error">{error}</p>}
+
+      {summary && (
+        <section style={{ display: 'grid', gap: 10 }}>
+          <p className="muted small num">
+            Del {formatDay(from)} al {formatDay(to)}
+          </p>
+          <dl className="figures" style={{ margin: 0 }}>
+            <div>
+              <dt>Pedidos</dt>
+              <dd>{summary.orders}</dd>
+            </div>
+            <div>
+              <dt>Total vendido</dt>
+              <dd>{formatPrice(summary.total)}</dd>
+            </div>
+            <div>
+              <dt>Efectivo</dt>
+              <dd>{formatPrice(summary.cash)}</dd>
+            </div>
+            <div>
+              <dt>Transferencia</dt>
+              <dd>{formatPrice(summary.transfer)}</dd>
+            </div>
+          </dl>
+          {summary.unsplitOrders > 0 && (
+            <p className="error">
+              {summary.unsplitOrders === 1 ? '1 pedido mixto' : `${summary.unsplitOrders} pedidos mixtos`} sin cargar el cobro (
+              {formatPrice(summary.unsplitTotal)}): no suman en efectivo ni en transferencia hasta que lo cargues en el pedido.
+            </p>
+          )}
+          {orders?.length === 0 && <p className="muted">No hay pedidos confirmados en esas fechas.</p>}
+        </section>
+      )}
+
       {products.length > 0 && (
-        <div className="panel">
-          <strong>Lo más vendido</strong> <span className="muted">· antes de descuentos; la lista completa va en el Excel</span>
-          <table style={{ marginTop: 8 }}>
+        <section className="block">
+          <div className="block-head">
+            <h2>Lo más vendido</h2>
+            <span className="muted small">antes de descuentos; la lista completa va en el Excel</span>
+          </div>
+          <table>
             <tbody>
               {products.map((product) => (
                 <tr key={product.name}>
-                  <td>
-                    {product.quantity}x {product.name}
+                  <td className="num" style={{ width: 56, fontFamily: 'var(--display)', fontWeight: 700 }}>
+                    {product.quantity}×
                   </td>
-                  <td className="num">{formatPrice(product.amount)}</td>
+                  <td className="name">{product.name}</td>
+                  <td className="amt">{formatPrice(product.amount)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
+        </section>
       )}
     </div>
   );

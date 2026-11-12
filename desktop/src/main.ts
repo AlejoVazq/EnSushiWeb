@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { app, BrowserWindow, dialog, ipcMain, net, safeStorage, shell } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, net, Notification, safeStorage, shell } from 'electron';
 import { autoUpdater } from 'electron-updater';
 
 import type { StaffOrder } from '../../src/types/pedidos';
@@ -110,6 +110,8 @@ const createWindow = () => {
   void mainWindow.loadFile(join(__dirname, 'index.html'));
   // Links never open inside the app
   mainWindow.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  // The taskbar button flashes with new orders until someone looks
+  mainWindow.on('focus', () => mainWindow?.flashFrame(false));
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
@@ -212,6 +214,26 @@ ipcMain.handle('sales:open', async () => {
   if (lastExport) await shell.openPath(lastExport);
 });
 
+/** Brings the window to the front (from a notification or a second launch) */
+const showWindow = () => {
+  if (mainWindow?.isMinimized()) mainWindow.restore();
+  mainWindow?.show();
+  mainWindow?.focus();
+};
+
+// Kept referenced: a garbage-collected notification loses its click handler
+let lastNotification: Notification | null = null;
+
+ipcMain.handle('orders:notify', (_event, title: string, body: string) => {
+  if (!mainWindow || mainWindow.isFocused()) return;
+  mainWindow.flashFrame(true);
+  if (!Notification.isSupported()) return;
+  const notification = new Notification({ title, body, silent: true });
+  notification.on('click', showWindow);
+  notification.show();
+  lastNotification = notification;
+});
+
 ipcMain.handle('whatsapp:open', async (_event, phone: string, message: string) => {
   if (!/^\d{10,15}$/.test(phone)) return;
   const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
@@ -259,10 +281,9 @@ ipcMain.handle('app:version', () => app.getVersion());
 if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
-  app.on('second-instance', () => {
-    if (mainWindow?.isMinimized()) mainWindow.restore();
-    mainWindow?.focus();
-  });
+  app.on('second-instance', showWindow);
+  // Windows shows notifications under this id (the installer's appId)
+  app.setAppUserModelId('ar.com.ensushi.local');
   void app.whenReady().then(() => {
     createWindow();
     checkForUpdates();

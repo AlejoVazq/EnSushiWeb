@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import type { StaffOrder, StaffOrderAction } from '../../../src/types/pedidos';
 import type { Settings } from '../shared/bridge';
@@ -15,8 +15,31 @@ import {
   rejectMessage,
 } from '../shared/textos';
 
+import { Icon, isTyping, Kbd } from './ui';
+
 const QUICK_MINUTES = [15, 30, 45, 60] as const;
 const DISCARD_REASON = 'Cargado por error';
+
+/** "21:30", always 24 h (the time field is text: a native one follows the PC's locale and can show 12 h) */
+const ETA_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+/** What's typed in the time field, as "HH:MM": digits only, the colon goes in by itself */
+const typeEta = (raw: string): string => {
+  const digits = raw.replace(/\D/g, '').slice(0, 4);
+  return digits.length > 2 ? `${digits.slice(0, 2)}:${digits.slice(2)}` : digits;
+};
+
+/** "hace 4 min" */
+export const waitingFor = (createdAt: string, now: number): string => {
+  const minutes = Math.max(0, Math.floor((now - new Date(createdAt).getTime()) / 60_000));
+  return minutes === 0 ? 'recién' : `hace ${minutes} min`;
+};
+
+/** An order waiting this long without an answer is late: it shows in red and beeps again */
+export const LATE_AFTER_MS = 3 * 60_000;
+
+export const isLate = (order: StaffOrder, now: number): boolean =>
+  order.status === 'nuevo' && now - new Date(order.createdAt).getTime() > LATE_AFTER_MS;
 
 interface MixedPaymentProps {
   order: StaffOrder;
@@ -38,26 +61,29 @@ function MixedPayment({ order, send }: MixedPaymentProps) {
   };
 
   return (
-    <div className="panel">
-      <strong>Cobro mixto</strong> <span className="muted">· cuando lo arreglen por WhatsApp, cargá cuánto fue en efectivo</span>
-      <div className="row" style={{ marginTop: 8 }}>
-        <label htmlFor="cash" style={{ margin: 0 }}>
+    <div className={order.cashAmount === null ? 'block alert' : 'block'}>
+      <div className="block-head">
+        <h3>Cobro mixto</h3>
+        {order.cashAmount === null ? <span className="flag small">Falta cargar el cobro</span> : <span className="tag confirmado">Cargado</span>}
+      </div>
+      <p className="muted small">Cuando lo arreglen por WhatsApp, cargá cuánto fue en efectivo. El resto cuenta como transferencia.</p>
+      <div className="inline">
+        <label htmlFor="cash" className="label">
           En efectivo $
         </label>
         <input
           id="cash"
+          className="w-sm num"
           inputMode="numeric"
-          style={{ width: 140 }}
           value={cash}
           onChange={(e) => setCash(e.target.value.replace(/\D/g, ''))}
         />
-        <span>Transferencia: {valid && amount !== null ? formatPrice(order.total - amount) : '—'}</span>
-        <button className="primary" disabled={!valid || saving || amount === order.cashAmount} onClick={() => void save()}>
+        <span className="num">Transferencia: {valid && amount !== null ? formatPrice(order.total - amount) : '—'}</span>
+        <button className="btn primary" disabled={!valid || saving || amount === order.cashAmount} onClick={() => void save()}>
           {saving ? 'Guardando…' : 'Guardar'}
         </button>
       </div>
       {amount !== null && !valid && <p className="error">No puede pasar el total ({formatPrice(order.total)}).</p>}
-      {order.cashAmount === null && <p className="error">Falta cargar el cobro.</p>}
     </div>
   );
 }
@@ -65,13 +91,17 @@ function MixedPayment({ order, send }: MixedPaymentProps) {
 interface OrderDetailProps {
   order: StaffOrder;
   settings: Settings;
+  /** For "hace N min"; moves with the list's polling */
+  now: number;
   onUpdated: (order: StaffOrder) => void;
 }
 
 /** The comanda, and the answer: an approximate time (confirm) or a reason (reject), then WhatsApp */
-export function OrderDetail({ order, settings, onUpdated }: OrderDetailProps) {
+export function OrderDetail({ order, settings, now, onUpdated }: OrderDetailProps) {
   // Empty until the person answering sets it: the app never picks the time on its own
   const [eta, setEta] = useState(order.eta ?? '');
+  // Which quick button set the time, to show it pressed (null once the time is typed by hand)
+  const [quick, setQuick] = useState<number | null>(null);
   const [reason, setReason] = useState(REJECT_REASONS[0] ?? '');
   const [mode, setMode] = useState<'confirmar' | 'rechazar'>('confirmar');
   // The message follows the time/reason until it's edited by hand
@@ -83,7 +113,8 @@ export function OrderDetail({ order, settings, onUpdated }: OrderDetailProps) {
 
   const message = customMessage ?? (mode === 'confirmar' ? confirmMessage(order, eta, settings) : rejectMessage(order, reason));
   const decided = order.status !== 'nuevo';
-  const missingEta = mode === 'confirmar' && !eta;
+  const missingEta = mode === 'confirmar' && !ETA_PATTERN.test(eta);
+  const canAnswer = !decided && !busy && !missingEta && (mode === 'confirmar' || reason.trim().length > 0);
 
   const send = async (action: StaffOrderAction) => {
     const response = await window.ensushi.api('PATCH', `/api/local/pedidos/${order.id}`, action);
@@ -116,6 +147,7 @@ export function OrderDetail({ order, settings, onUpdated }: OrderDetailProps) {
   };
 
   const answer = async () => {
+    if (!canAnswer) return;
     setBusy(true);
     setError(null);
     setNotice(null);
@@ -127,163 +159,294 @@ export function OrderDetail({ order, settings, onUpdated }: OrderDetailProps) {
     setBusy(false);
   };
 
+  const quickEta = (minutes: number) => {
+    setEta(etaIn(minutes));
+    setQuick(minutes);
+    setCustomMessage(null);
+  };
+
+  const switchMode = (next: 'confirmar' | 'rechazar') => {
+    setMode(next);
+    setCustomMessage(null);
+  };
+
+  // Shortcuts: 1–4 quick times, Enter answers, P prints. Never while typing (Enter in the time field does answer).
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.ctrlKey || event.altKey || event.metaKey) return;
+      const typing = isTyping(event.target);
+      if (event.key === 'p' || event.key === 'P') {
+        if (typing || !settings.printerName) return;
+        event.preventDefault();
+        void print(order);
+        return;
+      }
+      if (decided) return;
+      const index = ['1', '2', '3', '4'].indexOf(event.key);
+      if (index >= 0 && !typing && mode === 'confirmar') {
+        event.preventDefault();
+        quickEta(QUICK_MINUTES[index] ?? 30);
+        return;
+      }
+      if (event.key === 'Enter' && !event.repeat && (!typing || (event.target instanceof HTMLElement && event.target.id === 'eta'))) {
+        // Also on a focused button: Enter answers instead of pressing it again
+        event.preventDefault();
+        void answer();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
+
+  const late = isLate(order, now);
+  const answerLabel = busy ? 'Guardando…' : mode === 'confirmar' ? 'Confirmar y abrir WhatsApp' : 'Rechazar y abrir WhatsApp';
+
   return (
-    <div style={{ maxWidth: 760 }}>
-      <div className="panel">
-        <div className="row" style={{ justifyContent: 'space-between' }}>
-          <h2 style={{ margin: 0 }}>
-            Pedido #{order.number} · {formatTime(order.createdAt)}
-          </h2>
-          <span className={`tag ${order.status}`}>{order.status}</span>
+    <section className="detail" aria-label={`Pedido ${order.number}`}>
+      <div className="ticket">
+        <div className="dhead">
+          <h2 className="num">Pedido #{order.number}</h2>
+          <span className="when num">
+            Llegó {formatTime(order.createdAt)}
+            {order.status === 'nuevo' && (
+              <>
+                {' · '}
+                <b className={late ? 'flag' : undefined}>{waitingFor(order.createdAt, now)}</b>
+              </>
+            )}
+          </span>
+          {order.manual && <span className="tag quiet">Cargado a mano</span>}
+          <div className="end">
+            {order.printedAt && <span className="muted small num">Impresa {formatTime(order.printedAt)}</span>}
+            <button
+              className="btn"
+              onClick={() => void print(order)}
+              disabled={!settings.printerName}
+              title={settings.printerName ? undefined : 'Elegí la ticketera en Ajustes'}
+            >
+              <Icon name="printer" size="sm" />
+              Imprimir comanda <Kbd>P</Kbd>
+            </button>
+          </div>
         </div>
-        <p>
-          <strong>{order.customerName}</strong> · Tel {formatPhone(order.phone)} · {order.email ?? 'Cargado a mano'}
-          <br />
-          <strong>{DELIVERY_LABELS[order.deliveryMethod]}</strong>
-          {order.address ? ` · ${order.address}` : ''} · Pago: {PAYMENT_LABELS[order.paymentMethod]}
-        </p>
-        {order.notes && <p className="notes">Observaciones: {order.notes}</p>}
-        <table>
+
+        <dl className="facts">
+          <div>
+            <dt>Cliente</dt>
+            <dd>
+              {order.customerName}
+              <small className="num">
+                {formatPhone(order.phone)}
+                {order.email ? ` · ${order.email}` : ''}
+              </small>
+            </dd>
+          </div>
+          <div>
+            <dt>{DELIVERY_LABELS[order.deliveryMethod]}</dt>
+            <dd>
+              {order.deliveryMethod === 'delivery' ? order.address : 'Lo retira'}
+              {order.deliveryMethod === 'pickup' && <small>{settings.pickupAddress}</small>}
+            </dd>
+          </div>
+          <div>
+            <dt>Pago</dt>
+            <dd>
+              {PAYMENT_LABELS[order.paymentMethod]}
+              {order.paymentMethod === 'transfer' && !decided && <small>le pasás el alias al confirmar</small>}
+              {order.paymentMethod === 'mixed' && <small>cuánto de cada uno, por WhatsApp</small>}
+            </dd>
+          </div>
+        </dl>
+
+        {order.notes && (
+          <div className="notice">
+            <Icon name="note" />
+            <div>
+              <small>Observaciones</small>
+              {order.notes}
+            </div>
+          </div>
+        )}
+
+        <table className="lines">
           <tbody>
             {order.lines.map((line, index) => (
               <tr key={index}>
-                <td>
-                  <strong>
-                    {line.quantity}x {line.name}
-                  </strong>
-                  {line.detail && <div className="muted">{line.detail}</div>}
+                <td className="q">{line.quantity}×</td>
+                <td className="name">
+                  {line.name}
+                  {line.detail && <span className="detail-line">{line.detail}</span>}
                 </td>
-                <td className="num">{formatPrice(line.subtotal)}</td>
+                <td className="amt">{formatPrice(line.subtotal)}</td>
               </tr>
             ))}
             {order.discountAmount > 0 && (
-              <tr>
+              <tr className="sub">
+                <td />
                 <td>Descuento ({order.discountLabel})</td>
-                <td className="num">-{formatPrice(order.discountAmount)}</td>
+                <td className="amt kin">−{formatPrice(order.discountAmount)}</td>
               </tr>
             )}
             {order.deliveryFee > 0 && (
-              <tr>
+              <tr className="sub">
+                <td />
                 <td>Envío</td>
-                <td className="num">{formatPrice(order.deliveryFee)}</td>
+                <td className="amt">{formatPrice(order.deliveryFee)}</td>
               </tr>
             )}
-            <tr>
-              <td>
-                <strong>Total</strong>
-              </td>
-              <td className="num">
-                <strong>{formatPrice(order.total)}</strong>
-              </td>
+            <tr className="total">
+              <td />
+              <td>Total</td>
+              <td className="amt">{formatPrice(order.total)}</td>
             </tr>
           </tbody>
         </table>
-        <p className="row">
-          <button onClick={() => void print(order)} disabled={!settings.printerName}>
-            Imprimir comanda
-          </button>
-          {order.printedAt && <span className="muted">Impresa {formatTime(order.printedAt)}</span>}
-          {!settings.printerName && <span className="muted">Elegí la ticketera en Ajustes.</span>}
-        </p>
+
+        {order.paymentMethod === 'mixed' && order.status !== 'rechazado' && (
+          <MixedPayment key={order.cashAmount ?? 'none'} order={order} send={send} />
+        )}
       </div>
 
-      {order.paymentMethod === 'mixed' && order.status !== 'rechazado' && (
-        <MixedPayment key={order.cashAmount ?? 'none'} order={order} send={send} />
-      )}
-
-      <div className="panel">
+      <div className="dock">
         {decided ? (
-          <p>
+          <div className="done">
             {order.status === 'confirmado' ? (
               <>
-                Confirmado: sale aprox. a las <strong>{order.eta}</strong>.
+                <Icon name="check" />
+                <span>
+                  Confirmado · sale aprox. a las <strong className="num">{order.eta}</strong>
+                </span>
               </>
             ) : (
-              <>Rechazado: {order.rejectReason}</>
+              <span>
+                Rechazado: <strong>{order.rejectReason}</strong>
+              </span>
             )}
-          </p>
+            {order.rejectReason !== DISCARD_REASON && (
+              <button
+                className="btn"
+                style={{ marginLeft: 'auto' }}
+                onClick={() =>
+                  window.ensushi.openWhatsApp(
+                    order.phone,
+                    order.status === 'confirmado' ? confirmMessage(order, order.eta ?? '', settings) : rejectMessage(order, order.rejectReason ?? ''),
+                  )
+                }
+              >
+                <Icon name="chat" size="sm" />
+                Volver a abrir WhatsApp
+              </button>
+            )}
+          </div>
         ) : (
           <>
-            <div className="row">
-              <button className={mode === 'confirmar' ? 'primary' : ''} onClick={() => { setMode('confirmar'); setCustomMessage(null); }}>
-                Confirmar
-              </button>
-              <button className={mode === 'rechazar' ? 'primary' : ''} onClick={() => { setMode('rechazar'); setCustomMessage(null); }}>
-                Rechazar
-              </button>
+            <div className="dock-row">
+              <div className="seg" role="group" aria-label="Respuesta">
+                <button aria-pressed={mode === 'confirmar'} onClick={() => switchMode('confirmar')}>
+                  Confirmar
+                </button>
+                <button aria-pressed={mode === 'rechazar'} onClick={() => switchMode('rechazar')}>
+                  Rechazar
+                </button>
+              </div>
+              {order.manual && (
+                <span className="inline" style={{ marginLeft: 'auto' }}>
+                  {confirmDiscard ? (
+                    <>
+                      <span className="small">¿Descartarlo sin avisarle al cliente?</span>
+                      <button className="btn sm danger" disabled={busy} onClick={() => void discard()}>
+                        Sí, descartar
+                      </button>
+                      <button className="btn sm" onClick={() => setConfirmDiscard(false)}>
+                        No
+                      </button>
+                    </>
+                  ) : (
+                    <button className="btn sm ghost" onClick={() => setConfirmDiscard(true)}>
+                      Descartar (se cargó mal)
+                    </button>
+                  )}
+                </span>
+              )}
             </div>
 
             {mode === 'confirmar' ? (
-              <>
-                <label htmlFor="eta">Sale aprox. a las</label>
-                <div className="row">
-                  <input id="eta" type="time" style={{ width: 140 }} value={eta} onChange={(e) => { setEta(e.target.value); setCustomMessage(null); }} />
-                  {QUICK_MINUTES.map((minutes) => (
-                    <button key={minutes} onClick={() => { setEta(etaIn(minutes)); setCustomMessage(null); }}>
-                      +{minutes} min
-                    </button>
-                  ))}
-                </div>
-              </>
+              <div className="dock-row">
+                <label htmlFor="eta" className="label">
+                  Sale aprox. a las
+                </label>
+                <input
+                  id="eta"
+                  className="eta-input"
+                  inputMode="numeric"
+                  placeholder="--:--"
+                  maxLength={5}
+                  autoComplete="off"
+                  aria-invalid={eta.length === 5 && !ETA_PATTERN.test(eta)}
+                  value={eta}
+                  onChange={(e) => {
+                    setEta(typeEta(e.target.value));
+                    setQuick(null);
+                    setCustomMessage(null);
+                  }}
+                />
+                {QUICK_MINUTES.map((minutes, index) => (
+                  <button key={minutes} className="choice lg" aria-pressed={quick === minutes} onClick={() => quickEta(minutes)}>
+                    +{minutes} <Kbd>{index + 1}</Kbd>
+                  </button>
+                ))}
+              </div>
             ) : (
-              <>
-                <label htmlFor="reason">Motivo</label>
-                <div className="row" style={{ marginBottom: 6 }}>
-                  {REJECT_REASONS.map((preset) => (
-                    <button key={preset} onClick={() => { setReason(preset); setCustomMessage(null); }}>
-                      {preset}
-                    </button>
-                  ))}
-                </div>
-                <input id="reason" value={reason} onChange={(e) => { setReason(e.target.value); setCustomMessage(null); }} />
-              </>
+              <div className="dock-row">
+                <label htmlFor="reason" className="label">
+                  Motivo
+                </label>
+                {REJECT_REASONS.map((preset) => (
+                  <button
+                    key={preset}
+                    className="choice"
+                    aria-pressed={reason === preset}
+                    onClick={() => {
+                      setReason(preset);
+                      setCustomMessage(null);
+                    }}
+                  >
+                    {preset}
+                  </button>
+                ))}
+                <input
+                  id="reason"
+                  style={{ flex: '1 1 220px', width: 'auto' }}
+                  value={reason}
+                  onChange={(e) => {
+                    setReason(e.target.value);
+                    setCustomMessage(null);
+                  }}
+                />
+              </div>
             )}
 
             {missingEta ? (
-              <p className="muted">Poné la hora aproximada para ver el mensaje.</p>
+              <p className="muted small">Poné la hora aproximada (por ejemplo 21:30) o tocá 1, 2, 3 o 4 para ver el mensaje.</p>
             ) : (
-              <>
-                <label htmlFor="message">Mensaje para el cliente (se puede editar)</label>
+              <div className="field">
+                <label htmlFor="message">
+                  Mensaje <span>se puede editar</span>
+                </label>
                 <textarea id="message" value={message} onChange={(e) => setCustomMessage(e.target.value)} />
-              </>
+              </div>
             )}
+
+            <button className={mode === 'confirmar' ? 'plate go' : 'plate'} disabled={!canAnswer} onClick={() => void answer()}>
+              <Icon name="chat" />
+              {answerLabel}
+              {!busy && <Kbd>Enter</Kbd>}
+            </button>
           </>
         )}
-
-        <p className="row">
-          {!decided && (
-            <button
-              className={mode === 'confirmar' ? 'primary' : 'danger'}
-              disabled={busy || missingEta || (mode === 'rechazar' && !reason.trim())}
-              onClick={answer}
-            >
-              {busy ? 'Guardando…' : mode === 'confirmar' ? 'Confirmar y abrir WhatsApp' : 'Rechazar y abrir WhatsApp'}
-            </button>
-          )}
-          {!decided && order.manual && !confirmDiscard && <button onClick={() => setConfirmDiscard(true)}>Descartar (se cargó mal)</button>}
-          {!decided && order.manual && confirmDiscard && (
-            <>
-              ¿Descartarlo sin avisarle al cliente?
-              <button className="danger" disabled={busy} onClick={() => void discard()}>Sí, descartar</button>
-              <button onClick={() => setConfirmDiscard(false)}>No</button>
-            </>
-          )}
-          {decided && order.rejectReason !== DISCARD_REASON && (
-            <button
-              onClick={() =>
-                window.ensushi.openWhatsApp(
-                  order.phone,
-                  order.status === 'confirmado' ? confirmMessage(order, order.eta ?? '', settings) : rejectMessage(order, order.rejectReason ?? ''),
-                )
-              }
-            >
-              Volver a abrir WhatsApp
-            </button>
-          )}
-        </p>
         {error && <p className="error">{error}</p>}
-        {notice && <p>{notice}</p>}
+        {notice && <p className="ok small">{notice}</p>}
       </div>
-    </div>
+    </section>
   );
 }

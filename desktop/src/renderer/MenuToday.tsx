@@ -3,6 +3,8 @@ import { useState } from 'react';
 import type { StaffMenu, StaffMenuAction } from '../../../src/types/pedidos';
 import type { ApiResponse } from '../shared/bridge';
 
+import { Icon } from './ui';
+
 const errorOf = (response: ApiResponse, fallback: string): string => {
   const { data } = response;
   return typeof data === 'object' && data !== null && 'error' in data && typeof data.error === 'string' ? data.error : fallback;
@@ -40,78 +42,98 @@ export function MenuToday({ menu, loadError, onChange }: MenuTodayProps) {
     else setError(result.error);
   };
 
-  if (!menu) return <p className={loadError ? 'error' : 'muted'}>{loadError ?? 'Cargando…'}</p>;
+  if (!menu) {
+    return (
+      <div className="page">
+        <p className={loadError ? 'error' : 'muted'}>{loadError ?? 'Cargando…'}</p>
+      </div>
+    );
+  }
 
   const soldOutCount = menu.groups.reduce((sum, group) => sum + group.items.filter((item) => item.soldOut && !item.locked).length, 0);
 
   return (
-    <div>
-      <h1 style={{ margin: '0 0 4px' }}>Menú de hoy ({formatDay(menu.day)})</h1>
-      <p className="muted" style={{ marginTop: 0 }}>
-        Lo que cambies acá se ve en la web en menos de un minuto y vuelve a la normalidad mañana solo.
-      </p>
+    <div className="page">
+      <div className="page-head">
+        <div>
+          <h1>Menú de hoy · {formatDay(menu.day)}</h1>
+          <p className="muted">Lo que cambies acá se ve en la web en menos de un minuto y vuelve a la normalidad mañana solo.</p>
+        </div>
+      </div>
 
-      <div className="panel" style={menu.ordersPaused ? { borderColor: '#b00', background: '#fdecec' } : undefined}>
-        <div className="row" style={{ justifyContent: 'space-between' }}>
-          <div>
-            <strong>{menu.ordersPaused ? 'Pedidos pausados por hoy' : 'Tomando pedidos'}</strong>
-            <div className="muted" style={{ fontSize: 14 }}>
+      <div className={menu.ordersPaused ? 'block alert' : 'block'}>
+        <div className="block-head">
+          <Icon name={menu.ordersPaused ? 'pause' : 'check'} />
+          <div style={{ display: 'grid', gap: 2, flex: '1 1 320px' }}>
+            <h2>{menu.ordersPaused ? 'Pedidos pausados por hoy' : 'Tomando pedidos'}</h2>
+            <p className="muted small">
               {menu.ordersPaused
-                ? 'La web dice "Por hoy no tomamos más pedidos" y no deja mandar. Los que ya llegaron siguen acá.'
+                ? 'La web dice "Por hoy no tomamos más pedidos" y no deja mandar. Los que ya llegaron siguen en la lista.'
                 : 'Si la cocina no da más, pausalos: la web deja de aceptar pedidos hasta que los reanudes (o hasta mañana).'}
-            </div>
+            </p>
           </div>
-          {menu.ordersPaused ? (
-            <button className="primary" disabled={busy === 'pause'} onClick={() => void apply('pause', { ordersPaused: false })}>
-              Reanudar pedidos
-            </button>
-          ) : confirmPause ? (
-            <span className="row">
-              ¿Pausar por hoy?
-              <button
-                className="danger"
-                disabled={busy === 'pause'}
-                onClick={() => {
-                  setConfirmPause(false);
-                  void apply('pause', { ordersPaused: true });
-                }}
-              >
-                Sí, pausar
+          <div className="end inline">
+            {menu.ordersPaused ? (
+              <button className="btn primary" disabled={busy === 'pause'} onClick={() => void apply('pause', { ordersPaused: false })}>
+                Reanudar pedidos
               </button>
-              <button onClick={() => setConfirmPause(false)}>No</button>
-            </span>
-          ) : (
-            <button className="danger" onClick={() => setConfirmPause(true)}>
-              Pausar pedidos
-            </button>
-          )}
+            ) : confirmPause ? (
+              <>
+                <span>¿Pausar por hoy?</span>
+                <button
+                  className="btn danger"
+                  disabled={busy === 'pause'}
+                  onClick={() => {
+                    setConfirmPause(false);
+                    void apply('pause', { ordersPaused: true });
+                  }}
+                >
+                  Sí, pausar
+                </button>
+                <button className="btn" onClick={() => setConfirmPause(false)}>
+                  No
+                </button>
+              </>
+            ) : (
+              <button className="btn" onClick={() => setConfirmPause(true)}>
+                <Icon name="pause" size="sm" />
+                Pausar pedidos
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
       {error && <p className="error">{error}</p>}
 
       <p className="muted">
-        {soldOutCount === 0 ? 'Nada agotado hoy.' : `${soldOutCount} ${soldOutCount === 1 ? 'cosa agotada' : 'cosas agotadas'} hoy.`} Lo
-        agotado se ve desteñido en la web y no se puede pedir; si alguien ya lo tenía en el carrito, tiene que sacarlo.
+        <strong style={{ color: 'var(--washi)' }}>
+          {soldOutCount === 0 ? 'Nada agotado hoy.' : `${soldOutCount} ${soldOutCount === 1 ? 'cosa agotada' : 'cosas agotadas'} hoy.`}
+        </strong>{' '}
+        Lo agotado se ve desteñido en la web y no se puede pedir; si alguien ya lo tenía en el carrito, tiene que sacarlo.
       </p>
 
       {menu.groups.map((group) => (
-        <div key={group.name} className="panel">
-          <h2 style={{ margin: '0 0 8px', fontSize: 18 }}>{group.name}</h2>
+        <section key={group.name} className="block">
+          <h2>{group.name}</h2>
           <table>
             <tbody>
               {group.items.map((item) => (
-                <tr key={item.id} style={{ borderTop: '1px solid #ddd' }}>
-                  <td style={{ padding: '6px 0', opacity: item.soldOut ? 0.6 : 1 }}>
-                    {item.name}
-                    {item.soldOut && <span className="tag rechazado" style={{ marginLeft: 8 }}>Agotado hoy</span>}
+                <tr key={item.id} className={item.soldOut ? 'off' : undefined}>
+                  <td>
+                    <span className="name">{item.name}</span>
+                    {item.soldOut && (
+                      <span className="tag out" style={{ marginLeft: 10 }}>
+                        Agotado hoy
+                      </span>
+                    )}
                   </td>
-                  <td className="num" style={{ padding: '6px 0' }}>
+                  <td className="actions">
                     {item.locked ? (
-                      <span className="muted" style={{ fontSize: 14 }}>Apagado en el código de la web</span>
+                      <span className="muted small">Apagado en el código de la web</span>
                     ) : (
                       <button
-                        className={item.soldOut ? 'primary' : undefined}
+                        className={item.soldOut ? 'btn sm primary' : 'btn sm'}
                         disabled={busy === item.id}
                         onClick={() => void apply(item.id, { itemId: item.id, soldOut: !item.soldOut })}
                       >
@@ -123,7 +145,7 @@ export function MenuToday({ menu, loadError, onChange }: MenuTodayProps) {
               ))}
             </tbody>
           </table>
-        </div>
+        </section>
       ))}
     </div>
   );

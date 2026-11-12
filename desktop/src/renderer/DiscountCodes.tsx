@@ -4,6 +4,8 @@ import type { StaffDiscountCode, StaffDiscountCodeInput } from '../../../src/typ
 import type { ApiResponse } from '../shared/bridge';
 import { formatPrice } from '../shared/textos';
 
+import { Icon } from './ui';
+
 const errorOf = (response: ApiResponse, fallback: string): string => {
   const { data } = response;
   return typeof data === 'object' && data !== null && 'error' in data && typeof data.error === 'string' ? data.error : fallback;
@@ -95,77 +97,87 @@ function CodeForm({ editing, onSaved, onCancel }: CodeFormProps) {
   };
 
   return (
-    <div className="panel">
-      <h2 style={{ marginTop: 0 }}>{editing ? `Editar ${editing.code}` : 'Código nuevo'}</h2>
+    <section className="block" style={{ gap: 18 }}>
+      <h2>{editing ? `Editar ${editing.code}` : 'Código nuevo'}</h2>
 
-      <label htmlFor="code">Código</label>
-      <input
-        id="code"
-        value={draft.code}
-        disabled={editing !== null}
-        placeholder="VERANO10"
-        style={{ textTransform: 'uppercase' }}
-        onChange={(e) => set('code', e.target.value)}
-      />
-      <p className="muted">Letras, números o guiones. El cliente lo escribe en el checkout (mayúsculas o minúsculas da igual).</p>
-
-      <label htmlFor="kind">Descuento</label>
-      <div className="row">
-        <select id="kind" style={{ width: 200 }} value={draft.kind} onChange={(e) => set('kind', e.target.value === 'amount' ? 'amount' : 'percent')}>
-          <option value="percent">Porcentaje (%)</option>
-          <option value="amount">Monto fijo ($)</option>
-        </select>
+      <div className="field">
+        <label htmlFor="code">Código</label>
         <input
-          aria-label={draft.kind === 'percent' ? 'Porcentaje' : 'Monto en pesos'}
-          inputMode="numeric"
-          style={{ width: 140 }}
-          value={draft.value}
-          placeholder={draft.kind === 'percent' ? '10' : '2000'}
-          onChange={(e) => set('value', e.target.value.replace(/\D/g, ''))}
+          id="code"
+          className="w-md"
+          value={draft.code}
+          disabled={editing !== null}
+          placeholder="VERANO10"
+          style={{ textTransform: 'uppercase', width: 260 }}
+          onChange={(e) => set('code', e.target.value)}
         />
-        <span className="muted">{draft.kind === 'percent' ? '% sobre el pedido' : 'pesos menos en el pedido'}</span>
+        <span className="hint">Letras, números o guiones. El cliente lo escribe en el checkout (mayúsculas o minúsculas da igual).</span>
       </div>
-      <p className="muted">Nunca descuenta el envío. Si ese día hay un descuento especial que ahorra más, se aplica ese (no se suman).</p>
 
-      <div className="row">
-        <div style={{ flex: 1 }}>
+      <div className="field">
+        <span className="label">Descuento</span>
+        <div className="inline">
+          <div className="seg" role="group" aria-label="Tipo de descuento">
+            <button aria-pressed={draft.kind === 'percent'} onClick={() => set('kind', 'percent')}>
+              Porcentaje (%)
+            </button>
+            <button aria-pressed={draft.kind === 'amount'} onClick={() => set('kind', 'amount')}>
+              Monto fijo ($)
+            </button>
+          </div>
+          <input
+            aria-label={draft.kind === 'percent' ? 'Porcentaje' : 'Monto en pesos'}
+            inputMode="numeric"
+            className="w-sm num"
+            value={draft.value}
+            placeholder={draft.kind === 'percent' ? '10' : '2000'}
+            onChange={(e) => set('value', e.target.value.replace(/\D/g, ''))}
+          />
+          <span className="muted">{draft.kind === 'percent' ? '% sobre el pedido' : 'pesos menos en el pedido'}</span>
+        </div>
+        <span className="hint">Nunca descuenta el envío. Si ese día hay un descuento especial que ahorra más, se aplica ese (no se suman).</span>
+      </div>
+
+      <div className="inline" style={{ gap: 16, alignItems: 'flex-start' }}>
+        <div className="field">
           <label htmlFor="from">Desde (opcional)</label>
-          <input id="from" type="date" value={draft.validFrom} onChange={(e) => set('validFrom', e.target.value)} />
+          <input id="from" type="date" className="w-md" value={draft.validFrom} onChange={(e) => set('validFrom', e.target.value)} />
         </div>
-        <div style={{ flex: 1 }}>
+        <div className="field">
           <label htmlFor="until">Hasta (opcional, incluido)</label>
-          <input id="until" type="date" value={draft.validUntil} onChange={(e) => set('validUntil', e.target.value)} />
+          <input id="until" type="date" className="w-md" value={draft.validUntil} onChange={(e) => set('validUntil', e.target.value)} />
+        </div>
+        <div className="field">
+          <label htmlFor="max">Usos en total</label>
+          <input
+            id="max"
+            inputMode="numeric"
+            className="w-sm num"
+            placeholder="sin límite"
+            value={draft.maxUses}
+            onChange={(e) => set('maxUses', e.target.value.replace(/\D/g, ''))}
+          />
         </div>
       </div>
 
-      <label htmlFor="max">Cantidad de usos en total (vacío = sin límite)</label>
-      <input
-        id="max"
-        inputMode="numeric"
-        style={{ width: 140 }}
-        value={draft.maxUses}
-        onChange={(e) => set('maxUses', e.target.value.replace(/\D/g, ''))}
-      />
-
-      <label style={{ display: 'flex', gap: 8, alignItems: 'center', fontWeight: 400 }}>
-        <input
-          type="checkbox"
-          style={{ width: 'auto' }}
-          checked={draft.oncePerCustomer}
-          onChange={(e) => set('oncePerCustomer', e.target.checked)}
-        />
-        Una sola vez por cliente
-      </label>
-      <p className="muted">Los pedidos rechazados no cuentan como uso.</p>
+      <div className="field">
+        <label className="check">
+          <input type="checkbox" checked={draft.oncePerCustomer} onChange={(e) => set('oncePerCustomer', e.target.checked)} />
+          Una sola vez por cliente
+        </label>
+        <span className="hint">Los pedidos rechazados no cuentan como uso.</span>
+      </div>
 
       {error && <p className="error">{error}</p>}
-      <div className="row">
-        <button className="primary" disabled={saving} onClick={() => void save()}>
+      <div className="inline">
+        <button className="btn primary" disabled={saving} onClick={() => void save()}>
           {saving ? 'Guardando…' : 'Guardar'}
         </button>
-        <button onClick={onCancel}>Cancelar</button>
+        <button className="btn" onClick={onCancel}>
+          Cancelar
+        </button>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -209,11 +221,15 @@ export function DiscountCodes() {
   };
 
   return (
-    <div>
-      <div className="row" style={{ justifyContent: 'space-between' }}>
-        <h1 style={{ margin: '0 0 12px' }}>Códigos de descuento</h1>
+    <div className="page">
+      <div className="page-head">
+        <div>
+          <h1>Códigos de descuento</h1>
+          <p className="muted">Los que crees acá funcionan en la web apenas los guardás.</p>
+        </div>
         {form === null && (
-          <button className="primary" onClick={() => setForm('new')}>
+          <button className="btn primary end" onClick={() => setForm('new')}>
+            <Icon name="plus" size="sm" />
             Nuevo código
           </button>
         )}
@@ -233,56 +249,60 @@ export function DiscountCodes() {
 
       {error && <p className="error">{error}</p>}
       {codes === null && !error && <p className="muted">Cargando…</p>}
-      {codes?.length === 0 && <p className="muted">Todavía no hay códigos. Los que crees acá funcionan en la web apenas los guardás.</p>}
+      {codes?.length === 0 && form === null && <p className="muted">Todavía no hay códigos.</p>}
 
       {codes && codes.length > 0 && (
-        <div className="panel">
-          <table>
-            <thead>
-              <tr style={{ textAlign: 'left' }}>
-                <th>Código</th>
-                <th>Descuento</th>
-                <th>Vigencia</th>
-                <th>Usos</th>
-                <th>Estado</th>
-                <th />
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Descuento</th>
+              <th>Vigencia</th>
+              <th>Usos</th>
+              <th>Estado</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            {codes.map((code) => (
+              <tr key={code.code} className={code.active ? undefined : 'off'}>
+                <td>
+                  <span className="name">{code.code}</span>
+                  {code.oncePerCustomer && <span className="detail-line">Una vez por cliente</span>}
+                </td>
+                <td className="num">{describeValue(code)}</td>
+                <td className="num">{describeDates(code)}</td>
+                <td className="num">{code.maxUses === null ? code.uses : `${code.uses} de ${code.maxUses}`}</td>
+                <td>{code.active ? <span className="tag confirmado">Activo</span> : <span className="tag rechazado">Pausado</span>}</td>
+                <td className="actions">
+                  {confirmDelete === code.code ? (
+                    <span className="inline">
+                      ¿Borrarlo?
+                      <button className="btn sm danger" onClick={() => void remove(code.code)}>
+                        Sí, borrar
+                      </button>
+                      <button className="btn sm" onClick={() => setConfirmDelete(null)}>
+                        No
+                      </button>
+                    </span>
+                  ) : (
+                    <span className="inline">
+                      <button className="btn sm" onClick={() => void toggle(code)}>
+                        {code.active ? 'Pausar' : 'Activar'}
+                      </button>
+                      <button className="btn sm" onClick={() => setForm(code)}>
+                        Editar
+                      </button>
+                      <button className="btn sm ghost" style={{ color: 'var(--error)' }} onClick={() => setConfirmDelete(code.code)}>
+                        Borrar
+                      </button>
+                    </span>
+                  )}
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {codes.map((code) => (
-                <tr key={code.code} style={{ borderTop: '1px solid #ddd', opacity: code.active ? 1 : 0.6 }}>
-                  <td>
-                    <strong>{code.code}</strong>
-                    {code.oncePerCustomer && <div className="muted" style={{ fontSize: 13 }}>Una vez por cliente</div>}
-                  </td>
-                  <td>{describeValue(code)}</td>
-                  <td>{describeDates(code)}</td>
-                  <td>{code.maxUses === null ? code.uses : `${code.uses} de ${code.maxUses}`}</td>
-                  <td>{code.active ? 'Activo' : 'Pausado'}</td>
-                  <td className="num">
-                    {confirmDelete === code.code ? (
-                      <span className="row" style={{ justifyContent: 'flex-end' }}>
-                        ¿Borrarlo?
-                        <button className="danger" onClick={() => void remove(code.code)}>
-                          Sí, borrar
-                        </button>
-                        <button onClick={() => setConfirmDelete(null)}>No</button>
-                      </span>
-                    ) : (
-                      <span className="row" style={{ justifyContent: 'flex-end' }}>
-                        <button onClick={() => void toggle(code)}>{code.active ? 'Pausar' : 'Activar'}</button>
-                        <button onClick={() => setForm(code)}>Editar</button>
-                        <button className="danger" onClick={() => setConfirmDelete(code.code)}>
-                          Borrar
-                        </button>
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );

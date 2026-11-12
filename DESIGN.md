@@ -293,6 +293,15 @@ Una sola columna en el celular y dos desde `lg` (formulario a la izquierda, resu
 - **Focus:** borde `washi` y contorno de 2px en `washi`, separado 2px.
 - **Error:** borde y mensaje en `error`, con `aria-invalid` y el mensaje vinculado por `aria-describedby`.
 
+## App del local (`desktop/`)
+
+La misma tinta y las mismas letras que la web, para una PC de cocina: se lee desde un paso atrás, con letra más grande. Los tokens están copiados en `desktop/src/renderer/index.html`, y las letras viajan con la app (`desktop/src/renderer/fonts/`).
+- **Menú lateral** (208px, `sumi-1`): Pedidos (con la cifra de sin responder en grafito lleno), En cocina, Nuevo pedido; después Menú de hoy, Códigos, Ventas y Ajustes. Abajo, la conexión, el aviso de versión nueva y Salir.
+- **Estados sin color nuevo:** nuevo = etiqueta grafito llena y fila `sumi-1`; confirmado = contorno con tilde; rechazado = punteado y desteñido. El rosa frío es para lo atrasado ("hace 6 min" pasados los 3, "atrasado 5 min" en cocina) y lo que falta ("falta el cobro").
+- **Banda grafito** arriba en cualquier pantalla mientras hay pedidos sin responder; la de pausa va en `sumi-1` con filete.
+- **Verde (`--go` #1d7348) solo para "Confirmar y abrir WhatsApp"**, la placa de 56px del pedido (Rechazar es la misma placa en grafito). El bermellón no aparece en la app, porque en la web significa "en tu pedido".
+- Cada botón con atajo muestra su tecla (`kbd`): 1–4, Enter, P.
+
 ## Do's and Don'ts
 
 ### Do:

@@ -11,6 +11,8 @@ import type {
 import type { ApiResponse } from '../shared/bridge';
 import { DELIVERY_LABELS, formatPrice, PAYMENT_LABELS } from '../shared/textos';
 
+import { Icon } from './ui';
+
 const errorOf = (response: ApiResponse, fallback: string): string => {
   const { data } = response;
   return typeof data === 'object' && data !== null && 'error' in data && typeof data.error === 'string' ? data.error : fallback;
@@ -29,7 +31,11 @@ interface DraftLine {
 
 const BOX_TAB = 'box';
 
-const sold = <span className="tag rechazado">Agotado hoy</span>;
+const sold = (
+  <span className="tag out" style={{ marginLeft: 10 }}>
+    Agotado hoy
+  </span>
+);
 
 interface BoxBuilderProps {
   catalog: StaffCatalog;
@@ -74,48 +80,58 @@ function BoxBuilder({ catalog, onAdd }: BoxBuilderProps) {
   };
 
   return (
-    <div>
+    <div style={{ display: 'grid', gap: 14 }}>
       {catalog.cutoffPassed && (
-        <p className="notes">Ya pasaron las {catalog.cutoffPassed}: en la web los rolls y nigiris están cortados. Sumalos solo si la cocina llega.</p>
+        <div className="notice soft">
+          Ya pasaron las {catalog.cutoffPassed}: en la web los rolls y nigiris están cortados. Sumalos solo si la cocina llega.
+        </div>
       )}
-      <div className="row">
-        {sizes.map((candidate) => (
-          <button key={candidate.id} className={candidate.id === sizeId ? 'primary' : undefined} onClick={() => setSizeId(candidate.id)}>
-            {candidate.name}
-          </button>
-        ))}
+      <div className="inline">
+        <div className="choices" role="group" aria-label="Tamaño de la caja">
+          {sizes.map((candidate) => (
+            <button key={candidate.id} className="choice" aria-pressed={candidate.id === sizeId} onClick={() => setSizeId(candidate.id)}>
+              {candidate.name}
+            </button>
+          ))}
+        </div>
+        {size && <span className="muted small">Entra: {size.fits.join(' · ')}</span>}
       </div>
-      {size && <p className="muted" style={{ margin: '8px 0' }}>Entra: {size.fits.join(' · ')}</p>}
       <table>
         <tbody>
           {items.map((item) => (
-            <tr key={item.id} style={{ borderTop: '1px solid #ddd', opacity: item.soldOut ? 0.6 : 1 }}>
-              <td style={{ padding: '6px 0' }}>
-                {item.name} {item.soldOut && sold}
-                <div className="muted" style={{ fontSize: 14 }}>
+            <tr key={item.id} className={item.soldOut ? 'off' : undefined}>
+              <td>
+                <span className="name">{item.name}</span>
+                {item.soldOut && sold}
+                <span className="detail-line num">
                   {formatPrice(item.price)} {item.step > 1 ? `cada ${item.step}` : 'c/u'}
-                </div>
+                </span>
               </td>
-              <td className="num" style={{ padding: '6px 0' }}>
-                <span className="row" style={{ justifyContent: 'flex-end' }}>
-                  <button aria-label={`Sacar ${item.name}`} disabled={!steps[item.id]} onClick={() => change(item.id, -1)}>−</button>
-                  <span style={{ minWidth: 28, textAlign: 'center' }}>{item.step * (steps[item.id] ?? 0)}</span>
-                  <button aria-label={`Sumar ${item.name}`} disabled={item.soldOut} onClick={() => change(item.id, 1)}>+</button>
+              <td className="actions">
+                <span className="stepper">
+                  <button className="btn sm icon-only" aria-label={`Sacar ${item.name}`} disabled={!steps[item.id]} onClick={() => change(item.id, -1)}>
+                    <Icon name="minus" size="sm" />
+                  </button>
+                  <span className="value">{item.step * (steps[item.id] ?? 0)}</span>
+                  <button className="btn sm icon-only" aria-label={`Sumar ${item.name}`} disabled={item.soldOut} onClick={() => change(item.id, 1)}>
+                    <Icon name="plus" size="sm" />
+                  </button>
                 </span>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <p className="row" style={{ marginBottom: 0 }}>
-        <span style={{ flex: 1 }}>
+      <div className="inline">
+        <span className="num" style={{ flex: 1 }}>
           {rollPieces} piezas + {nigiris} nigiris
-          {chosen.length > 0 && !valid && <strong className="error"> · no es una combinación de esta caja</strong>}
+          {chosen.length > 0 && !valid && <span className="error"> · no es una combinación de esta caja</span>}
         </span>
-        <button className="primary" disabled={!valid || hasSoldOut} onClick={add}>
+        <button className="btn primary" disabled={!valid || hasSoldOut} onClick={add}>
+          <Icon name="plus" size="sm" />
           Sumar caja
         </button>
-      </p>
+      </div>
     </div>
   );
 }
@@ -216,24 +232,32 @@ export function NewOrder({ visible, onCreated, onCancel }: NewOrderProps) {
     else setSaveError(errorOf(response, 'No se pudo guardar el pedido.'));
   };
 
-  if (!catalog) return <p className={catalogError ? 'error' : 'muted'}>{catalogError ?? 'Cargando…'}</p>;
+  if (!catalog) {
+    return (
+      <div className="page">
+        <p className={catalogError ? 'error' : 'muted'}>{catalogError ?? 'Cargando…'}</p>
+      </div>
+    );
+  }
 
   const group = catalog.groups.find((candidate) => candidate.name === tab);
 
   return (
-    <div>
-      <h1 style={{ margin: '0 0 4px' }}>Nuevo pedido</h1>
-      <p className="muted" style={{ marginTop: 0 }}>
-        Para los que piden por WhatsApp. Después de guardarlo le ponés la hora y se confirma como cualquier otro.
-      </p>
+    <div className="page" style={{ maxWidth: 1240 }}>
+      <div className="page-head">
+        <div>
+          <h1>Nuevo pedido</h1>
+          <p className="muted">Para los que piden por WhatsApp. Después de guardarlo le ponés la hora y se confirma como cualquier otro.</p>
+        </div>
+      </div>
       <div className="new-order">
-        <div className="panel">
-          <div className="row" style={{ marginBottom: 12 }}>
-            <button className={tab === BOX_TAB ? 'primary' : undefined} onClick={() => setTab(BOX_TAB)}>
+        <section className="block">
+          <div className="choices" role="group" aria-label="Sección del menú">
+            <button className="choice" aria-pressed={tab === BOX_TAB} onClick={() => setTab(BOX_TAB)}>
               {catalog.box.name}
             </button>
             {catalog.groups.map((candidate) => (
-              <button key={candidate.name} className={tab === candidate.name ? 'primary' : undefined} onClick={() => setTab(candidate.name)}>
+              <button key={candidate.name} className="choice" aria-pressed={tab === candidate.name} onClick={() => setTab(candidate.name)}>
                 {candidate.name}
               </button>
             ))}
@@ -244,15 +268,17 @@ export function NewOrder({ visible, onCreated, onCancel }: NewOrderProps) {
             <table>
               <tbody>
                 {group.items.map((item) => (
-                  <tr key={item.id} style={{ borderTop: '1px solid #ddd', opacity: item.soldOut ? 0.6 : 1 }}>
-                    <td style={{ padding: '6px 8px 6px 0' }}>
-                      {item.name} {item.soldOut && sold}
+                  <tr key={item.id} className={item.soldOut ? 'off' : undefined}>
+                    <td>
+                      <span className="name">{item.name}</span>
+                      {item.soldOut && sold}
                     </td>
-                    <td className="num" style={{ padding: '6px 0' }}>
-                      <span className="row" style={{ justifyContent: 'flex-end' }}>
+                    <td className="actions">
+                      <span className="inline">
                         {item.choices.map((choice) => (
                           <button
                             key={choice.label ?? 'unica'}
+                            className="btn sm num"
                             disabled={item.soldOut}
                             onClick={() =>
                               addLine({
@@ -264,7 +290,7 @@ export function NewOrder({ visible, onCreated, onCancel }: NewOrderProps) {
                               })
                             }
                           >
-                            {choice.label ? `${choice.label} · ` : '+ '}
+                            {choice.label ? `${choice.label} · ` : <Icon name="plus" size="xs" />}
                             {formatPrice(choice.price)}
                           </button>
                         ))}
@@ -275,108 +301,133 @@ export function NewOrder({ visible, onCreated, onCancel }: NewOrderProps) {
               </tbody>
             </table>
           )}
-        </div>
+        </section>
 
-        <div>
-          <div className="panel">
-            <strong>Pedido</strong>
+        <div style={{ display: 'grid', gap: 20 }}>
+          <section className="block">
+            <h2>Pedido</h2>
             {lines.length === 0 ? (
-              <p className="muted" style={{ marginBottom: 0 }}>Todavía no sumaste nada.</p>
+              <p className="muted">Todavía no sumaste nada.</p>
             ) : (
-              <table style={{ marginTop: 6 }}>
+              <table className="lines">
                 <tbody>
                   {lines.map((line) => (
-                    <tr key={line.key} style={{ borderTop: '1px solid #ddd' }}>
-                      <td style={{ padding: '6px 8px 6px 0' }}>
+                    <tr key={line.key}>
+                      <td className="name">
                         {line.name}
-                        {line.detail && <div className="muted" style={{ fontSize: 14 }}>{line.detail}</div>}
-                        <div className="row" style={{ marginTop: 4 }}>
-                          <button aria-label={`Sacar uno de ${line.name}`} onClick={() => changeQuantity(line.key, -1)}>−</button>
-                          <span>{line.quantity}</span>
-                          <button aria-label={`Sumar uno de ${line.name}`} onClick={() => changeQuantity(line.key, 1)}>+</button>
-                        </div>
+                        {line.detail && <span className="detail-line">{line.detail}</span>}
+                        <span className="stepper" style={{ marginTop: 6 }}>
+                          <button className="btn sm icon-only" aria-label={`Sacar uno de ${line.name}`} onClick={() => changeQuantity(line.key, -1)}>
+                            <Icon name="minus" size="sm" />
+                          </button>
+                          <span className="value">{line.quantity}</span>
+                          <button className="btn sm icon-only" aria-label={`Sumar uno de ${line.name}`} onClick={() => changeQuantity(line.key, 1)}>
+                            <Icon name="plus" size="sm" />
+                          </button>
+                        </span>
                       </td>
-                      <td className="num" style={{ padding: '6px 0' }}>{formatPrice(line.unitPrice * line.quantity)}</td>
+                      <td className="amt">{formatPrice(line.unitPrice * line.quantity)}</td>
                     </tr>
                   ))}
                   {quote && quote.discountAmount > 0 && (
-                    <tr style={{ borderTop: '1px solid #ddd' }}>
+                    <tr className="sub">
                       <td>Descuento ({quote.discountLabel})</td>
-                      <td className="num">-{formatPrice(quote.discountAmount)}</td>
+                      <td className="amt kin">−{formatPrice(quote.discountAmount)}</td>
                     </tr>
                   )}
                   {quote && quote.deliveryFee > 0 && (
-                    <tr>
+                    <tr className="sub">
                       <td>Envío</td>
-                      <td className="num">{formatPrice(quote.deliveryFee)}</td>
+                      <td className="amt">{formatPrice(quote.deliveryFee)}</td>
                     </tr>
                   )}
-                  <tr style={{ borderTop: '1px solid #ddd' }}>
-                    <td><strong>Total</strong></td>
-                    <td className="num"><strong>{quote ? formatPrice(quote.total) : '—'}</strong></td>
+                  <tr className="total">
+                    <td>Total</td>
+                    <td className="amt">{quote ? formatPrice(quote.total) : '—'}</td>
                   </tr>
                 </tbody>
               </table>
             )}
-            {quoteError && <p className="error" style={{ marginBottom: 0 }}>{quoteError}</p>}
-          </div>
+            {quoteError && <p className="error">{quoteError}</p>}
+          </section>
 
-          <div className="panel">
-            <label htmlFor="manual-name" style={{ marginTop: 0 }}>Nombre</label>
-            <input id="manual-name" maxLength={60} value={name} onChange={(e) => setName(e.target.value)} />
-
-            <label htmlFor="manual-phone">Celular (el del WhatsApp)</label>
-            <input id="manual-phone" inputMode="tel" placeholder="2478 567168" value={phone} onChange={(e) => setPhone(e.target.value)} />
-
-            <label>Entrega</label>
-            <div className="row">
-              {(['pickup', 'delivery'] as const).map((method) => (
-                <button key={method} className={delivery === method ? 'primary' : undefined} onClick={() => setDelivery(method)}>
-                  {DELIVERY_LABELS[method]}
-                </button>
-              ))}
+          <section className="block">
+            <h2>Cliente</h2>
+            <div className="field">
+              <label htmlFor="manual-name">Nombre</label>
+              <input id="manual-name" maxLength={60} value={name} onChange={(e) => setName(e.target.value)} />
+            </div>
+            <div className="field">
+              <label htmlFor="manual-phone">Celular (el del WhatsApp)</label>
+              <input id="manual-phone" inputMode="tel" className="num" placeholder="2478 567168" value={phone} onChange={(e) => setPhone(e.target.value)} />
+            </div>
+            <div className="field">
+              <span className="label">Entrega</span>
+              <div className="choices" role="group" aria-label="Entrega">
+                {(['pickup', 'delivery'] as const).map((method) => (
+                  <button key={method} className="choice" aria-pressed={delivery === method} onClick={() => setDelivery(method)}>
+                    <Icon name={method === 'delivery' ? 'bike' : 'bag'} size="sm" />
+                    {DELIVERY_LABELS[method]}
+                  </button>
+                ))}
+              </div>
             </div>
             {delivery === 'delivery' && (
-              <>
+              <div className="field">
                 <label htmlFor="manual-address">Dirección</label>
                 <input id="manual-address" maxLength={160} value={address} onChange={(e) => setAddress(e.target.value)} />
-              </>
+              </div>
             )}
-
-            <label>Pago</label>
-            <div className="row">
-              {(['cash', 'transfer', 'mixed'] as const).map((method) => (
-                <button key={method} className={payment === method ? 'primary' : undefined} onClick={() => setPayment(method)}>
-                  {PAYMENT_LABELS[method]}
-                </button>
-              ))}
+            <div className="field">
+              <span className="label">Pago</span>
+              <div className="choices" role="group" aria-label="Pago">
+                {(['cash', 'transfer', 'mixed'] as const).map((method) => (
+                  <button key={method} className="choice" aria-pressed={payment === method} onClick={() => setPayment(method)}>
+                    {PAYMENT_LABELS[method]}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="field">
+              <label htmlFor="manual-notes">Observaciones (opcional)</label>
+              <input id="manual-notes" maxLength={200} value={notes} onChange={(e) => setNotes(e.target.value)} />
+            </div>
+            <div className="field">
+              <label htmlFor="manual-code">Código de descuento (opcional)</label>
+              {code ? (
+                <div className="inline">
+                  <span className="tag confirmado">{code}</span>
+                  <button
+                    className="btn sm"
+                    onClick={() => {
+                      setCode('');
+                      setCodeInput('');
+                    }}
+                  >
+                    Quitar
+                  </button>
+                </div>
+              ) : (
+                <div className="inline nowrap">
+                  <input id="manual-code" value={codeInput} onChange={(e) => setCodeInput(e.target.value)} />
+                  <button className="btn" disabled={!codeInput.trim()} onClick={() => setCode(codeInput.trim())}>
+                    Aplicar
+                  </button>
+                </div>
+              )}
             </div>
 
-            <label htmlFor="manual-notes">Observaciones (opcional)</label>
-            <input id="manual-notes" maxLength={200} value={notes} onChange={(e) => setNotes(e.target.value)} />
-
-            <label htmlFor="manual-code">Código de descuento (opcional)</label>
-            {code ? (
-              <div className="row">
-                <strong>{code}</strong>
-                <button onClick={() => { setCode(''); setCodeInput(''); }}>Quitar</button>
-              </div>
-            ) : (
-              <div className="row" style={{ flexWrap: 'nowrap' }}>
-                <input id="manual-code" value={codeInput} onChange={(e) => setCodeInput(e.target.value)} />
-                <button disabled={!codeInput.trim()} onClick={() => setCode(codeInput.trim())}>Aplicar</button>
-              </div>
-            )}
-
-            <p className="row" style={{ marginBottom: 0 }}>
-              <button className="primary" disabled={missing.length > 0 || !quote || saving} onClick={() => void save()}>
+            <div style={{ display: 'grid', gap: 8 }}>
+              <button className="btn primary" style={{ minHeight: 52 }} disabled={missing.length > 0 || !quote || saving} onClick={() => void save()}>
                 {saving ? 'Guardando…' : quote ? `Guardar pedido · ${formatPrice(quote.total)}` : 'Guardar pedido'}
               </button>
-              <button onClick={onCancel}>Empezar de nuevo</button>
-            </p>
-            {missing.length > 0 && <p className="muted" style={{ marginBottom: 0 }}>Falta: {missing.join(', ')}.</p>}
-            {saveError && <p className="error" style={{ marginBottom: 0 }}>{saveError}</p>}
-          </div>
+              {missing.length > 0 && <p className="muted small">Falta: {missing.join(', ')}.</p>}
+              {saveError && <p className="error">{saveError}</p>}
+              <button className="btn ghost" onClick={onCancel}>
+                Empezar de nuevo
+              </button>
+            </div>
+          </section>
         </div>
       </div>
     </div>

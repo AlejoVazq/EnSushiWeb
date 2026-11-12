@@ -50,6 +50,11 @@ export interface EnsushiBridge {
   exportSales(orders: StaffOrder[], from: string, to: string): Promise<{ ok: true } | { ok: false; canceled: boolean; error: string }>;
   /** Opens the last exported file in Excel */
   openLastExport(): Promise<void>;
+  /**
+   * New orders came in: if the window isn't in front, a Windows notification (clicking it brings the app up) and
+   * the taskbar button flashes until the window gets the focus
+   */
+  notifyNewOrders(title: string, body: string): Promise<void>;
   /** Opens WhatsApp (wa.me) with the message for the customer */
   openWhatsApp(phone: string, message: string): Promise<void>;
   /** The installed version, e.g. "0.2.0" */
