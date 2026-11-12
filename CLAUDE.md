@@ -16,6 +16,7 @@
 - `src/types/index.ts` define `Product` (unión discriminada `standard` | `sized`), `BuildItem` / `BuildBox` (Arma tu combo), `CartItem` (unión por `kind`: `product` | `box` | `extra`), `OrderDetails`, etc. Reutilizar estos tipos; no duplicarlos.
 - Precios en ARS como enteros. Formatear con `Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 })` en un helper compartido.
 - Textos de la UI en español rioplatense.
+- Footer (`src/components/site/SiteFooter.tsx`) y páginas legales `/privacidad`, `/terminos`, `/cookies`, `/arrepentimiento` (`LegalPage`, links en `src/config/legal.ts`). Contacto público en `BUSINESS.contact` (correo, Instagram) y `BUSINESS.whatsappDisplay`. Sin nombre ni CUIT del titular en la web (decisión del dueño). Si la web empieza a guardar algo nuevo en el navegador o a usar otro servicio, actualizar Cookies y Privacidad.
 - Después de cada paso: correr `npx tsc --noEmit` y `npm run lint`, y que pasen antes de seguir.
 
 ## Flujo de negocio

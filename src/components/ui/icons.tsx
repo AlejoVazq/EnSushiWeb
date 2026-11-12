@@ -153,3 +153,22 @@ export const SauceIcon = (props: IconProps) => (
     <path d="M6 3.5l13 8M9.5 3l11 7" />
   </svg>
 );
+
+export const InstagramIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <rect x="3" y="3" width="18" height="18" rx="5" />
+    <circle cx="12" cy="12" r="4" />
+    <path d="M17.5 6.5h.01" strokeWidth={2.5} />
+  </svg>
+);
+
+export const WhatsAppIcon = (props: IconProps) => (
+  <svg {...base} {...props}>
+    <path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3Z" />
+    <path
+      d="M9 8.2c.2-.4.4-.4.7-.4h.5c.2 0 .4 0 .5.4l.7 1.6c.1.2 0 .4-.1.6l-.5.6c-.1.1-.2.3 0 .5.6 1 1.4 1.8 2.4 2.3.2.1.4.1.5 0l.6-.7c.2-.2.4-.2.6-.1l1.6.8c.2.1.3.3.3.5 0 .9-.7 1.7-1.6 1.8-2.6.3-6.5-3.1-6.6-5.9 0-.8.2-1.5.4-2Z"
+      fill="currentColor"
+      stroke="none"
+    />
+  </svg>
+);

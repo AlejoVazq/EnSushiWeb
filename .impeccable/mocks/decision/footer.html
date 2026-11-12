@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Footer EnSushi · opciones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+@font-face { font-family: "MPR"; src: url("../../../src/app/fonts/mplus-rounded-1c-700-latin.woff2") format("woff2"); font-weight: 700; }
+:root {
+  --sumi:#e4e6ea; --sumi-1:#eceef1; --sumi-2:#d7dae0; --hairline:#cbced5; --hairline-strong:#a9adb6;
+  --washi:#2b2d33; --washi-muted:#5c5f68; --shu:#c8432b;
+  --title: "MPR", ui-rounded, system-ui, sans-serif; --ui: "Figtree", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin:0; background:#c9ccd2; color:var(--washi); font-family:var(--ui); padding:32px 24px 80px; }
+.page-title { font: 700 28px/1.2 var(--title); margin:0 0 6px; }
+.lede { color:#3f424a; max-width:70ch; margin:0 0 28px; }
+.opt { margin: 0 0 64px; }
+.opt h2 { font: 700 22px/1.2 var(--title); margin:0 0 4px; }
+.opt > p { margin:0 0 16px; color:#3f424a; max-width:80ch; }
+.frames { display:flex; gap:24px; align-items:flex-start; flex-wrap:wrap; }
+.frame { background:var(--sumi); border-radius:14px; overflow:hidden; box-shadow:0 1px 0 #0001, 0 8px 30px #0002; container-type:inline-size; }
+.frame.phone { width:390px; } .frame.desk { width:1100px; max-width:100%; }
+.tag { font-size:12px; color:#3f424a; margin:0 0 6px; }
+/* trozo de menú arriba, para dar contexto */
+.ctx { padding:20px 16px 28px; border-bottom:0; }
+.ctx .row { display:flex; gap:12px; align-items:center; padding:12px 0; border-top:1px solid var(--hairline); }
+.ctx .ph { width:64px; height:64px; border-radius:10px; background:var(--sumi-2); }
+.ctx b { font: 700 17px var(--title); }
+.ctx small { display:block; color:var(--washi-muted); }
+
+/* piezas comunes */
+a { color:inherit; }
+.social { display:flex; gap:10px; }
+.sbtn { display:inline-flex; align-items:center; gap:8px; height:44px; padding:0 16px; border-radius:10px; border:1px solid var(--hairline-strong); text-decoration:none; font-weight:700; font-size:14px; }
+.sbtn svg { width:20px; height:20px; }
+.sbtn.round { width:44px; padding:0; justify-content:center; border-radius:999px; }
+.legal-links { display:flex; flex-wrap:wrap; gap:4px 18px; font-size:14px; }
+.legal-links a { color:var(--washi-muted); text-decoration:none; padding:6px 0; }
+.legal-links a:hover { color:var(--washi); text-decoration:underline; }
+.fine { font-size:12.5px; color:var(--washi-muted); line-height:1.5; }
+.qr { width:56px; height:56px; border:1px dashed var(--hairline-strong); border-radius:6px; display:grid; place-items:center; font-size:9px; text-align:center; color:var(--washi-muted); line-height:1.15; flex:none; }
+.logoimg { display:block; width:auto; filter:brightness(0); opacity:.85; }
+.logo { font: 700 26px var(--title); letter-spacing:-.5px; }
+dl { margin:0; } dt { font-size:12px; color:var(--washi-muted); margin-top:12px; } dd { margin:2px 0 0; font-size:15px; }
+.coltitle { font: 700 15px var(--title); margin:0 0 4px; }
+
+/* A: columnas */
+.fA { border-top:1px solid var(--hairline); padding:40px 16px 28px; }
+.fA .grid { display:grid; gap:28px; }
+@container (min-width: 700px) { .fA { padding:48px 40px 28px; } .fA .grid { grid-template-columns: 1.3fr 1fr 1fr 1fr; gap:40px; } }
+.fA .bottom { margin-top:36px; padding-top:18px; border-top:1px solid var(--hairline); display:flex; gap:14px; align-items:center; justify-content:space-between; }
+.fA .legal-links { flex-direction:column; gap:0; }
+
+/* B: dos botones grandes */
+.fB { border-top:1px solid var(--hairline); padding:36px 16px 28px; }
+@container (min-width: 700px) { .fB { padding:48px 40px 28px; } .fB .top { display:grid; grid-template-columns: 1fr 1fr; gap:48px; align-items:start; } }
+.fB .big { display:grid; gap:10px; margin-top:16px; }
+@container (min-width: 700px) { .fB .big { grid-template-columns:1fr 1fr; margin-top:0; } }
+.fB .bigbtn { display:flex; align-items:center; gap:12px; min-height:64px; padding:12px 16px; border-radius:16px; border:1px solid var(--hairline-strong); background:var(--sumi-1); text-decoration:none; }
+.fB .bigbtn svg { width:26px; height:26px; flex:none; }
+.fB .bigbtn b { display:block; font-size:15px; } .fB .bigbtn span { font-size:13px; color:var(--washi-muted); }
+.fB .info { display:grid; grid-template-columns:1fr 1fr; gap:4px 20px; margin-top:22px; }
+.fB .bottom { margin-top:28px; padding-top:16px; border-top:1px solid var(--hairline); display:grid; gap:14px; }
+@container (min-width: 700px) { .fB .bottom { grid-template-columns:1fr auto; align-items:center; } }
+.fB .finerow { display:flex; gap:12px; align-items:center; }
+
+/* C: compacto */
+.fC { border-top:1px solid var(--hairline); padding:32px 16px 24px; display:grid; gap:20px; }
+@container (min-width: 700px) { .fC { padding:36px 40px 24px; grid-template-columns: auto 1fr auto; align-items:center; gap:24px 40px; } .fC .lineB { grid-column:1 / -1; } }
+.fC .contact { font-size:14px; color:var(--washi-muted); line-height:1.7; }
+.fC .contact a { color:var(--washi); }
+.fC .lineB { border-top:1px solid var(--hairline); padding-top:16px; display:flex; gap:14px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+
+/* página legal */
+.lp header { display:flex; justify-content:space-between; align-items:center; height:56px; padding:0 16px; border-bottom:1px solid var(--hairline); }
+@container (min-width: 700px) { .lp header { padding:0 40px; } .lp article { padding:48px 40px 56px !important; } }
+.lp header a { font-size:14px; font-weight:700; text-decoration:none; display:inline-flex; gap:6px; align-items:center; height:44px; }
+.lp article { padding:28px 16px 40px; max-width:720px; }
+.lp .crumb { font-size:13px; color:var(--washi-muted); }
+.lp h1 { font: 700 32px/1.15 var(--title); margin:6px 0 6px; }
+.lp .upd { font-size:13px; color:var(--washi-muted); margin:0 0 24px; }
+.lp nav.toc { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 28px; }
+.lp nav.toc a { font-size:13px; padding:6px 10px; border:1px solid var(--hairline); border-radius:999px; text-decoration:none; color:var(--washi-muted); }
+.lp nav.toc a.on { border-color:var(--washi); color:var(--washi); font-weight:700; }
+.lp h2 { font: 700 19px/1.25 var(--title); margin:28px 0 8px; }
+.lp p, .lp li { font-size:16px; line-height:1.6; color:#3a3d44; max-width:65ch; }
+.lp ul { padding-left:20px; }
+</style>
+</head>
+<body>
+<h1 class="page-title">Footer nuevo · tres opciones</h1>
+<p class="lede">Mismo contenido en las tres: Instagram y WhatsApp, contacto (WhatsApp, correo, dirección, horario), links a Privacidad, Términos, Cookies y Botón de arrepentimiento, la línea legal con responsable y CUIT, y el lugar del QR de Data Fiscal. Lo que cambia es la jerarquía. El texto viejo ("Sushi de autor, directo a tu casa…") ya no está. El CUIT va con marcador hasta confirmar los 11 dígitos.</p>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="ig" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17.3" cy="6.7" r="1.2" fill="currentColor"/></symbol>
+  <symbol id="wa" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 8.2c.2-.4.4-.4.7-.4h.5c.2 0 .4 0 .5.4l.7 1.6c.1.2 0 .4-.1.6l-.5.6c-.1.1-.2.3 0 .5.6 1 1.4 1.8 2.4 2.3.2.1.4.1.5 0l.6-.7c.2-.2.4-.2.6-.1l1.6.8c.2.1.3.3.3.5 0 .9-.7 1.7-1.6 1.8-2.6.3-6.5-3.1-6.6-5.9 0-.8.2-1.5.4-2Z" fill="currentColor"/></symbol>
+</svg>
+
+<!-- ============ A ============ -->
+<section class="opt">
+  <h2>A · Columnas</h2>
+  <p>El footer clásico de una web: marca y redes, Contacto, Horario y Legal, en cuatro columnas en escritorio y apiladas en el celular. Es lo que la gente espera encontrar al final de una página, y escanea rápido.</p>
+  <div class="frames">
+    <div><p class="tag">Celular · 390px</p><div class="frame phone">
+      <div class="ctx"><div class="row"><div class="ph"></div><div><b>Salsa de soja</b><small>$ 500</small></div></div></div>
+      <footer class="fA">
+        <div class="grid">
+          <div><img class="logoimg" src="../../../public/logo.png" alt="EnSushi" height="30"><p class="fine" style="margin:6px 0 14px">Sushi de autor en Arrecifes.</p>
+            <div class="social"><a class="sbtn round" href="#" aria-label="Instagram"><svg><use href="#ig"/></svg></a><a class="sbtn round" href="#" aria-label="WhatsApp"><svg><use href="#wa"/></svg></a></div></div>
+          <div><p class="coltitle">Contacto</p><dl><dt>WhatsApp</dt><dd><a href="#">+54 2478 567168</a></dd><dt>Correo</dt><dd><a href="#">vaztechcontact@gmail.com</a></dd><dt>Retiro</dt><dd>Puerto Rico 248, Arrecifes</dd></dl></div>
+          <div><p class="coltitle">Horario</p><dl><dt>Viernes a domingo</dt><dd>17:00 a 23:30</dd></dl></div>
+          <div><p class="coltitle">Legal</p><div class="legal-links"><a href="#">Privacidad</a><a href="#">Términos y condiciones</a><a href="#">Cookies</a><a href="#">Botón de arrepentimiento</a></div></div>
+        </div>
+        <div class="bottom"><p class="fine" style="margin:0">© 2026 EnSushi · Alejo Vázquez Camelis · CUIT 20-XXXXXXXX-X<br>Puerto Rico 248, Arrecifes, Buenos Aires</p><div class="qr">QR Data Fiscal</div></div>
+      </footer>
+    </div></div>
+    <div><p class="tag">Escritorio · 1100px</p><div class="frame desk">
+      <footer class="fA">
+        <div class="grid">
+          <div><img class="logoimg" src="../../../public/logo.png" alt="EnSushi" height="30"><p class="fine" style="margin:6px 0 14px">Sushi de autor en Arrecifes.</p>
+            <div class="social"><a class="sbtn round" href="#" aria-label="Instagram"><svg><use href="#ig"/></svg></a><a class="sbtn round" href="#" aria-label="WhatsApp"><svg><use href="#wa"/></svg></a></div></div>
+          <div><p class="coltitle">Contacto</p><dl><dt>WhatsApp</dt><dd><a href="#">+54 2478 567168</a></dd><dt>Correo</dt><dd><a href="#">vaztechcontact@gmail.com</a></dd><dt>Retiro</dt><dd>Puerto Rico 248, Arrecifes</dd></dl></div>
+          <div><p class="coltitle">Horario</p><dl><dt>Viernes a domingo</dt><dd>17:00 a 23:30</dd></dl></div>
+          <div><p class="coltitle">Legal</p><div class="legal-links"><a href="#">Privacidad</a><a href="#">Términos y condiciones</a><a href="#">Cookies</a><a href="#">Botón de arrepentimiento</a></div></div>
+        </div>
+        <div class="bottom"><p class="fine" style="margin:0">© 2026 EnSushi · Alejo Vázquez Camelis · CUIT 20-XXXXXXXX-X · Puerto Rico 248, Arrecifes, Buenos Aires</p><div class="qr">QR Data Fiscal</div></div>
+      </footer>
+    </div></div>
+  </div>
+</section>
+
+<!-- ============ B ============ -->
+<section class="opt">
+  <h2>B · Dos botones grandes</h2>
+  <p>Instagram y WhatsApp como dos botones grandes que se tocan con el pulgar, con el dato al lado ("@ensushi.ar", "+54 2478 567168"). Abajo, dirección y horario en dos columnas, y una fila fina con lo legal. Pone las redes primero: es lo que más va a usar alguien que llegó al final del menú.</p>
+  <div class="frames">
+    <div><p class="tag">Celular · 390px</p><div class="frame phone">
+      <div class="ctx"><div class="row"><div class="ph"></div><div><b>Salsa de soja</b><small>$ 500</small></div></div></div>
+      <footer class="fB">
+        <div class="top">
+          <div><img class="logoimg" src="../../../public/logo.png" alt="EnSushi" height="30"><p class="fine" style="margin:4px 0 0">Sushi de autor en Arrecifes.</p>
+            <div class="info"><dl><dt>Retiro</dt><dd>Puerto Rico 248</dd></dl><dl><dt>Viernes a domingo</dt><dd>17:00 a 23:30</dd></dl><dl style="grid-column:1/-1"><dt>Correo</dt><dd><a href="#">vaztechcontact@gmail.com</a></dd></dl></div></div>
+          <div class="big">
+            <a class="bigbtn" href="#"><svg><use href="#wa"/></svg><div><b>WhatsApp</b><span>+54 2478 567168</span></div></a>
+            <a class="bigbtn" href="#"><svg><use href="#ig"/></svg><div><b>Instagram</b><span>@ensushi.ar</span></div></a>
+          </div>
+        </div>
+        <div class="bottom">
+          <div class="legal-links"><a href="#">Privacidad</a><a href="#">Términos</a><a href="#">Cookies</a><a href="#">Botón de arrepentimiento</a></div>
+          <div class="finerow"><div class="qr">QR Data Fiscal</div><p class="fine" style="margin:0">© 2026 EnSushi<br>Alejo Vázquez Camelis · CUIT 20-XXXXXXXX-X</p></div>
+        </div>
+      </footer>
+    </div></div>
+    <div><p class="tag">Escritorio · 1100px</p><div class="frame desk">
+      <footer class="fB">
+        <div class="top">
+          <div><img class="logoimg" src="../../../public/logo.png" alt="EnSushi" height="30"><p class="fine" style="margin:4px 0 0">Sushi de autor en Arrecifes.</p>
+            <div class="info"><dl><dt>Retiro</dt><dd>Puerto Rico 248, Arrecifes</dd></dl><dl><dt>Viernes a domingo</dt><dd>17:00 a 23:30</dd></dl><dl style="grid-column:1/-1"><dt>Correo</dt><dd><a href="#">vaztechcontact@gmail.com</a></dd></dl></div></div>
+          <div class="big">
+            <a class="bigbtn" href="#"><svg><use href="#wa"/></svg><div><b>WhatsApp</b><span>+54 2478 567168</span></div></a>
+            <a class="bigbtn" href="#"><svg><use href="#ig"/></svg><div><b>Instagram</b><span>@ensushi.ar</span></div></a>
+          </div>
+        </div>
+        <div class="bottom">
+          <div class="legal-links"><a href="#">Privacidad</a><a href="#">Términos y condiciones</a><a href="#">Cookies</a><a href="#">Botón de arrepentimiento</a></div>
+          <div class="finerow"><p class="fine" style="margin:0;text-align:right">© 2026 EnSushi · Alejo Vázquez Camelis<br>CUIT 20-XXXXXXXX-X · Arrecifes, Buenos Aires</p><div class="qr">QR Data Fiscal</div></div>
+        </div>
+      </footer>
+    </div></div>
+  </div>
+</section>
+
+<!-- ============ C ============ -->
+<section class="opt">
+  <h2>C · Compacto</h2>
+  <p>Lo mínimo y en poco alto: logo, contacto en dos líneas de texto con los links y los dos íconos redondos. Abajo, una sola línea con lo legal. Es el que menos compite con el menú, pero el contacto es menos visible.</p>
+  <div class="frames">
+    <div><p class="tag">Celular · 390px</p><div class="frame phone">
+      <div class="ctx"><div class="row"><div class="ph"></div><div><b>Salsa de soja</b><small>$ 500</small></div></div></div>
+      <footer class="fC">
+        <img class="logoimg" src="../../../public/logo.png" alt="EnSushi" height="30">
+        <div class="contact">Puerto Rico 248, Arrecifes · Vie a dom de 17:00 a 23:30<br><a href="#">+54 2478 567168</a> · <a href="#">vaztechcontact@gmail.com</a></div>
+        <div class="social"><a class="sbtn round" href="#" aria-label="Instagram"><svg><use href="#ig"/></svg></a><a class="sbtn round" href="#" aria-label="WhatsApp"><svg><use href="#wa"/></svg></a></div>
+        <div class="lineB"><div class="legal-links"><a href="#">Privacidad</a><a href="#">Términos</a><a href="#">Cookies</a><a href="#">Arrepentimiento</a></div>
+          <div style="display:flex;gap:12px;align-items:center"><div class="qr">QR Data Fiscal</div><p class="fine" style="margin:0">© 2026 Alejo Vázquez Camelis<br>CUIT 20-XXXXXXXX-X</p></div></div>
+      </footer>
+    </div></div>
+    <div><p class="tag">Escritorio · 1100px</p><div class="frame desk">
+      <footer class="fC">
+        <img class="logoimg" src="../../../public/logo.png" alt="EnSushi" height="30">
+        <div class="contact">Puerto Rico 248, Arrecifes · Viernes a domingo de 17:00 a 23:30<br><a href="#">+54 2478 567168</a> · <a href="#">vaztechcontact@gmail.com</a></div>
+        <div class="social"><a class="sbtn round" href="#" aria-label="Instagram"><svg><use href="#ig"/></svg></a><a class="sbtn round" href="#" aria-label="WhatsApp"><svg><use href="#wa"/></svg></a></div>
+        <div class="lineB"><div class="legal-links"><a href="#">Privacidad</a><a href="#">Términos y condiciones</a><a href="#">Cookies</a><a href="#">Botón de arrepentimiento</a></div>
+          <div style="display:flex;gap:12px;align-items:center"><p class="fine" style="margin:0;text-align:right">© 2026 EnSushi · Alejo Vázquez Camelis · CUIT 20-XXXXXXXX-X</p><div class="qr">QR Data Fiscal</div></div></div>
+      </footer>
+    </div></div>
+  </div>
+</section>
+
+<!-- ============ Página legal ============ -->
+<section class="opt">
+  <h2>Páginas legales (igual para las cuatro)</h2>
+  <p>Header chico con el logo y "Volver al menú"; título, fecha de actualización, chips para saltar entre las cuatro páginas y el texto en una columna cómoda para leer. Abajo, el footer que elijas.</p>
+  <div class="frames">
+    <div><p class="tag">Celular · 390px</p><div class="frame phone lp">
+      <header><img class="logoimg" src="../../../public/logo.png" alt="EnSushi" height="26"><a href="#">‹ Volver al menú</a></header>
+      <article>
+        <h1>Política de privacidad</h1><p class="upd">Actualizada el 12 de noviembre de 2026</p>
+        <nav class="toc"><a class="on" href="#">Privacidad</a><a href="#">Términos</a><a href="#">Cookies</a><a href="#">Arrepentimiento</a></nav>
+        <h2>Qué datos pedimos</h2>
+        <p>Para tomar tu pedido te pedimos tu correo (para mandarte el código de ingreso), tu nombre, tu celular y, si elegís envío, tu dirección.</p>
+        <h2>Para qué los usamos</h2>
+        <ul><li>Preparar y entregar tu pedido.</li><li>Avisarte por WhatsApp cuándo está listo.</li></ul>
+      </article>
+    </div></div>
+    <div><p class="tag">Escritorio · 1100px</p><div class="frame desk lp">
+      <header><img class="logoimg" src="../../../public/logo.png" alt="EnSushi" height="26"><a href="#">‹ Volver al menú</a></header>
+      <article>
+        <h1>Política de privacidad</h1><p class="upd">Actualizada el 12 de noviembre de 2026</p>
+        <nav class="toc"><a class="on" href="#">Privacidad</a><a href="#">Términos y condiciones</a><a href="#">Cookies</a><a href="#">Botón de arrepentimiento</a></nav>
+        <h2>Qué datos pedimos</h2>
+        <p>Para tomar tu pedido te pedimos tu correo (para mandarte el código de ingreso), tu nombre, tu celular y, si elegís envío, tu dirección.</p>
+        <h2>Para qué los usamos</h2>
+        <ul><li>Preparar y entregar tu pedido.</li><li>Avisarte por WhatsApp cuándo está listo.</li></ul>
+      </article>
+    </div></div>
+  </div>
+</section>
+</body>
+</html>

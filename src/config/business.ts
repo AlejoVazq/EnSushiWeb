@@ -7,6 +7,13 @@ export const BUSINESS = {
   name: 'EnSushi',
   /** International format, digits only, no "+" (required by wa.me) */
   whatsappNumber: '5492478567168', // +54 2478 567168 (the 9 after 54 is required for Argentine mobiles)
+  /** The same number, as people write it (footer, legal pages) */
+  whatsappDisplay: '+54 2478 567168',
+  /** Public contact: footer and legal pages (questions, data requests, revocation) */
+  contact: {
+    email: 'vaztechcontact@gmail.com',
+    instagram: { url: 'https://www.instagram.com/ensushi.ar/', handle: '@ensushi.ar' },
+  },
   transfer: {
     /**
      * Alias/CVU are intentionally NOT stored here: anything in this file ships in the
@@ -16,6 +23,7 @@ export const BUSINESS = {
   },
   pickup: {
     address: 'Puerto Rico 248',
+    city: 'Arrecifes, Buenos Aires',
   },
   delivery: {
     /** Flat fee in ARS, integer, added to the order total */

@@ -12,6 +12,7 @@ import { useWarmMenuPhotos } from '@/hooks/useWarmMenuPhotos';
 import { getAccount, ORDERS_BY_APP } from '@/lib/pedidosApp';
 import { toBoxInput } from '@/store/useCartStore';
 import type { BoxCartItem, CategoryId } from '@/types';
+import { SiteFooter } from '@/components/site/SiteFooter';
 
 import { BoxBuilder, EMPTY_BOX_DRAFT, isBoxBarShown, useBoxLock, type BoxDraft } from './BoxBuilder';
 import { CART_PANEL_TITLE_ID, CartDrawer } from './CartDrawer';
@@ -118,15 +119,8 @@ export function Shop() {
           </aside>
         </div>
 
-        <footer className="border-t border-hairline">
-          <div className="mx-auto max-w-7xl space-y-3 px-4 pt-12 pb-32 sm:px-6 lg:pb-14">
-            <p className="font-title text-2xl leading-tight text-balance sm:text-3xl">Sushi de autor, directo a tu casa.</p>
-            <p className="max-w-md text-pretty text-washi-muted">
-              Armá tu propio combo, o elegí de nuestros combos, y mandanos el pedido por WhatsApp.
-            </p>
-            <p className="pt-4 text-sm text-washi-muted">{BUSINESS.name} · Pedidos por WhatsApp</p>
-          </div>
-        </footer>
+        {/* Room for the floating "Ver pedido" bar on the phone and the tablet */}
+        <SiteFooter className="pb-32 lg:pb-10" />
       </div>
 
       {!cartOpen && !builderBarShown && <FloatingCartBar onOpenCart={openCart} />}

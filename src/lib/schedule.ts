@@ -183,3 +183,19 @@ export const checkSchedule = (status: ScheduleStatus): CartScheduleCheck => {
 /** Heads-ups for the cart: same as the checkout, but nothing blocks there */
 export const getCartNotices = (status: ScheduleStatus): CartScheduleNotice[] =>
   checkSchedule(status).notices.map((notice) => ({ ...notice, tone: 'info' }));
+
+const DAY_NAMES = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+
+/** Regular opening days for people: "Viernes a domingo", "Viernes y sábado" (week starts on Monday) */
+export const describeOpenDays = (openDays: readonly number[] = BUSINESS.schedule.openDays): string => {
+  const ordered = [...openDays].sort((a, b) => ((a + 6) % 7) - ((b + 6) % 7));
+  const consecutive = ordered.every((day, i) => i === 0 || day === ((ordered[i - 1] ?? 0) + 1) % 7);
+  const names = ordered.map((day) => DAY_NAMES[day] ?? '');
+  const text =
+    consecutive && names.length > 2
+      ? `${names[0]} a ${names[names.length - 1]}`
+      : names.length > 1
+        ? `${names.slice(0, -1).join(', ')} y ${names[names.length - 1]}`
+        : (names[0] ?? '');
+  return text.charAt(0).toUpperCase() + text.slice(1);
+};

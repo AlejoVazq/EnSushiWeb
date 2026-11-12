@@ -9,9 +9,9 @@ related_targets: ["src/components/shop/Shop.tsx"]
 Tienda (menú, Arma tu combo, carrito, checkout). Modo: Operate. Fase actual: menú (header, banda de estado, pestañas, filas, pie). Arma tu combo se rehace en el Paso 10; carrito y checkout en la Fase 7.
 
 ## Decisiones confirmadas
-- Texto de portada al pie: "Sushi de autor, directo a tu casa." + "Armá tu propio combo, o elegí de nuestros combos, y mandanos el pedido por WhatsApp."
+- Pie (2026-11-12, variante B de `.impeccable/mocks/decision/footer.html`): `SiteFooter` con logo, retiro, horario y correo; botones grandes de WhatsApp e Instagram con el dato al lado; fila fina con Privacidad, Términos, Cookies, Botón de arrepentimiento y Defensa del consumidor; solo "© 2026 EnSushi" (sin nombre ni CUIT del titular). El texto viejo de portada se borró.
+- En la fila del menú el menos con 1 saca el producto (2026-11-12; antes no bajaba de 1).
 - Carrito sigue diciendo "Total".
-- En la fila del menú el menos no baja de 1; borrar solo en el carrito.
 - Error de campos en rosa frío propio, nunca bermellón.
 - Tipografías: M PLUS Rounded 1c (nombres y títulos) + Figtree (todo lo demás).
 
