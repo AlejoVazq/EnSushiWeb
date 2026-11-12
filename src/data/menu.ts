@@ -263,6 +263,7 @@ export const PRODUCTS: readonly Product[] = [
   express({
     id: 'salsa-teriyaki',
     categoryId: 'salsas',
+    icon: 'teriyaki',
     name: 'Salsa Teriyaki',
     description: 'Dulce, hecha con salsa de soja, jengibre, ajo y miel.',
     price: 1500,
@@ -270,6 +271,7 @@ export const PRODUCTS: readonly Product[] = [
   express({
     id: 'salsa-buenos-aires',
     categoryId: 'salsas',
+    icon: 'buenos-aires',
     name: 'Salsa Buenos Aires',
     description: 'Base de teriyaki con aceite de sésamo, semillas de sésamo y ralladura de limón.',
     price: 1500,
@@ -277,6 +279,7 @@ export const PRODUCTS: readonly Product[] = [
   express({
     id: 'salsa-soja',
     categoryId: 'salsas',
+    icon: 'soja',
     name: 'Salsa de soja',
     description: 'La clásica, salada, para mojar rolls y nigiris.',
     price: 500,
@@ -284,6 +287,7 @@ export const PRODUCTS: readonly Product[] = [
   express({
     id: 'wasabi',
     categoryId: 'salsas',
+    icon: 'wasabi',
     name: 'Wasabi',
     description: 'Pasta picante de rábano japonés, para darle un golpe fuerte a cada pieza.',
     price: 500,
@@ -291,6 +295,7 @@ export const PRODUCTS: readonly Product[] = [
   express({
     id: 'palitos',
     categoryId: 'salsas',
+    icon: 'palitos',
     name: 'Palitos',
     description: 'Par extra. Los combos y las cajas ya traen los suyos.',
     price: 200,

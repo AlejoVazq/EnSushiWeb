@@ -16,6 +16,7 @@ import type { Product, ProductIncludes } from '@/types';
 import { ChevronRightIcon } from '@/components/ui/icons';
 
 import { HollowSeal, LineAction, Seal, useLineQuantity } from './LineAction';
+import { ProductIllustration } from './ProductIllustration';
 import { ProductSheet, type ProductLine } from './ProductSheet';
 
 interface ProductRowProps {
@@ -212,11 +213,13 @@ export function ProductRow({ product, withSheet = false }: ProductRowProps) {
     }
   }
 
-  // No photo (or a broken file): the row stands as text, no placeholder
+  // No photo (or a broken file): its drawing if it has one (sauces), otherwise the row stands as text
   const showImage = Boolean(imageUrl) && imageUrl !== failedSrc;
+  const drawing = showImage ? undefined : product.icon;
+  const hasThumb = showImage || drawing !== undefined;
   // Next to the photo, three size chips don't fit a price in a row under 22rem (a phone, or a column of the
   // two-column grid): there they go full width, under the photo. The row's <li> is the container.
-  const fullWidthOnNarrow = showImage && '@max-[22rem]:col-span-2';
+  const fullWidthOnNarrow = hasThumb && '@max-[22rem]:col-span-2';
   const openSheet = withSheet ? () => setSheetOpen(true) : undefined;
 
   const priceLabel =
@@ -232,8 +235,9 @@ export function ProductRow({ product, withSheet = false }: ProductRowProps) {
 
   return (
     <article
-      className={cn('grid gap-4 py-5', showImage && 'grid-cols-[5.5rem_1fr] @max-[22rem]:gap-y-3 @md:grid-cols-[6.5rem_1fr]')}
+      className={cn('grid gap-4 py-5', hasThumb && 'grid-cols-[5.5rem_1fr] @max-[22rem]:gap-y-3 @md:grid-cols-[6.5rem_1fr]')}
     >
+      {drawing && <ProductIllustration icon={drawing} faded={soldOut} className="aspect-square rounded-xl" />}
       {showImage && imageUrl && (
         <div className={cn('relative aspect-square overflow-hidden rounded-xl bg-sumi-2', soldOut && 'opacity-40 grayscale')}>
           {/* The photo opens the sheet too; the name's button is the one for keyboards and screen readers */}
@@ -255,7 +259,7 @@ export function ProductRow({ product, withSheet = false }: ProductRowProps) {
         </div>
       )}
 
-      <div className={cn('flex min-w-0 flex-col gap-3', showImage && '@max-[22rem]:contents')}>
+      <div className={cn('flex min-w-0 flex-col gap-3', hasThumb && '@max-[22rem]:contents')}>
         <div className="relative min-w-0 space-y-1">
           <h3
             className={cn(

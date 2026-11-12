@@ -13,9 +13,10 @@ import { lineMenuItems } from '@/lib/cartItems';
 import { formatBoxContents, getLineName } from '@/lib/cartLine';
 import { formatItemPrice, formatPrice } from '@/lib/format';
 import { lineSubtotal, toBoxInput, useCartStore } from '@/store/useCartStore';
-import type { BoxCartItem, CartItem } from '@/types';
+import type { BoxCartItem, CartItem, ProductIconId } from '@/types';
 
 import { CartSuggestions } from './CartSuggestions';
+import { ProductIllustration } from './ProductIllustration';
 import { stepButtonClassName } from './LineAction';
 import { lineTitle, unitPriceText } from './lineText';
 
@@ -53,10 +54,12 @@ const lineImage = (item: CartItem): string | undefined => {
   return undefined;
 };
 
-/** Small photo; with no photo (or a broken file) the line stands as text, like the menu rows */
-function LineThumb({ src, alt }: { src: string | undefined; alt: string }) {
+/** Small photo; with no photo (or a broken file) its drawing if it has one, otherwise the line stands as text */
+function LineThumb({ src, alt, icon }: { src: string | undefined; alt: string; icon?: ProductIconId }) {
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
-  if (!src || src === failedSrc) return null;
+  if (!src || src === failedSrc) {
+    return icon ? <ProductIllustration icon={icon} className="size-14 shrink-0 rounded-lg" /> : null;
+  }
   return (
     <div className="relative size-14 shrink-0 overflow-hidden rounded-lg bg-sumi-2">
       <Image
@@ -93,7 +96,7 @@ function CartLine({ item, onEdit, onRemove, canAdd, titleRef, soldOut }: CartLin
 
   return (
     <li className="flex gap-3 py-4">
-      <LineThumb src={lineImage(item)} alt={name} />
+      <LineThumb src={lineImage(item)} alt={name} icon={item.kind === 'product' ? item.product.icon : undefined} />
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-3">
           <h3 ref={titleRef} tabIndex={-1} className="min-w-0 font-bold leading-snug wrap-anywhere text-washi tabular-nums outline-none">
