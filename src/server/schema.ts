@@ -115,4 +115,9 @@ export const MIGRATIONS: readonly string[] = [
   ALTER TABLE orders ALTER COLUMN customer_id DROP NOT NULL;
   ALTER TABLE orders ALTER COLUMN email DROP NOT NULL;
   `,
+
+  // 6 — parts of the menu a discount code leaves out (DiscountSection ids); empty = the whole order
+  `
+  ALTER TABLE discount_codes ADD COLUMN excludes text[] NOT NULL DEFAULT '{}';
+  `,
 ];

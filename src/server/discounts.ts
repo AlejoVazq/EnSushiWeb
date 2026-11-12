@@ -1,7 +1,8 @@
 import { normalizeCode } from '@/lib/discounts';
 import { sha256 } from '@/lib/sha256';
 import type { DiscountCode } from '@/types';
-import type { StaffDiscountCode, StaffDiscountCodeInput } from '@/types/pedidos';
+import { DISCOUNT_SECTIONS } from '@/types/pedidos';
+import type { DiscountSection, StaffDiscountCode, StaffDiscountCodeInput } from '@/types/pedidos';
 
 import { getDb } from './db';
 
@@ -19,12 +20,20 @@ interface CodeRow {
   max_uses: number | null;
   once_per_customer: boolean;
   active: boolean;
+  /** DiscountSection ids; anything else (a section that no longer exists) is ignored */
+  excludes: string[] | null;
   created_at: Date | string;
   uses?: number;
 }
 
 /** Orders that count as a use: everything but the rejected ones */
 const USES = "SELECT count(*)::int FROM orders o WHERE o.discount_code = c.code AND o.status <> 'rechazado'";
+
+const isSection = (value: unknown): value is DiscountSection => DISCOUNT_SECTIONS.some((section) => section.id === value);
+
+/** In the menu's order, without repeats or unknown ids */
+const sectionsOf = (values: readonly unknown[]): DiscountSection[] =>
+  DISCOUNT_SECTIONS.map((section) => section.id).filter((id) => values.some((value) => value === id && isSection(value)));
 
 const toStaffCode = (row: CodeRow): StaffDiscountCode => ({
   code: row.code,
@@ -35,6 +44,7 @@ const toStaffCode = (row: CodeRow): StaffDiscountCode => ({
   maxUses: row.max_uses,
   oncePerCustomer: row.once_per_customer,
   active: row.active,
+  excludes: sectionsOf(row.excludes ?? []),
   uses: row.uses ?? 0,
   createdAt: new Date(row.created_at).toISOString(),
 });
@@ -46,6 +56,7 @@ const toDefinition = (row: CodeRow): DiscountCode => ({
   value: row.value,
   ...(row.valid_from && { validFrom: row.valid_from }),
   ...(row.valid_until && { validUntil: row.valid_until }),
+  ...((row.excludes?.length ?? 0) > 0 && { excludes: sectionsOf(row.excludes ?? []) }),
 });
 
 export type ServerCodeCheck = { ok: true; definition: DiscountCode } | { ok: false; error: string };
@@ -125,7 +136,12 @@ export const parseCodeInput = (body: unknown, base?: StaffDiscountCodeInput): Co
   const oncePerCustomer = pick('oncePerCustomer') === true;
   const active = pick('active') !== false;
 
-  return { ok: true, input: { code, kind, value, validFrom, validUntil, maxUses, oncePerCustomer, active } };
+  const rawExcludes = pick('excludes') ?? [];
+  if (!Array.isArray(rawExcludes) || !rawExcludes.every(isSection)) return { ok: false, error: 'Revisá los apartados que no aplican.' };
+  const excludes = sectionsOf(rawExcludes);
+  if (excludes.length === DISCOUNT_SECTIONS.length) return { ok: false, error: 'Si no aplica a ningún apartado, no descuenta nada.' };
+
+  return { ok: true, input: { code, kind, value, validFrom, validUntil, maxUses, oncePerCustomer, active, excludes } };
 };
 
 export type CodeWriteResult = { ok: true; code: StaffDiscountCode } | { ok: false; status: number; error: string };
@@ -140,12 +156,12 @@ const readCode = async (code: string): Promise<StaffDiscountCode | null> => {
 export const createCode = async (body: unknown): Promise<CodeWriteResult> => {
   const parsed = parseCodeInput(body);
   if (!parsed.ok) return { ok: false, status: 400, error: parsed.error };
-  const { code, kind, value, validFrom, validUntil, maxUses, oncePerCustomer, active } = parsed.input;
+  const { code, kind, value, validFrom, validUntil, maxUses, oncePerCustomer, active, excludes } = parsed.input;
   const db = await getDb();
   const inserted = await db.query<{ code: string }>(
-    `INSERT INTO discount_codes (code, kind, value, valid_from, valid_until, max_uses, once_per_customer, active)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (code) DO NOTHING RETURNING code`,
-    [code, kind, value, validFrom, validUntil, maxUses, oncePerCustomer, active],
+    `INSERT INTO discount_codes (code, kind, value, valid_from, valid_until, max_uses, once_per_customer, active, excludes)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) ON CONFLICT (code) DO NOTHING RETURNING code`,
+    [code, kind, value, validFrom, validUntil, maxUses, oncePerCustomer, active, excludes],
   );
   if (inserted.length === 0) return { ok: false, status: 409, error: `Ya existe el código ${code}.` };
   const created = await readCode(code);
@@ -158,13 +174,13 @@ export const updateCode = async (rawCode: string, body: unknown): Promise<CodeWr
   if (!current) return { ok: false, status: 404, error: 'No existe ese código.' };
   const parsed = parseCodeInput(body, current);
   if (!parsed.ok) return { ok: false, status: 400, error: parsed.error };
-  const { code, kind, value, validFrom, validUntil, maxUses, oncePerCustomer, active } = parsed.input;
+  const { code, kind, value, validFrom, validUntil, maxUses, oncePerCustomer, active, excludes } = parsed.input;
   const db = await getDb();
   await db.query(
     `UPDATE discount_codes SET kind = $2, value = $3, valid_from = $4, valid_until = $5, max_uses = $6,
-       once_per_customer = $7, active = $8
+       once_per_customer = $7, active = $8, excludes = $9
      WHERE code = $1`,
-    [code, kind, value, validFrom, validUntil, maxUses, oncePerCustomer, active],
+    [code, kind, value, validFrom, validUntil, maxUses, oncePerCustomer, active, excludes],
   );
   const updated = await readCode(code);
   return updated ? { ok: true, code: updated } : { ok: false, status: 404, error: 'No existe ese código.' };

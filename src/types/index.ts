@@ -3,6 +3,10 @@
  * All prices are integers in ARS (no cents).
  */
 
+import type { DiscountSection } from './pedidos';
+
+export type { DiscountSection } from './pedidos';
+
 // ─── Catalog ────────────────────────────────────────────────────────────────
 
 export type CategoryId = 'arma-tu-combo' | 'sushiburgers' | 'acompanamientos' | 'combos' | 'salsas';
@@ -16,6 +20,9 @@ export interface Category {
   /** Each product's name opens a sheet with its photo and what it has; the list shows no descriptions */
   itemSheet?: boolean;
 }
+
+/** Line drawings for products without a photo (`ProductIllustration`) */
+export type ProductIconId = 'teriyaki' | 'buenos-aires' | 'soja' | 'wasabi' | 'palitos';
 
 export type ProductTag = 'nuevo' | 'mas-pedido' | 'picante' | 'veggie' | 'sin-tacc';
 
@@ -38,6 +45,8 @@ interface BaseProduct {
   orderType: OrderType;
   /** Path under /public or remote URL. UI falls back to a placeholder when absent. */
   imageUrl?: string;
+  /** Drawing shown where the photo goes while there is none (sauces, wasabi, chopsticks) */
+  icon?: ProductIconId;
   /** Piece count, when meaningful (rolls, combos) */
   pieces?: number;
   tags?: readonly ProductTag[];
@@ -263,7 +272,7 @@ export interface SpecialDay {
 }
 
 /**
- * A code handed out by the shop, for the whole order (not the delivery fee).
+ * A code handed out by the shop, for the whole order (not the delivery fee) or all of it but some sections.
  * Only its SHA-256 is stored, so the code itself isn't readable in the site's JS (`npm run codigo`).
  */
 export interface DiscountCode {
@@ -275,6 +284,8 @@ export interface DiscountCode {
   /** First and last day it works, "YYYY-MM-DD" in the shop's time zone (both included) */
   validFrom?: string;
   validUntil?: string;
+  /** Parts of the menu it doesn't discount (e.g. Sushiburgers, or the rolls of Arma tu combo); none = the whole order */
+  excludes?: readonly DiscountSection[];
 }
 
 /** The discount as the cart, the checkout and the message show it */

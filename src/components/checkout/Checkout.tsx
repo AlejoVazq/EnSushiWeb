@@ -38,14 +38,14 @@ import {
   type CheckoutForm,
 } from '@/lib/checkout';
 import { cn } from '@/lib/cn';
-import { lookUpCode } from '@/lib/discounts';
+import { describeExcludes, discountableSubtotal, lookUpCode } from '@/lib/discounts';
 import { formatList, formatPrice } from '@/lib/format';
 import { getNow } from '@/lib/schedule';
 import { normalizePhone } from '@/lib/phone';
 import { checkDiscountCode, loadSavedPhone, ORDERS_BY_APP, savePhone, sendOrder } from '@/lib/pedidosApp';
 import { buildWhatsAppUrl } from '@/services/whatsappService';
 import { useCartStore } from '@/store/useCartStore';
-import type { DeliveryMethod, DiscountCode, OrderDiscount, PaymentMethod } from '@/types';
+import type { CartItem, DeliveryMethod, DiscountCode, OrderDiscount, PaymentMethod } from '@/types';
 import type { CustomerAccount } from '@/types/pedidos';
 
 import { OrderSummary } from './OrderSummary';
@@ -166,9 +166,13 @@ function TransferNotice({ mixed = false }: { mixed?: boolean }) {
   );
 }
 
-/** "10% en tu pedido", "$ 2.000 menos en tu pedido" */
-const describeCode = (definition: DiscountCode): string =>
-  definition.kind === 'percent' ? `${definition.value}% en tu pedido` : `${formatPrice(definition.value)} menos en tu pedido`;
+/** "10% en tu pedido", "$ 2.000 menos en tu pedido", "10% en tu pedido, salvo Sushiburgers" */
+const describeCode = (definition: DiscountCode): string => {
+  const what =
+    definition.kind === 'percent' ? `${definition.value}% en tu pedido` : `${formatPrice(definition.value)} menos en tu pedido`;
+  const excluded = describeExcludes(definition.excludes);
+  return excluded ? `${what}, salvo ${excluded}` : what;
+};
 
 interface DiscountCodeFieldProps {
   /** The applied code, normalized; '' when none */
@@ -180,10 +184,12 @@ interface DiscountCodeFieldProps {
   onRemove: () => void;
   /** The discount the order ends up with (the code's, or the special day's if it saves more) */
   discount: OrderDiscount | null;
+  /** The cart's lines: a code that leaves out some sections may not touch any of them */
+  items: readonly CartItem[];
 }
 
 /** Folded by default: "¿Tenés un código de descuento?" opens the field; once applied it shows with "Quitar" */
-function DiscountCodeField({ applied, onApply, onRemove, extraCodes, discount }: DiscountCodeFieldProps) {
+function DiscountCodeField({ applied, onApply, onRemove, extraCodes, discount, items }: DiscountCodeFieldProps) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -224,6 +230,8 @@ function DiscountCodeField({ applied, onApply, onRemove, extraCodes, discount }:
     const lookup = lookUpCode(applied, getNow(), extraCodes);
     // Applied, but the special day saves more: they don't stack, so the order keeps the day's
     const outdone = discount !== null && discount.label !== applied;
+    // It leaves out every section the order has (e.g. a code without Sushiburgers on an order of only those)
+    const nothingToDiscount = lookup.ok && discountableSubtotal(items, lookup.definition.excludes) === 0;
     return (
       <div className="rounded-xl border border-washi bg-sumi-2 px-4 py-2 text-sm">
         <div className="flex items-center justify-between gap-3">
@@ -239,10 +247,13 @@ function DiscountCodeField({ applied, onApply, onRemove, extraCodes, discount }:
             Quitar
           </button>
         </div>
-        {outdone && (
+        {outdone && !nothingToDiscount && (
           <p className="pb-1 text-pretty text-washi-muted">
             Hoy el {discount.label} te ahorra más. No se suman: te aplicamos ese.
           </p>
+        )}
+        {nothingToDiscount && (
+          <p className="pb-1 text-pretty text-washi-muted">No aplica a nada de lo que tenés en el pedido.</p>
         )}
       </div>
     );
@@ -632,6 +643,7 @@ export function Checkout() {
               onRemove={() => update('discountCode', '')}
               extraCodes={serverCodes}
               discount={discount}
+              items={items}
             />
             {/* On the phone the summary sits below the button: the total (and the delivery fee) shows right above it */}
             <dl className="space-y-1 rounded-xl border border-hairline p-4 text-sm lg:hidden">

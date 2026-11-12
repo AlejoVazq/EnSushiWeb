@@ -5,6 +5,22 @@
 
 export type OrderStatus = 'nuevo' | 'confirmado' | 'rechazado';
 
+/**
+ * Parts of the menu a discount code can leave out: the menu's tabs, with Arma tu combo split into its rolls and
+ * its nigiris (a box is discounted item by item).
+ */
+export type DiscountSection = 'combos' | 'sushiburgers' | 'rolls' | 'nigiris' | 'acompanamientos' | 'salsas';
+
+/** In the menu's order, as the shop's app and the checkout name them */
+export const DISCOUNT_SECTIONS: readonly { id: DiscountSection; label: string }[] = [
+  { id: 'rolls', label: 'Rolls de Arma tu combo' },
+  { id: 'nigiris', label: 'Nigiris de Arma tu combo' },
+  { id: 'sushiburgers', label: 'Sushiburgers' },
+  { id: 'acompanamientos', label: 'Acompañamientos' },
+  { id: 'combos', label: 'Combos' },
+  { id: 'salsas', label: 'Salsas & complementos' },
+];
+
 /** One ordered line as text and prices at the moment of ordering ("2× Combo Kanituna · 25 piezas") */
 export interface OrderLineSnapshot {
   quantity: number;
@@ -157,6 +173,8 @@ export interface StaffDiscountCode {
   maxUses: number | null;
   /** Each customer can use it once */
   oncePerCustomer: boolean;
+  /** Parts of the menu it doesn't discount; [] = the whole order */
+  excludes: DiscountSection[];
   /** Paused codes are kept (with their uses) but don't work */
   active: boolean;
   /** Orders that used it; rejected ones don't count */

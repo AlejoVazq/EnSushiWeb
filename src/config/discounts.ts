@@ -14,6 +14,6 @@ export const SPECIAL_DAYS: readonly SpecialDay[] = [];
 /**
  * Codes the shop hands out, for the whole order (not the delivery fee).
  * Managed with `npm run codigo -- VERANO10 10%` (or `-- BIENVENIDA 2000` for $ 2.000 off, optionally followed
- * by a last day, `2026-12-31`), which writes the entry here; `npm run codigo -- --borrar VERANO10` removes it.
+ * by a last day, `2026-12-31`, and/or `--sin sushiburgers,rolls` to leave sections out), which writes the entry here; `npm run codigo -- --borrar VERANO10` removes it.
  */
 export const DISCOUNT_CODES: readonly DiscountCode[] = [];

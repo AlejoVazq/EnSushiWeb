@@ -2,6 +2,7 @@
 // Usage: npm run codigo -- VERANO10 10%            → 10% off
 //        npm run codigo -- BIENVENIDA 2000         → $ 2.000 off
 //        npm run codigo -- VERANO10 10% 2026-12-31 → works until that day (included)
+//        npm run codigo -- VERANO10 10% --sin sushiburgers,rolls → not on those sections (DiscountSection ids)
 //        npm run codigo -- --borrar VERANO10       → removes it
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -10,14 +11,27 @@ import { fileURLToPath } from 'node:url';
 const FILE = fileURLToPath(new URL('../src/config/discounts.ts', import.meta.url));
 const LIST = /(export const DISCOUNT_CODES: readonly DiscountCode\[\] = \[)([\s\S]*?)(\];)/;
 
+// Same ids as DiscountSection in src/types/pedidos.ts
+const SECTIONS = ['rolls', 'nigiris', 'sushiburgers', 'acompanamientos', 'combos', 'salsas'];
+
 const fail = (message) => {
   console.error(
-    `${message}\nUso: npm run codigo -- CODIGO 10% [AAAA-MM-DD]  ·  npm run codigo -- CODIGO 2000 [AAAA-MM-DD]  ·  npm run codigo -- --borrar CODIGO`,
+    `${message}\nUso: npm run codigo -- CODIGO 10% [AAAA-MM-DD] [--sin ${SECTIONS.join(',')}]  ·  npm run codigo -- CODIGO 2000 [AAAA-MM-DD]  ·  npm run codigo -- --borrar CODIGO`,
   );
   process.exit(1);
 };
 
-const args = process.argv.slice(2);
+const rawArgs = process.argv.slice(2);
+// "--sin sushiburgers,rolls": sections the code leaves out
+const sinAt = rawArgs.indexOf('--sin');
+const excludes =
+  sinAt === -1 ? [] : (rawArgs[sinAt + 1] ?? '').split(',').map((id) => id.trim().toLowerCase()).filter(Boolean);
+if (sinAt !== -1 && excludes.length === 0) fail(`Después de --sin van los apartados: ${SECTIONS.join(', ')}.`);
+const unknown = excludes.filter((id) => !SECTIONS.includes(id));
+if (unknown.length > 0) fail(`No conozco ${unknown.join(', ')}. Los apartados son: ${SECTIONS.join(', ')}.`);
+const sortedExcludes = SECTIONS.filter((id) => excludes.includes(id));
+if (sortedExcludes.length === SECTIONS.length) fail('Si no aplica a ningún apartado, no descuenta nada.');
+const args = sinAt === -1 ? rawArgs : rawArgs.filter((_, i) => i !== sinAt && i !== sinAt + 1);
 const remove = args[0] === '--borrar';
 const [rawCode, rawValue, validUntil] = remove ? args.slice(1) : args;
 
@@ -59,11 +73,13 @@ if (remove) {
 
   const what = kind === 'percent' ? `${value}%` : `$ ${value}`;
   const until = validUntil ? ` hasta el ${validUntil}` : '';
+  const without = sortedExcludes.length ? `, sin ${sortedExcludes.join(', ')}` : '';
+  const excludesField = sortedExcludes.length ? `, excludes: [${sortedExcludes.map((id) => `'${id}'`).join(', ')}]` : '';
   entries.push({
-    comment: `// ${code}: ${what}${until}`,
-    line: `{ hash: '${hash}', kind: '${kind}', value: ${value}${validUntil ? `, validUntil: '${validUntil}'` : ''} },`,
+    comment: `// ${code}: ${what}${until}${without}`,
+    line: `{ hash: '${hash}', kind: '${kind}', value: ${value}${validUntil ? `, validUntil: '${validUntil}'` : ''}${excludesField} },`,
   });
-  message = `Listo: ${code} (${what}${until}) quedó cargado en src/config/discounts.ts.`;
+  message = `Listo: ${code} (${what}${until}${without}) quedó cargado en src/config/discounts.ts.`;
 }
 
 const newBody = entries.length

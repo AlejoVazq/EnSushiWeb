@@ -2,7 +2,8 @@ import { DISCOUNT_CODES, SPECIAL_DAYS } from '@/config/discounts';
 import { getShopDate } from '@/lib/schedule';
 import { sha256 } from '@/lib/sha256';
 import { cartTotal } from '@/lib/cartItems';
-import type { CartItem, DiscountCode, OrderDiscount, SpecialDay } from '@/types';
+import { DISCOUNT_SECTIONS } from '@/types/pedidos';
+import type { CartItem, CategoryId, DiscountCode, DiscountSection, OrderDiscount, SpecialDay } from '@/types';
 
 /** Only these products get the special day's discount (Arma tu combo boxes don't) */
 const SPECIAL_DAY_CATEGORY = 'combos';
@@ -51,9 +52,47 @@ export const lookUpCode = (input: string, date: Date, extraCodes: readonly Disco
   return { ok: true, code, definition };
 };
 
-/** What the code takes off the items (never the delivery fee), never more than they cost */
+/** The section a product falls in, by its tab (Arma tu combo has no products of its own: its items are counted one by one) */
+const PRODUCT_SECTION: Record<CategoryId, DiscountSection> = {
+  'arma-tu-combo': 'rolls',
+  sushiburgers: 'sushiburgers',
+  acompanamientos: 'acompanamientos',
+  combos: 'combos',
+  salsas: 'salsas',
+};
+
+/** What the items add up to without the excluded sections; a box counts only its rolls or nigiris that aren't */
+export const discountableSubtotal = (items: readonly CartItem[], excludes: readonly DiscountSection[] = []): number => {
+  if (excludes.length === 0) return cartTotal(items);
+  const counts = (section: DiscountSection) => !excludes.includes(section);
+  return items.reduce((sum, item) => {
+    switch (item.kind) {
+      case 'product':
+        return counts(PRODUCT_SECTION[item.product.categoryId]) ? sum + item.unitPrice * item.quantity : sum;
+      case 'extra':
+        return counts('acompanamientos') ? sum + item.unitPrice * item.quantity : sum;
+      case 'box': {
+        const unit = item.box.entries.reduce(
+          (boxSum, entry) =>
+            entry.item.group !== 'acompanamientos' && counts(entry.item.group) ? boxSum + entry.item.price * entry.steps : boxSum,
+          0,
+        );
+        return sum + unit * item.quantity;
+      }
+    }
+  }, 0);
+};
+
+/** "Sushiburgers y Rolls de Arma tu combo", in the menu's order; '' when nothing is left out */
+export const describeExcludes = (excludes: readonly DiscountSection[] = []): string => {
+  const labels = DISCOUNT_SECTIONS.filter((section) => excludes.includes(section.id)).map((section) => section.label);
+  if (labels.length <= 1) return labels.join('');
+  return `${labels.slice(0, -1).join(', ')} y ${labels[labels.length - 1]}`;
+};
+
+/** What the code takes off the items it applies to (never the delivery fee), never more than they cost */
 export const getCodeDiscount = (items: readonly CartItem[], code: string, definition: DiscountCode): OrderDiscount | null => {
-  const subtotal = cartTotal(items);
+  const subtotal = discountableSubtotal(items, definition.excludes);
   const amount =
     definition.kind === 'percent' ? percentOff(subtotal, definition.value) : Math.min(definition.value, subtotal);
   return amount > 0 ? { label: code, amount } : null;

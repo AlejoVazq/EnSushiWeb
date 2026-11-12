@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import type { StaffDiscountCode, StaffDiscountCodeInput } from '../../../src/types/pedidos';
+import { DISCOUNT_SECTIONS } from '../../../src/types/pedidos';
+import type { DiscountSection, StaffDiscountCode, StaffDiscountCodeInput } from '../../../src/types/pedidos';
 import type { ApiResponse } from '../shared/bridge';
 import { formatPrice } from '../shared/textos';
 
@@ -25,6 +26,14 @@ const describeDates = ({ validFrom, validUntil }: StaffDiscountCode): string => 
   return 'Sin fecha';
 };
 
+/** "No aplica a Sushiburgers y Combos"; null when it's for the whole order */
+const describeExcludes = (excludes: readonly DiscountSection[]): string | null => {
+  const labels = DISCOUNT_SECTIONS.filter((section) => excludes.includes(section.id)).map((section) => section.label);
+  if (labels.length === 0) return null;
+  const list = labels.length === 1 ? labels[0] : `${labels.slice(0, -1).join(', ')} y ${labels[labels.length - 1]}`;
+  return `No aplica a ${list}`;
+};
+
 interface Draft {
   code: string;
   kind: 'percent' | 'amount';
@@ -35,6 +44,7 @@ interface Draft {
   maxUses: string;
   oncePerCustomer: boolean;
   active: boolean;
+  excludes: DiscountSection[];
 }
 
 const EMPTY_DRAFT: Draft = {
@@ -46,6 +56,7 @@ const EMPTY_DRAFT: Draft = {
   maxUses: '',
   oncePerCustomer: false,
   active: true,
+  excludes: [],
 };
 
 const toDraft = (code: StaffDiscountCode): Draft => ({
@@ -57,6 +68,7 @@ const toDraft = (code: StaffDiscountCode): Draft => ({
   maxUses: code.maxUses === null ? '' : String(code.maxUses),
   oncePerCustomer: code.oncePerCustomer,
   active: code.active,
+  excludes: code.excludes,
 });
 
 const toInput = (draft: Draft): StaffDiscountCodeInput => ({
@@ -68,6 +80,7 @@ const toInput = (draft: Draft): StaffDiscountCodeInput => ({
   maxUses: draft.maxUses.trim() ? Number(draft.maxUses) : null,
   oncePerCustomer: draft.oncePerCustomer,
   active: draft.active,
+  excludes: draft.excludes,
 });
 
 interface CodeFormProps {
@@ -159,6 +172,31 @@ function CodeForm({ editing, onSaved, onCancel }: CodeFormProps) {
           />
         </div>
       </div>
+
+      <fieldset className="field" style={{ border: 0, padding: 0, margin: 0 }}>
+        <legend className="label">Aplica a</legend>
+        <div className="inline" style={{ flexWrap: 'wrap', columnGap: 20, rowGap: 0 }}>
+          {DISCOUNT_SECTIONS.map((section) => (
+            <label key={section.id} className="check">
+              <input
+                type="checkbox"
+                checked={!draft.excludes.includes(section.id)}
+                onChange={(e) =>
+                  set(
+                    'excludes',
+                    e.target.checked ? draft.excludes.filter((id) => id !== section.id) : [...draft.excludes, section.id],
+                  )
+                }
+              />
+              {section.label}
+            </label>
+          ))}
+        </div>
+        <span className="hint">
+          Destildá lo que no entra en el descuento. En una caja de Arma tu combo se descuenta solo lo que esté tildado (rolls o
+          nigiris).
+        </span>
+      </fieldset>
 
       <div className="field">
         <label className="check">
@@ -269,6 +307,7 @@ export function DiscountCodes() {
                 <td>
                   <span className="name">{code.code}</span>
                   {code.oncePerCustomer && <span className="detail-line">Una vez por cliente</span>}
+                  {describeExcludes(code.excludes) && <span className="detail-line">{describeExcludes(code.excludes)}</span>}
                 </td>
                 <td className="num">{describeValue(code)}</td>
                 <td className="num">{describeDates(code)}</td>
