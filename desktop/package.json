@@ -1,7 +1,7 @@
 {
   "name": "ensushi-local",
   "productName": "EnSushi Local",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "description": "App de escritorio del local: recibe los pedidos de la web, confirma horario o rechaza, e imprime la comanda.",
   "main": "dist/main.js",

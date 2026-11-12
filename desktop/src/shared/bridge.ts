@@ -3,7 +3,7 @@ import type { StaffOrder } from '../../../src/types/pedidos';
 /** What the main process offers the window (exposed as `window.ensushi` by the preload) */
 
 export interface Settings {
-  /** The web's address, e.g. https://ensushi.com.ar (http://localhost:3000 in development) */
+  /** The web's address, e.g. https://ensushi.ar (http://localhost:3000 in development) */
   serverUrl: string;
   /** Windows printer name of the ticket printer ("EPSON TM-T20 Receipt"); '' = not set */
   printerName: string;

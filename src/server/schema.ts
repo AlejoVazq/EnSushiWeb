@@ -120,4 +120,19 @@ export const MIGRATIONS: readonly string[] = [
   `
   ALTER TABLE discount_codes ADD COLUMN excludes text[] NOT NULL DEFAULT '{}';
   `,
+
+  // 7 — the cash drawer: what it starts each day with; and, per delivery, who took it, the change they took and
+  // what they handed in when back
+  `
+  CREATE TABLE cash_days (
+    -- "YYYY-MM-DD" in the shop's time zone
+    day text PRIMARY KEY,
+    opening_amount integer NOT NULL CHECK (opening_amount >= 0),
+    updated_at timestamptz NOT NULL DEFAULT now()
+  );
+
+  ALTER TABLE orders ADD COLUMN driver text;
+  ALTER TABLE orders ADD COLUMN driver_float integer CHECK (driver_float >= 0);
+  ALTER TABLE orders ADD COLUMN driver_returned integer CHECK (driver_returned >= 0);
+  `,
 ];

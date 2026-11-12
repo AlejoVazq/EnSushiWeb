@@ -66,6 +66,12 @@ export interface StaffOrder {
   rejectReason: string | null;
   /** ISO date, null if never printed */
   printedAt: string | null;
+  /** Deliveries: who took it (null until someone is set) */
+  driver: string | null;
+  /** Deliveries: change the driver took from the drawer, integer ARS; null = not loaded */
+  driverFloat: number | null;
+  /** Deliveries: what the driver handed in when back (change + what they collected); null = not back yet */
+  driverReturned: number | null;
 }
 
 /** What the customer sees on their order's page */
@@ -84,7 +90,26 @@ export type StaffOrderAction =
   | { action: 'confirmar'; eta: string }
   | { action: 'rechazar'; reason: string }
   | { action: 'impreso' }
-  | { action: 'cobro'; cashAmount: number };
+  | { action: 'cobro'; cashAmount: number }
+  /** Deliveries: driver '' clears the three */
+  | { action: 'delivery'; driver: string; driverFloat: number | null; driverReturned: number | null };
+
+/** GET /api/local/caja: the day's cash drawer */
+export interface StaffCashDay {
+  /** "YYYY-MM-DD" in the shop's time zone */
+  day: string;
+  /** What the drawer started the day with (mostly change in small bills); null = not loaded yet */
+  openingAmount: number | null;
+  /** The day's confirmed orders, oldest first */
+  orders: StaffOrder[];
+  /** Drivers used lately, most recent first, to pick from */
+  drivers: string[];
+}
+
+/** PATCH /api/local/caja (only today) */
+export interface StaffCashInput {
+  openingAmount: number;
+}
 
 /** What the app can add to an order loaded by hand, as menu references: the server puts the prices */
 export type ManualLineRef =

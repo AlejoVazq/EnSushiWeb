@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import type { StaffMenu, StaffOrder } from '../../../src/types/pedidos';
+import type { StaffCashDay, StaffMenu, StaffOrder } from '../../../src/types/pedidos';
 import type { Settings } from '../shared/bridge';
 import { formatPrice, formatTime } from '../shared/textos';
 
+import { Cash } from './Cash';
 import { DiscountCodes } from './DiscountCodes';
 import { Kitchen, loadGone, saveGone, type GoneOrders } from './Kitchen';
 import { MenuToday, changeMenu } from './MenuToday';
@@ -39,12 +40,13 @@ const beep = () => {
 const errorText = (data: unknown): string =>
   typeof data === 'object' && data !== null && 'error' in data && typeof data.error === 'string' ? data.error : 'Error del servidor.';
 
-type Panel = 'pedidos' | 'cocina' | 'nuevo' | 'menu' | 'codigos' | 'ventas' | 'ajustes';
+type Panel = 'pedidos' | 'cocina' | 'nuevo' | 'caja' | 'menu' | 'codigos' | 'ventas' | 'ajustes';
 
 const NAV: readonly { panel: Panel; label: string; icon: IconName }[] = [
   { panel: 'pedidos', label: 'Pedidos', icon: 'inbox' },
   { panel: 'cocina', label: 'En cocina', icon: 'pot' },
   { panel: 'nuevo', label: 'Nuevo pedido', icon: 'plus' },
+  { panel: 'caja', label: 'Caja', icon: 'cash' },
   { panel: 'menu', label: 'Menú de hoy', icon: 'utensils' },
   { panel: 'codigos', label: 'Códigos', icon: 'tag' },
   { panel: 'ventas', label: 'Ventas', icon: 'chart' },
@@ -71,6 +73,8 @@ export function Orders({ settings, onSettingsSaved, onLoggedOut, updateVersion }
   const [connection, setConnection] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [gone, setGone] = useState<GoneOrders>(loadGone);
+  // Drivers used lately, for the order's Delivery block to suggest
+  const [usualDrivers, setUsualDrivers] = useState<string[]>([]);
   // Orders already seen, so only really new ones beep (null until the first load: those don't beep)
   const seen = useRef<Set<string> | null>(null);
 
@@ -117,11 +121,22 @@ export function Orders({ settings, onSettingsSaved, onLoggedOut, updateVersion }
     } else setMenuError(errorText(response.data));
   }, []);
 
+  const loadDrivers = useCallback(async () => {
+    const response = await window.ensushi.api('GET', '/api/local/caja');
+    if (response.status === 200 && typeof response.data === 'object' && response.data !== null) {
+      setUsualDrivers((response.data as StaffCashDay).drivers);
+    }
+  }, []);
+
   useEffect(() => {
     void loadMenu();
-    const timer = window.setInterval(() => void loadMenu(), MENU_POLL_MS);
+    void loadDrivers();
+    const timer = window.setInterval(() => {
+      void loadMenu();
+      void loadDrivers();
+    }, MENU_POLL_MS);
     return () => window.clearInterval(timer);
-  }, [loadMenu]);
+  }, [loadMenu, loadDrivers]);
 
   // Orders nobody answered keep beeping (what to do with them in the end is up to whoever runs the app)
   const ordersRef = useRef(orders);
@@ -176,6 +191,8 @@ export function Orders({ settings, onSettingsSaved, onLoggedOut, updateVersion }
   const confirmed = orders.filter((order) => order.status === 'confirmado');
   const confirmedTotal = confirmed.reduce((sum, order) => sum + order.total, 0);
   const inKitchen = confirmed.filter((order) => !gone[order.id]).length;
+  // Tonight's drivers first, then the usual ones
+  const drivers = [...new Set([...orders.flatMap((order) => (order.driver ? [order.driver] : [])), ...usualDrivers])];
   // The list re-renders with every poll (5 s), enough to keep "hace N min" current
   const now = lastUpdate?.getTime() ?? Date.now();
   const oldestPending = pending.reduce<StaffOrder | null>(
@@ -255,7 +272,7 @@ export function Orders({ settings, onSettingsSaved, onLoggedOut, updateVersion }
         <nav aria-label="Secciones">
           {NAV.map((item) => (
             <div key={item.panel} style={{ display: 'contents' }}>
-              {item.panel === 'menu' && <div className="sep" />}
+              {item.panel === 'caja' && <div className="sep" />}
               <button className="nav" aria-current={panel === item.panel ? 'page' : undefined} onClick={() => setPanel(item.panel)}>
                 <Icon name={item.icon} />
                 {item.label}
@@ -360,7 +377,7 @@ export function Orders({ settings, onSettingsSaved, onLoggedOut, updateVersion }
                 )}
               </section>
               {selected ? (
-                <OrderDetail key={selected.id} order={selected} settings={settings} now={now} onUpdated={replaceOrder} />
+                <OrderDetail key={selected.id} order={selected} settings={settings} now={now} drivers={drivers} onUpdated={replaceOrder} />
               ) : (
                 <div className="center-screen">
                   <p className="muted" style={{ textAlign: 'center' }}>
@@ -384,6 +401,9 @@ export function Orders({ settings, onSettingsSaved, onLoggedOut, updateVersion }
               onOpen={openOrder}
             />
           )}
+          <div hidden={panel !== 'caja'}>
+            <Cash visible={panel === 'caja'} />
+          </div>
           {panel === 'menu' && <MenuToday menu={menu} loadError={menuError} onChange={setMenu} />}
           {panel === 'codigos' && <DiscountCodes />}
           {panel === 'ventas' && <Sales />}

@@ -175,6 +175,9 @@ export interface OrderRow {
   eta: string | null;
   reject_reason: string | null;
   printed_at: Date | string | null;
+  driver: string | null;
+  driver_float: number | null;
+  driver_returned: number | null;
 }
 
 const iso = (value: Date | string): string => new Date(value).toISOString();
@@ -203,6 +206,9 @@ export const toStaffOrder = (row: OrderRow): StaffOrder => ({
   eta: row.eta,
   rejectReason: row.reject_reason,
   printedAt: row.printed_at ? iso(row.printed_at) : null,
+  driver: row.driver,
+  driverFloat: row.driver_float,
+  driverReturned: row.driver_returned,
 });
 
 /** The shop app's list: everything from the last `hours` hours, newest first */
@@ -256,6 +262,8 @@ export const getCustomerOrder = async (customerId: string, orderId: string): Pro
 // ─── Shop decisions ─────────────────────────────────────────────────────────
 
 const ETA_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
+/** Cash amounts the app loads (a drawer, a driver's change): sanity limit */
+export const MAX_CASH = 10_000_000;
 
 export type DecisionResult = { ok: true; order: StaffOrder } | { ok: false; status: number; error: string };
 
@@ -300,6 +308,29 @@ export const applyStaffAction = async (orderId: string, body: unknown): Promise<
       if (order.payment_method !== 'mixed') return { ok: false, status: 400, error: 'Solo los pagos mixtos se reparten.' };
       if (cashAmount > order.total) return { ok: false, status: 400, error: 'El efectivo no puede pasar el total.' };
       rows = await db.query<OrderRow>('UPDATE orders SET cash_amount = $2 WHERE id = $1 RETURNING *', [orderId, cashAmount]);
+      break;
+    }
+    case 'delivery': {
+      // Who took a delivery, the change they took and what they handed in when back
+      const driver = text(body.driver, 40).trim();
+      const amount = (value: unknown): number | null | undefined =>
+        value === null || value === undefined ? null : typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= MAX_CASH ? value : undefined;
+      const driverFloat = amount(body.driverFloat);
+      const driverReturned = amount(body.driverReturned);
+      if (driverFloat === undefined || driverReturned === undefined) {
+        return { ok: false, status: 400, error: 'Los montos van en pesos, sin centavos.' };
+      }
+      const [order] = await db.query<OrderRow>('SELECT * FROM orders WHERE id = $1', [orderId]);
+      if (!order) return { ok: false, status: 404, error: 'No existe ese pedido.' };
+      if (order.delivery_method !== 'delivery') return { ok: false, status: 400, error: 'Solo los envíos llevan delivery.' };
+      if (order.status !== 'confirmado') return { ok: false, status: 400, error: 'Primero confirmá el pedido.' };
+      if (!driver && (driverFloat !== null || driverReturned !== null)) {
+        return { ok: false, status: 400, error: 'Falta quién lo lleva.' };
+      }
+      rows = await db.query<OrderRow>(
+        'UPDATE orders SET driver = $2, driver_float = $3, driver_returned = $4 WHERE id = $1 RETURNING *',
+        [orderId, driver || null, driverFloat, driverReturned],
+      );
       break;
     }
     default:

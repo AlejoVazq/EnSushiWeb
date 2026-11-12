@@ -15,6 +15,7 @@ import {
   rejectMessage,
 } from '../shared/textos';
 
+import { DeliveryBlock, DriversList } from './Delivery';
 import { Icon, isTyping, Kbd } from './ui';
 
 const QUICK_MINUTES = [15, 30, 45, 60] as const;
@@ -93,11 +94,13 @@ interface OrderDetailProps {
   settings: Settings;
   /** For "hace N min"; moves with the list's polling */
   now: number;
+  /** Delivery drivers to suggest */
+  drivers: readonly string[];
   onUpdated: (order: StaffOrder) => void;
 }
 
 /** The comanda, and the answer: an approximate time (confirm) or a reason (reject), then WhatsApp */
-export function OrderDetail({ order, settings, now, onUpdated }: OrderDetailProps) {
+export function OrderDetail({ order, settings, now, drivers, onUpdated }: OrderDetailProps) {
   // Empty until the person answering sets it: the app never picks the time on its own
   const [eta, setEta] = useState(order.eta ?? '');
   // Which quick button set the time, to show it pressed (null once the time is typed by hand)
@@ -304,6 +307,18 @@ export function OrderDetail({ order, settings, now, onUpdated }: OrderDetailProp
 
         {order.paymentMethod === 'mixed' && order.status !== 'rechazado' && (
           <MixedPayment key={order.cashAmount ?? 'none'} order={order} send={send} />
+        )}
+
+        {order.deliveryMethod === 'delivery' && order.status === 'confirmado' && (
+          <>
+            <DriversList drivers={drivers} />
+            <DeliveryBlock
+              key={`${order.driver ?? ''}:${order.driverFloat ?? ''}:${order.driverReturned ?? ''}:${order.cashAmount ?? ''}`}
+              order={order}
+              drivers={drivers}
+              onSaved={onUpdated}
+            />
+          </>
         )}
       </div>
 

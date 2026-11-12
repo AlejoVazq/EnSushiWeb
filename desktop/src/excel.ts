@@ -99,6 +99,9 @@ export const salesWorkbook = async (orders: readonly StaffOrder[], from: string,
       { header: 'Total', width: 12, money: true },
       { header: 'Productos', width: 50 },
       { header: 'Observaciones', width: 36 },
+      { header: 'Delivery', width: 16 },
+      { header: 'Cambio que se llevó', width: 14, money: true },
+      { header: 'Entregó', width: 12, money: true },
     ],
     orders.map((order) => {
       const split = paymentSplit(order);
@@ -120,6 +123,9 @@ export const salesWorkbook = async (orders: readonly StaffOrder[], from: string,
         order.total,
         order.lines.map((line) => `${line.quantity}x ${line.name}`).join(', '),
         order.notes ?? '',
+        order.driver ?? '',
+        order.driverFloat,
+        order.driverReturned,
       ];
     }),
   );
