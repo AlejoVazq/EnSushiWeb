@@ -92,7 +92,7 @@ En lugar de WhatsApp, el pedido va a nuestro servidor y lo recibe la app de escr
 
 **Falta (app de pedidos):**
 - [x] Servidor en marcha (2026-11-11): `ensushi.ar` corre `app-pedidos` en el VPS propio con PostgreSQL 18, Caddy detrás de Cloudflare (nube naranja; Caddy toma la IP real de `CF-Connecting-IP` solo desde rangos de Cloudflare) y correo por Resend (SMTP, `pedidos@ensushi.ar`, llega a Principal en Gmail). Datos y comandos en `VPS-pendientes.md` (no se versiona). Probado ahí: pedido web de punta a punta, app 0.1.1, confirmar y comanda impresa.
-- [ ] **Al retomar:** sacar `2026-11-11` de `extraOpenDates` (se abrió para probar; después de ese día ya no aplica) y borrar los pedidos y códigos de prueba de la base.
+- [ ] **Al retomar:** sacar `2026-11-12` de `extraOpenDates` (se abrió para probar el ingreso con correo; después de ese día ya no aplica) y borrar los pedidos y códigos de prueba de la base.
 - [ ] Terminar de probar en el servidor: agotados, pausa, códigos, rechazo, pedido a mano y Ventas; confirmar que la comanda salió entera a 72 mm y que WhatsApp se abrió al confirmar.
 - [x] **Ingreso con correo más simple** (2026-11-12): ventana `LoginSheet` desde el carrito que explica por qué se pide el correo, y sesión que se renueva sola. Elegida la variante "desde abajo" (`.impeccable/mocks/decision/ingreso-correo.html`). Probado en el navegador de desarrollo; falta en el celular y en el servidor.
 - [ ] **Animación de entrada** al abrir la página (sin definir: ver opciones juntos, con maquetas en HTML).
