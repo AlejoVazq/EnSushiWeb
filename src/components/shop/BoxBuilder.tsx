@@ -308,7 +308,7 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
               <label
                 key={candidate.id}
                 className={cn(
-                  'flex min-h-16 cursor-pointer flex-col items-center justify-center rounded-lg border px-2 text-center leading-tight transition-colors',
+                  'flex min-h-16 cursor-pointer flex-col items-center justify-center rounded-lg border px-2 text-center leading-tight transition',
                   'has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-washi',
                   selected ? 'border-washi bg-sumi-2 text-washi' : 'border-hairline-strong text-washi-muted',
                   !selected && !disabled && 'hover:border-washi-muted hover:text-washi',
@@ -490,7 +490,7 @@ function BarButton({ children, onClick, disabled = false, outline = false }: Bar
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'h-11 rounded-xl px-4 text-sm font-bold whitespace-nowrap tabular-nums transition-colors',
+        'h-11 rounded-xl px-4 text-sm font-bold whitespace-nowrap tabular-nums transition',
         'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sumi',
         disabled || outline
           ? 'border-[1.5px] border-sumi/40 text-sumi'

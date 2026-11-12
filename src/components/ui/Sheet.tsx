@@ -60,7 +60,7 @@ export function Sheet({ open, onClose, title, side = 'right', children, footer }
             type="button"
             onClick={onClose}
             aria-label="Cerrar"
-            className="grid size-11 place-items-center rounded-full text-washi-muted transition-colors hover:bg-sumi-2 hover:text-washi focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi"
+            className="grid size-11 place-items-center rounded-full text-washi-muted transition hover:bg-sumi-2 hover:text-washi focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi"
           >
             <CloseIcon />
           </button>

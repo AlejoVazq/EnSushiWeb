@@ -33,7 +33,7 @@ export function Textarea({ label, hint, error, id, className, ...props }: Textar
         aria-invalid={error ? true : undefined}
         aria-describedby={message ? messageId : undefined}
         className={cn(
-          'min-h-24 resize-y rounded-xl border bg-sumi-1 px-4 py-3 text-base text-washi caret-washi transition-colors placeholder:text-washi-muted',
+          'min-h-24 resize-y rounded-xl border bg-sumi-1 px-4 py-3 text-base text-washi caret-washi transition placeholder:text-washi-muted',
           'focus:border-washi focus:outline-2 focus:outline-offset-2 focus:outline-washi',
           error ? 'border-error' : 'border-field-edge',
           className,
@@ -66,7 +66,7 @@ export function Input({ label, hint, error, id, className, ...props }: InputProp
         aria-describedby={message ? messageId : undefined}
         className={cn(
           // text-base keeps iOS from zooming in on focus
-          'h-12 rounded-xl border bg-sumi-1 px-4 text-base text-washi caret-washi transition-colors placeholder:text-washi-muted',
+          'h-12 rounded-xl border bg-sumi-1 px-4 text-base text-washi caret-washi transition placeholder:text-washi-muted',
           'focus:border-washi focus:outline-2 focus:outline-offset-2 focus:outline-washi',
           error ? 'border-error' : 'border-field-edge',
           className,

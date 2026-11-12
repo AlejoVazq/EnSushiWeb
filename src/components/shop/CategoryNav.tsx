@@ -65,14 +65,14 @@ export function CategoryNav({ active, onSelect }: CategoryNavProps) {
               tabIndex={selected ? 0 : -1}
               onClick={() => onSelect(category.id)}
               className={cn(
-                'inline-flex h-17 shrink-0 flex-col items-center justify-center gap-1 px-2.5 text-[0.8125rem] transition-colors',
+                'inline-flex h-17 shrink-0 flex-col items-center justify-center gap-1 px-2.5 text-[0.8125rem] transition',
                 'focus-visible:-outline-offset-2 focus-visible:outline-2 focus-visible:outline-washi',
                 selected
                   ? 'font-bold text-washi shadow-[inset_0_-2px_0_currentColor]'
                   : 'font-medium text-washi-muted hover:text-washi',
               )}
             >
-              <Icon className="size-6" />
+              <Icon className={cn('size-6', selected && 'animate-tab-pop')} />
               {category.name}
             </button>
           );

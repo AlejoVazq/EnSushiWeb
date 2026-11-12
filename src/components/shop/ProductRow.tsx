@@ -90,7 +90,7 @@ function ChoicePicker<T extends string | number>({
             <label
               key={choice.value}
               className={cn(
-                'relative flex min-h-11 cursor-pointer flex-col in-disabled:cursor-default items-center justify-center rounded-lg border px-2 py-1.5 text-center text-sm leading-tight transition-colors',
+                'relative flex min-h-11 cursor-pointer flex-col in-disabled:cursor-default items-center justify-center rounded-lg border px-2 py-1.5 text-center text-sm leading-tight transition',
                 'has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-washi',
                 selected && !disabled
                   ? 'border-washi bg-sumi-2 text-washi'

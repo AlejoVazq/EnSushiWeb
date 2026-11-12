@@ -27,7 +27,7 @@ export function OrderSummary({ items, discount, deliveryFee }: OrderSummaryProps
         </h2>
         <Link
           href="/"
-          className="-mr-2 inline-flex h-11 items-center rounded-[10px] px-2 text-sm font-bold text-washi underline underline-offset-4 transition-colors hover:bg-sumi-2 focus-visible:outline-2 focus-visible:outline-washi"
+          className="-mr-2 inline-flex h-11 items-center rounded-[10px] px-2 text-sm font-bold text-washi underline underline-offset-4 transition hover:bg-sumi-2 focus-visible:outline-2 focus-visible:outline-washi"
         >
           Editar
         </Link>

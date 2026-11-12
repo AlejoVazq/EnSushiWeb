@@ -112,7 +112,7 @@ function CartLine({ item, onEdit, onRemove, canAdd, titleRef, soldOut }: CartLin
               type="button"
               onClick={onEdit}
               aria-label={`Editar ${name}`}
-              className="h-11 rounded-[10px] border border-hairline-strong px-3.5 text-sm font-bold text-washi transition-colors hover:border-washi hover:bg-sumi-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi"
+              className="h-11 rounded-[10px] border border-hairline-strong px-3.5 text-sm font-bold text-washi transition hover:border-washi hover:bg-sumi-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi"
             >
               Editar
             </button>
@@ -163,7 +163,7 @@ function UndoRow({ message, onUndo, buttonRef }: { message: string; onUndo: () =
         type="button"
         ref={buttonRef}
         onClick={onUndo}
-        className="h-11 shrink-0 rounded-[10px] px-3 text-sm font-bold text-washi underline underline-offset-4 transition-colors hover:bg-sumi-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi"
+        className="h-11 shrink-0 rounded-[10px] px-3 text-sm font-bold text-washi underline underline-offset-4 transition hover:bg-sumi-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi"
       >
         Deshacer
       </button>
@@ -327,7 +327,7 @@ export function CartDrawer({ layout, open = false, onClose, onCheckout, onEditBo
               onClick={() => leave(onCheckout)}
               // Closed: the notice above says when the shop opens; sold out: the line says it
               disabled={!canOrder || soldOutInCart.length > 0}
-              className="flex h-14 w-full items-center justify-center rounded-2xl bg-washi font-bold text-sumi transition-colors hover:bg-washi/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi disabled:pointer-events-none disabled:opacity-40"
+              className="flex h-14 w-full items-center justify-center rounded-2xl bg-washi font-bold text-sumi transition hover:bg-washi/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi disabled:pointer-events-none disabled:opacity-40"
             >
               Continuar con el pedido
             </button>
@@ -366,7 +366,7 @@ export function CartDrawer({ layout, open = false, onClose, onCheckout, onEditBo
               <button
                 type="button"
                 onClick={() => leave(onClose)}
-                className="mt-3 h-11 rounded-[10px] border border-hairline-strong px-4 text-sm font-bold transition-colors hover:border-washi hover:bg-sumi-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi"
+                className="mt-3 h-11 rounded-[10px] border border-hairline-strong px-4 text-sm font-bold transition hover:border-washi hover:bg-sumi-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi"
               >
                 Ver el menú
               </button>
@@ -383,14 +383,14 @@ export function CartDrawer({ layout, open = false, onClose, onCheckout, onEditBo
                 <button
                   type="button"
                   onClick={() => setConfirmingClear(false)}
-                  className="h-11 rounded-[10px] px-3 text-sm font-bold text-washi-muted transition-colors hover:bg-sumi-2 hover:text-washi focus-visible:outline-2 focus-visible:outline-washi"
+                  className="h-11 rounded-[10px] px-3 text-sm font-bold text-washi-muted transition hover:bg-sumi-2 hover:text-washi focus-visible:outline-2 focus-visible:outline-washi"
                 >
                   No
                 </button>
                 <button
                   type="button"
                   onClick={clearAll}
-                  className="h-11 rounded-[10px] border border-hairline-strong px-3.5 text-sm font-bold text-washi transition-colors hover:border-washi focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi"
+                  className="h-11 rounded-[10px] border border-hairline-strong px-3.5 text-sm font-bold text-washi transition hover:border-washi focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi"
                 >
                   Sí, vaciar
                 </button>
@@ -399,7 +399,7 @@ export function CartDrawer({ layout, open = false, onClose, onCheckout, onEditBo
               <button
                 type="button"
                 onClick={() => setConfirmingClear(true)}
-                className="h-11 rounded-[10px] px-3 text-sm font-bold text-washi-muted transition-colors hover:bg-sumi-2 hover:text-washi focus-visible:outline-2 focus-visible:outline-washi"
+                className="h-11 rounded-[10px] px-3 text-sm font-bold text-washi-muted transition hover:bg-sumi-2 hover:text-washi focus-visible:outline-2 focus-visible:outline-washi"
               >
                 Vaciar pedido
               </button>

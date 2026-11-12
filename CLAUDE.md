@@ -2,7 +2,7 @@
 
 ## Stack
 - Next.js (App Router) + React, TypeScript estricto (interfaces exactas, sin `any`).
-- Tailwind CSS v4 (sin tailwind.config: tokens y tema en `src/app/globals.css` con `@theme`). Dark mode por defecto, estética premium y limpia (marca de sushi high-end). Mobile-first.
+- Tailwind CSS v4 (sin tailwind.config: tokens y tema en `src/app/globals.css` con `@theme`). Tema claro (desde 2026-11-12: fondo gris perla `#e4e6ea`, grafito `#2b2d33` para letras y botones, bermellón solo para "en tu pedido"), estética premium y limpia (marca de sushi high-end). Micro-interacciones: todo botón se hunde al presionarlo (`globals.css`), una sola curva `cubic-bezier(0.22,1,0.36,1)`. Mobile-first.
 - Zustand para el estado global del carrito.
 - Componentes modulares; lógica de negocio separada de la UI.
 - Carga en celular con mala señal: fotos con `next/image` (AVIF/WebP y anchos en `images` de `next.config.ts`; el `width`/`height` de una imagen fija es su tamaño en pantalla, no el del archivo). `useWarmMenuPhotos` baja las fotos de las otras pestañas cuando la página queda libre (no con ahorro de datos ni en 2G). M PLUS Rounded va con `next/font/local` (`src/app/fonts/`), no con `next/font/google`.
@@ -96,7 +96,7 @@ En lugar de WhatsApp, el pedido va a nuestro servidor y lo recibe la app de escr
 - [x] Base limpia para empezar (2026-11-12): se borraron el pedido de prueba, las cuentas y sus sesiones, y la numeración arranca de nuevo en #1. Copia previa en el servidor: `/srv/ensushi/respaldos/antes-de-limpiar-2026-11-12.dump`.
 - [ ] Terminar de probar en el servidor: agotados, pausa, códigos, rechazo, pedido a mano y Ventas; confirmar que la comanda salió entera a 72 mm y que WhatsApp se abrió al confirmar.
 - [x] **Ingreso con correo más simple** (2026-11-12): ventana `LoginSheet` desde el carrito que explica por qué se pide el correo, y sesión que se renueva sola. Elegida la variante "desde abajo" (`.impeccable/mocks/decision/ingreso-correo.html`). Probado en el navegador de desarrollo; falta en el celular y en el servidor.
-- [ ] **Animación de entrada** al abrir la página (sin definir: ver opciones juntos, con maquetas en HTML).
+- [ ] **Animación de entrada** al abrir la página (sin definir: una sesión entera para eso, con maquetas en HTML; las micro-interacciones de botones ya están).
 - [x] Probar la impresión real en la TM-T20 con su driver (se cortaba a la derecha: la comanda ahora mide 72 mm). Falta reimprimir para confirmar el ajuste.
 - [ ] Probar que WhatsApp se abra en la PC del local.
 - [x] Instalador `.exe` con actualización automática (`cd desktop && npm run dist`, electron-builder NSIS sin firmar + electron-updater "generic" desde `<servidor>/app-local/`; la versión nueva se baja sola y se instala al cerrar o con "Actualizar ahora"). Probado acá de 0.1.0 a 0.1.1 hasta el aviso, sin instalar; falta instalarlo en la PC del local.

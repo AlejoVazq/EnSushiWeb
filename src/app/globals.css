@@ -1,23 +1,30 @@
 @import "tailwindcss";
 
-/* Dark-only theme, "Sello y sumi" (see DESIGN.md). Semantic tokens: bg-sumi, border-hairline, text-washi, bg-shu… */
+/* Tema claro de prueba (2026-11-12): gris perla de fondo, grafito para letras y botones, bermellón para "en tu pedido".
+   Los nombres siguen siendo los de "Sello y sumi" (sumi = fondo, washi = tinta) para no tocar los componentes.
+   Oscuro anterior: sumi #141210 / #1d1a17 / #262220, hairline #34302b / #4d463e, washi #f1ebe0 / #b9b0a2,
+   field-edge #7a7268, error #e8768f, kin #e9b949. */
 @theme {
-  --color-sumi: #141210;
-  --color-sumi-1: #1d1a17;
-  --color-sumi-2: #262220;
-  --color-hairline: #34302b;
-  --color-hairline-strong: #4d463e;
-  --color-washi: #f1ebe0;
-  --color-washi-muted: #b9b0a2;
+  --color-sumi: #e4e6ea;
+  --color-sumi-1: #eceef1;
+  --color-sumi-2: #d7dae0;
+  --color-hairline: #cbced5;
+  --color-hairline-strong: #a9adb6;
+  --color-washi: #2b2d33;
+  --color-washi-muted: #5c5f68;
   /* Bermellón: solo "en tu pedido" */
   --color-shu: #c8432b;
   --color-shu-fg: #fff6ee;
-  /* Borde de campos de texto (3:1 sobre la tinta); nunca para texto */
-  --color-field-edge: #7a7268;
+  /* Borde de campos de texto (3:1 sobre el fondo); nunca para texto */
+  --color-field-edge: #7d818a;
   /* Rosa frío: solo errores de campos, distinto del bermellón */
-  --color-error: #e8768f;
-  /* Kin (oro): solo descuentos (sello "−15% hoy", montos descontados); texto encima en sumi */
-  --color-kin: #e9b949;
+  --color-error: #b3264d;
+  /* Kin (oro): solo descuentos; más oscuro para leerse sobre el gris */
+  --color-kin: #a87400;
+
+  /* Movimiento: una sola curva (sale rápido, aterriza suave); presionar 80ms, soltar 160ms */
+  --default-transition-duration: 160ms;
+  --default-transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 
   --animate-stamp: stamp 220ms cubic-bezier(0.22, 1, 0.36, 1);
 
@@ -42,6 +49,23 @@
   @keyframes fade-in {
     from { opacity: 0; }
   }
+
+  /* Cambio de pestaña: el contenido sube 8px y aparece */
+  --animate-panel-in: panel-in 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  /* Ícono de la pestaña elegida: un saltito chico, sin rebote */
+  --animate-tab-pop: tab-pop 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  /* Barra "Ver pedido" al aparecer */
+  --animate-bar-up: bar-up 300ms cubic-bezier(0.22, 1, 0.36, 1);
+
+  @keyframes panel-in {
+    from { opacity: 0; transform: translateY(8px); }
+  }
+  @keyframes tab-pop {
+    40% { transform: translateY(-3px) scale(1.12); }
+  }
+  @keyframes bar-up {
+    from { opacity: 0; transform: translateY(24px); }
+  }
 }
 
 @theme inline {
@@ -57,7 +81,7 @@
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html {
@@ -67,6 +91,14 @@ html {
 /* Lock page scroll while a Sheet (native <dialog>) is open */
 html:has(dialog[open]) {
   overflow: hidden;
+}
+
+/* Todo botón se hunde al presionarlo (rápido) y vuelve con la curva de la marca */
+@layer base {
+  button:not(:disabled):active {
+    scale: 0.96;
+    transition-duration: 80ms;
+  }
 }
 
 body {

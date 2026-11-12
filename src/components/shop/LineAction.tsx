@@ -38,10 +38,10 @@ export function HollowSeal({ children, title }: { children: ReactNode; title?: s
 }
 
 export const stepButtonClassName =
-  'grid size-11 place-items-center rounded-full text-washi-muted transition-colors hover:bg-sumi-2 hover:text-washi focus-visible:outline-2 focus-visible:outline-washi disabled:pointer-events-none disabled:opacity-35';
+  'grid size-11 place-items-center rounded-full text-washi-muted transition hover:bg-sumi-2 hover:text-washi focus-visible:outline-2 focus-visible:outline-washi disabled:pointer-events-none disabled:opacity-35';
 
 export const addButtonClassName =
-  'grid size-11 shrink-0 place-items-center rounded-[10px] border border-hairline-strong text-washi transition-colors hover:border-washi hover:bg-sumi-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi disabled:pointer-events-none disabled:opacity-35';
+  'grid size-11 shrink-0 place-items-center rounded-[10px] border border-hairline-strong text-washi transition hover:border-washi [&_svg]:transition-transform [&_svg]:duration-200 hover:[&_svg]:rotate-90 hover:bg-sumi-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi disabled:pointer-events-none disabled:opacity-35';
 
 interface LineActionProps {
   lineId: string;
@@ -50,7 +50,7 @@ interface LineActionProps {
   onAdd: () => void;
 }
 
-/** "+" until the line is in the order; then − seal +. Removing the line is the cart's job, so − stops at 1. */
+/** "+" until the line is in the order; then − seal +. − at 1 takes it out of the order (back to "+"). */
 export function LineAction({ lineId, label, onAdd }: LineActionProps) {
   const quantity = useLineQuantity(lineId);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
@@ -68,8 +68,7 @@ export function LineAction({ lineId, label, onAdd }: LineActionProps) {
       <button
         type="button"
         onClick={() => updateQuantity(lineId, quantity - 1)}
-        disabled={quantity <= 1}
-        aria-label={`Quitar uno de ${label}`}
+        aria-label={quantity <= 1 ? `Sacar ${label} del pedido` : `Quitar uno de ${label}`}
         className={stepButtonClassName}
       >
         <MinusIcon />

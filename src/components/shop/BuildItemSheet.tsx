@@ -17,7 +17,7 @@ import { ItemDrawing } from './ItemDrawing';
 const { preorderCutoff } = BUSINESS.schedule;
 
 const plateClassName =
-  'flex h-14 w-full items-center justify-center rounded-2xl bg-washi px-4 font-bold text-sumi tabular-nums transition-colors hover:bg-washi/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi disabled:pointer-events-none disabled:opacity-40';
+  'flex h-14 w-full items-center justify-center rounded-2xl bg-washi px-4 font-bold text-sumi tabular-nums transition hover:bg-washi/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi disabled:pointer-events-none disabled:opacity-40';
 
 interface BuildItemSheetProps {
   /** Last item opened: kept while the sheet closes so its content doesn't vanish mid-animation */
@@ -89,7 +89,7 @@ export function BuildItemSheet({ item, open, onClose, steps, fits, blocked, clos
         <button
           type="button"
           onClick={onClose}
-          className="h-14 flex-1 rounded-2xl border border-hairline-strong font-bold text-washi transition-colors hover:border-washi hover:bg-sumi-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi"
+          className="h-14 flex-1 rounded-2xl border border-hairline-strong font-bold text-washi transition hover:border-washi hover:bg-sumi-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi"
         >
           Listo
         </button>

@@ -110,7 +110,7 @@ function ChoiceCards<T extends string>({ name, legend, options, value, onChange,
             <label
               key={option.value}
               className={cn(
-                'relative flex cursor-pointer flex-col gap-2 rounded-xl border p-4 transition-colors',
+                'relative flex cursor-pointer flex-col gap-2 rounded-xl border p-4 transition',
                 spansRow ? 'col-span-2' : 'min-h-32',
                 'has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-washi',
                 selected
@@ -234,7 +234,7 @@ function DiscountCodeField({ applied, onApply, onRemove, extraCodes, discount }:
           <button
             type="button"
             onClick={onRemove}
-            className="-mr-2 h-11 shrink-0 rounded-[10px] px-2 font-bold text-washi underline underline-offset-4 transition-colors hover:bg-sumi-1 focus-visible:outline-2 focus-visible:outline-washi"
+            className="-mr-2 h-11 shrink-0 rounded-[10px] px-2 font-bold text-washi underline underline-offset-4 transition hover:bg-sumi-1 focus-visible:outline-2 focus-visible:outline-washi"
           >
             Quitar
           </button>
@@ -256,7 +256,7 @@ function DiscountCodeField({ applied, onApply, onRemove, extraCodes, discount }:
           setOpen(true);
           requestAnimationFrame(() => inputRef.current?.focus());
         }}
-        className="-ml-2 inline-flex h-11 items-center rounded-[10px] px-2 text-sm font-bold text-washi underline underline-offset-4 transition-colors hover:bg-sumi-2 focus-visible:outline-2 focus-visible:outline-washi"
+        className="-ml-2 inline-flex h-11 items-center rounded-[10px] px-2 text-sm font-bold text-washi underline underline-offset-4 transition hover:bg-sumi-2 focus-visible:outline-2 focus-visible:outline-washi"
       >
         ¿Tenés un código de descuento?
       </button>
@@ -293,7 +293,7 @@ function DiscountCodeField({ applied, onApply, onRemove, extraCodes, discount }:
             }
           }}
           className={cn(
-            'h-12 min-w-0 flex-1 rounded-xl border bg-sumi-1 px-4 text-base text-washi uppercase caret-washi transition-colors',
+            'h-12 min-w-0 flex-1 rounded-xl border bg-sumi-1 px-4 text-base text-washi uppercase caret-washi transition',
             'focus:border-washi focus:outline-2 focus:outline-offset-2 focus:outline-washi',
             error ? 'border-error' : 'border-field-edge',
           )}
@@ -302,7 +302,7 @@ function DiscountCodeField({ applied, onApply, onRemove, extraCodes, discount }:
           type="button"
           onClick={() => void apply()}
           disabled={checking}
-          className="h-12 shrink-0 rounded-xl border border-hairline-strong px-4 text-sm font-bold text-washi transition-colors hover:border-washi hover:bg-sumi-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi disabled:opacity-60"
+          className="h-12 shrink-0 rounded-xl border border-hairline-strong px-4 text-sm font-bold text-washi transition hover:border-washi hover:bg-sumi-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi disabled:opacity-60"
         >
           {checking ? 'Revisando…' : 'Aplicar'}
         </button>
@@ -321,7 +321,7 @@ function PageShell({ children }: { children: ReactNode }) {
     <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 sm:py-10">
       <Link
         href="/"
-        className="-ml-2 inline-flex h-11 items-center rounded-[10px] px-2 text-sm font-bold text-washi-muted transition-colors hover:bg-sumi-2 hover:text-washi focus-visible:outline-2 focus-visible:outline-washi"
+        className="-ml-2 inline-flex h-11 items-center rounded-[10px] px-2 text-sm font-bold text-washi-muted transition hover:bg-sumi-2 hover:text-washi focus-visible:outline-2 focus-visible:outline-washi"
       >
         ← Volver al menú
       </Link>

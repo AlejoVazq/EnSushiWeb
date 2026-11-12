@@ -16,7 +16,7 @@ export interface ButtonProps extends ComponentProps<'button'>, ButtonStyleProps 
 
 /** primary is the crema plate (one per screen); secondary is outlined; ghost is text */
 const VARIANTS: Record<ButtonVariant, string> = {
-  primary: 'bg-washi text-sumi hover:bg-washi/90',
+  primary: 'bg-washi text-sumi hover:-translate-y-px hover:bg-washi/90 hover:shadow-lg hover:shadow-black/40',
   secondary: 'border border-hairline-strong text-washi hover:border-washi hover:bg-sumi-1',
   ghost: 'text-washi-muted hover:bg-sumi-2 hover:text-washi',
 };
@@ -37,7 +37,7 @@ export const buttonClassName = ({
   className,
 }: ButtonStyleProps = {}): string =>
   cn(
-    'inline-flex shrink-0 items-center justify-center font-bold transition-colors',
+    'inline-flex shrink-0 items-center justify-center font-bold transition',
     'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi',
     'disabled:pointer-events-none disabled:opacity-40',
     VARIANTS[variant],

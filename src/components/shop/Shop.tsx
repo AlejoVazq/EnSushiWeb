@@ -92,7 +92,7 @@ export function Shop() {
       <div className="flex flex-1 flex-col">
         <SiteHeader onOpenCart={openCart} />
 
-        <div className="mx-auto w-full max-w-7xl flex-1 px-4 pb-16 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-10">
+        <div className="mx-auto w-full max-w-7xl flex-1 px-4 pb-16 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_26rem] lg:items-start lg:gap-10">
           <main className="min-w-0">
             <h1 className="sr-only">{BUSINESS.name} · Menú</h1>
             <div className="pt-4 pb-2">

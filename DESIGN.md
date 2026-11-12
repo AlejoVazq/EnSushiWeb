@@ -1,19 +1,19 @@
 ---
 name: EnSushi
-description: Pedidos online de sushi de autor, en dark mode, para el celular y de noche.
+description: Pedidos online de sushi de autor, en tema claro gris perla y grafito, para el celular.
 colors:
-  sumi: "#141210"
-  sumi-1: "#1d1a17"
-  sumi-2: "#262220"
-  hairline: "#34302b"
-  hairline-strong: "#4d463e"
-  washi: "#f1ebe0"
-  washi-muted: "#b9b0a2"
+  sumi: "#e4e6ea"
+  sumi-1: "#eceef1"
+  sumi-2: "#d7dae0"
+  hairline: "#cbced5"
+  hairline-strong: "#a9adb6"
+  washi: "#2b2d33"
+  washi-muted: "#5c5f68"
   shu: "#c8432b"
   shu-fg: "#fff6ee"
-  field-edge: "#7a7268"
-  error: "#e8768f"
-  kin: "#e9b949"
+  field-edge: "#7d818a"
+  error: "#b3264d"
+  kin: "#a87400"
 typography:
   headline:
     fontFamily: "M PLUS Rounded 1c, ui-rounded, system-ui, sans-serif"
@@ -145,7 +145,7 @@ El sistema sale del hanko, el sello de pasta bermellón, apoyado sobre papel y t
 
 Es una pantalla para usar, no una vidriera. El menú es una lista de filas comparables (foto cuadrada, nombre, descripción, tamaños con su precio a la vista y la acción a la derecha), no una grilla de tarjetas grandes. La jerarquía sale de la escala y el peso de dos familias redondeadas, parientes del lettering blando del logo; no hay ornamento, porque el sello es el único dibujo de la página. Los avisos de horario van en una banda crema y la acción principal en una placa crema invertida: el rojo nunca avisa ni manda, solo marca lo elegido.
 
-El tema es solo oscuro (`color-scheme: dark`): se pide de noche, desde el celular, muchas veces con poca luz.
+Desde el 2026-11-12 el tema es claro (`color-scheme: light`): gris perla de fondo (`sumi` #e4e6ea), grafito para letras, íconos y botones (`washi` #2b2d33) y el mismo bermellón para lo que está en el pedido. Los tokens conservan los nombres de "Sello y sumi" (`sumi` = fondo, `washi` = tinta), así que donde este documento dice "tinta" o "crema" hay que leer fondo gris perla y grafito. Los contrastes citados abajo son del tema oscuro anterior y hay que volver a medirlos. El logo (PNG blanco) se tiñe de grafito con un filtro hasta tener su versión oscura.
 
 **Key Characteristics:**
 - Tinta sumi en tres capas (sumi → sumi-1 → sumi-2) separadas por filetes de 1px.

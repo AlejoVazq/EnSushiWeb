@@ -81,7 +81,7 @@ function useRowScroll() {
 }
 
 const arrowClassName =
-  'grid size-11 place-items-center rounded-full border border-hairline-strong text-washi transition-colors hover:border-washi hover:bg-sumi-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi disabled:pointer-events-none disabled:opacity-35';
+  'grid size-11 place-items-center rounded-full border border-hairline-strong text-washi transition hover:border-washi hover:bg-sumi-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi disabled:pointer-events-none disabled:opacity-35';
 
 const isPlainProduct = (product: { type: string }): product is StandardProduct => product.type === 'standard';
 
