@@ -55,14 +55,14 @@
 4. **Acción**: generar URL `wa.me` con el pedido.
 
 ## Pedidos por app (rama `app-pedidos`)
-En lugar de WhatsApp, el pedido va a nuestro servidor y lo recibe la app de escritorio del local (`desktop/`, Electron), que confirma con horario aproximado o rechaza, abre WhatsApp con el mensaje e imprime la comanda (Epson TM-T20 por su driver de Windows). Todo detrás de `PEDIDOS_POR_APP=1` (servidor) y `NEXT_PUBLIC_PEDIDOS_POR_APP=1` (checkout); sin eso la web sigue con WhatsApp. `main` sigue desplegado en Vercel solo con WhatsApp.
+En lugar de WhatsApp, el pedido va a nuestro servidor y lo recibe la app de escritorio del local (`desktop/`, Electron), que confirma con horario aproximado o rechaza, abre WhatsApp con el mensaje e imprime la comanda (Epson TM-T20 por su driver de Windows). Todo detrás de `PEDIDOS_POR_APP=1` (servidor) y `NEXT_PUBLIC_PEDIDOS_POR_APP=1` (checkout); sin eso la web sigue con WhatsApp. `main` (solo WhatsApp) ya no se publica: desde 2026-11-11 `ensushi.ar` corre `app-pedidos`.
 - Servidor: `src/server/` (PostgreSQL con `DATABASE_URL`; PGlite en `.data/` en desarrollo), rutas en `src/app/api/` (`cuenta/*` ingreso por código de correo, `pedidos` del cliente, `local/*` de la app con token). El servidor rearma el carrito desde el menú (`restoreItems` de `src/lib/cartItems.ts`) y recalcula todo.
 - Tipos compartidos con la app: `src/types/pedidos.ts` (sin imports).
 - Guía de puesta en marcha (servidor, correo, ticketera): `docs/app-pedidos.md`.
 - Las líneas del carrito sin store viven en `src/lib/cartItems.ts`; `useCartStore` las reexporta.
 
 **Decisiones (2026-10-23, no volver a proponer otra cosa sin que lo pida):**
-- Hosting propio: un servidor (VPS alcanza) con la web Next.js + PostgreSQL. Nada de Supabase, Firebase ni otros BaaS; nada de APIs pagas ("nada de apis ni cosas extrañas"). Vercel queda solo para `main` mientras tanto.
+- Hosting propio: un servidor (VPS alcanza) con la web Next.js + PostgreSQL. Nada de Supabase, Firebase ni otros BaaS; nada de APIs pagas ("nada de apis ni cosas extrañas").
 - Antispam del cliente: cuenta con código por correo (sin captcha). Solo hace falta una cuenta SMTP (dominio, Zoho, Brevo…), no un servidor de correo propio.
 - Mensaje al cliente: la app abre WhatsApp con el texto listo (un clic, `wa.me`) + página de estado en la web. Sin WhatsApp Business API.
 - Electron, una sola PC con Windows, ticketera Epson TM-T20 USB impresa por su driver de Windows (no ESC/POS crudo, salvo que el driver no alcance).
@@ -129,7 +129,9 @@ En lugar de WhatsApp, el pedido va a nuestro servidor y lo recibe la app de escr
 - [ ] **Feriados**: se cargan sobre la marcha en `extraOpenDates` / `closedDates`.
 - [ ] **Fotos**: Combo TunaSalm (`hasPhoto: false` en `menu.ts` hasta tenerla), Salsas, Acompañamientos e ítems de Arma tu combo sin foto propia; se van a rehacer antes del deploy. Originales en `fotos/`.
 - [ ] **Prueba de punta a punta en el celular**: todas las combinaciones de entrega y pago, en un día de apertura antes de las 17:00, abierto, después de las 19:30 y cerrado, con una caja chica y una grande, en un día especial y con un código, y chequear que el mensaje de WhatsApp coincida con la plantilla.
-- [ ] **Deploy** (al final): Vercel + dominio; definir `NEXT_PUBLIC_SITE_URL` con la URL final.
+- [ ] **Deploy**: hecho en el VPS propio (ver "Pedidos por app"); confirmar que `NEXT_PUBLIC_SITE_URL` sea `https://ensushi.ar` en el servidor.
+- [ ] **Tema claro**: logo oscuro propio (hoy el PNG blanco se tiñe con `brightness-0`); la imagen para compartir y los íconos siguen oscuros.
+- [ ] **Páginas legales**: el dueño revisa los criterios por defecto de Términos y Arrepentimiento (cancelaciones, alérgenos, zona de envío, código en 24 h).
 
 ## Ideas post-V1
 - Zona de envío (costo por zona) y pedido mínimo.
