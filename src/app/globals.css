@@ -15,9 +15,9 @@
   /* Rojo EnSushi (2026-11-17): barra de arriba, sellos de "en tu pedido" y botones/barras principales. El grafito queda para letras */
   --color-shu: #cc1222;
   --color-shu-fg: #ffffff;
-  /* Verde alga (2026-11-17): la banda de horario del menú y los avisos de horario (carrito y checkout) */
-  --color-alga: #3e5f30;
-  --color-alga-fg: #ffffff;
+  /* Turquesa petróleo (2026-11-17): solo la banda de horario del menú. Opuesto exacto del rojo en OKLCH (misma luz e intensidad) */
+  --color-hora: #057d87;
+  --color-hora-fg: #ffffff;
   /* Borde de campos de texto (3:1 sobre el fondo); nunca para texto */
   --color-field-edge: #7d818a;
   /* Rosa frío: solo errores de campos, distinto del bermellón */

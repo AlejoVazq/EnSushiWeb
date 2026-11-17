@@ -17,7 +17,7 @@ export function ScheduleNotices({ notices, className }: ScheduleNoticesProps) {
           key={notice.message}
           role={notice.tone === 'error' ? 'alert' : 'status'}
           className={cn(
-            'rounded-xl bg-alga px-4 py-3 text-sm leading-relaxed text-pretty text-alga-fg',
+            'rounded-xl bg-washi px-4 py-3 text-sm leading-relaxed text-pretty text-sumi',
             notice.tone === 'error' ? 'font-bold' : 'font-medium',
           )}
         >
