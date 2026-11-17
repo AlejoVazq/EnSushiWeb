@@ -346,7 +346,7 @@ export function CartDrawer({ layout, open = false, onClose, onCheckout, onEditBo
       {scheduleNotices.length > 0 && (
         <ul className="mt-4 space-y-2">
           {scheduleNotices.map((notice) => (
-            <li key={notice.message} role="status" className="rounded-xl bg-washi px-4 py-3 text-sm leading-relaxed font-medium text-pretty text-sumi">
+            <li key={notice.message} role="status" className="rounded-xl bg-hora px-4 py-3 text-sm leading-relaxed font-medium text-pretty text-hora-fg">
               {notice.message}
             </li>
           ))}
