@@ -39,6 +39,8 @@ export const requestCode = (email: string) =>
 export const verifyCode = (email: string, code: string) => request<{ email: string }>('POST', '/api/cuenta/verificar', { email, code });
 export const logOut = () => request<{ ok: true }>('POST', '/api/cuenta/salir');
 export const getOrder = (id: string) => request<CustomerOrder>('GET', `/api/pedidos/${encodeURIComponent(id)}`);
+/** A guest who just registered keeps this order in their account */
+export const linkOrder = (id: string) => request<{ ok: true }>('POST', `/api/pedidos/${encodeURIComponent(id)}/asociar`);
 
 /** Whether a typed code works (the shop's app manages codes in the server's database); answers with its definition */
 export const checkDiscountCode = (code: string) =>
@@ -53,10 +55,19 @@ export const getLiveMenu = () => {
   return request<LiveMenu>('GET', simulated ? `/api/menu?ahora=${encodeURIComponent(simulated.toISOString())}` : '/api/menu');
 };
 
-/** Sends the cart as menu references: the server prices everything again */
-export const sendOrder = (form: CheckoutForm, phone: string, items: readonly CartItem[]) =>
+/**
+ * Sends the cart as menu references: the server prices everything again. `robotCheck`: the hidden field (a person
+ * leaves it empty) and how long the checkout was open; the server only looks at them for guests.
+ */
+export const sendOrder = (
+  form: CheckoutForm,
+  phone: string,
+  items: readonly CartItem[],
+  robotCheck: { website: string; elapsedMs: number },
+) =>
   request<{ id: string }>('POST', '/api/pedidos', {
     ...form,
+    ...robotCheck,
     phone,
     items: items.map(toPersistedLine),
     // Development only (the server ignores it in production): judge the same simulated hour as the page

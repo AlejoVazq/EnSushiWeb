@@ -20,7 +20,10 @@ export async function POST(request: Request) {
   const record = body as Record<string, unknown>;
   const input = body.codigo.slice(0, 40);
 
-  const server = await checkServerCode(input, await currentCustomer());
+  // Discount codes are what registering gets you
+  const customerId = await currentCustomer();
+  if (!customerId) return error('Los códigos de descuento son para clientes registrados.', 401);
+  const server = await checkServerCode(input, customerId);
   if (server && !server.ok) return error(server.error, 409);
   const lookup = lookUpCode(input, requestDate(record.ahora), server?.ok ? [server.definition] : []);
   if (!lookup.ok) return error(lookup.error, 404);

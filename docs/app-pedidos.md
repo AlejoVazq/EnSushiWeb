@@ -16,12 +16,14 @@ la API responde 404.
 
 ## Cómo funciona
 
-- **Cliente:** en el checkout ingresa con su correo (le llega un código de 6 números, una sola vez por celular:
-  la sesión dura 60 días) y deja su celular. "Enviar pedido" lo manda al servidor y lo lleva a la página del
-  pedido, que se actualiza sola.
+- **Cliente:** pide sin registrarse (nombre y celular). Registrarse con el correo (código de 6 números, una sola
+  vez por celular: la sesión dura 60 días) es opcional y da códigos de descuento y los datos cargados para la
+  próxima; se ofrece en el checkout ("¿Tenés un código?", "Ingresá") y en la página del pedido. "Enviar pedido"
+  lo manda al servidor y lo lleva a la página del pedido, que se actualiza sola.
 - **Servidor:** rearma el carrito desde `src/data/menu.ts` y recalcula precios, descuento y total (nunca usa los
   precios que manda el celular). Rechaza pedidos fuera de horario, celulares inválidos y más de 3 pedidos
-  esperando respuesta por cliente. Limita códigos e intentos por IP.
+  esperando respuesta por cliente (los invitados, por celular). A los invitados les pone una trampa para robots
+  (campo oculto y tiempo mínimo en el checkout) y no les acepta códigos. Limita códigos e intentos por IP.
 - **Local:** la app muestra los pedidos de las últimas 18 horas, suena con cada pedido nuevo, deja elegir la
   hora aproximada (+15/+30/+45/+60 min o a mano) y editar el mensaje antes de abrir WhatsApp. El alias para
   transferencias se carga en Ajustes de la app y va solo en ese mensaje: nunca está en la web.

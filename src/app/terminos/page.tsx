@@ -37,8 +37,8 @@ export default function TerminosPage() {
           avisa si no lo puede tomar. Es una cocina: los horarios son aproximados.
         </li>
         <li>
-          Antes del primer pedido te pedimos un código por correo, para evitar pedidos falsos. Podés tener hasta 3
-          pedidos sin responder a la vez.
+          Podés pedir sin registrarte. Si te registrás con tu correo, podés usar códigos de descuento y tus datos
+          quedan cargados para la próxima. Podés tener hasta 3 pedidos sin responder a la vez.
         </li>
       </ul>
 
@@ -51,7 +51,7 @@ export default function TerminosPage() {
         </li>
         <li>
           Los descuentos (días especiales y códigos) no se suman: se aplica el que más te conviene. Los códigos los da
-          el local, pueden tener fecha de vencimiento y límite de usos, y no descuentan el envío.
+          el local, son para clientes registrados, pueden tener fecha de vencimiento y límite de usos, y no descuentan el envío.
         </li>
       </ul>
 

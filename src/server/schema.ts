@@ -135,4 +135,9 @@ export const MIGRATIONS: readonly string[] = [
   ALTER TABLE orders ADD COLUMN driver_float integer CHECK (driver_float >= 0);
   ALTER TABLE orders ADD COLUMN driver_returned integer CHECK (driver_returned >= 0);
   `,
+
+  // 8 — orders sent from the site without an account (guest): no customer_id, unlike the ones loaded by hand
+  `
+  ALTER TABLE orders ADD COLUMN guest boolean NOT NULL DEFAULT false;
+  `,
 ];

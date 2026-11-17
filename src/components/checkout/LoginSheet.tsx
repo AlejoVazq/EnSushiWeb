@@ -18,18 +18,34 @@ const noSubscribe = () => () => {};
 
 type Step = { name: 'email' } | { name: 'code'; email: string; sentAt: number; alreadySent: boolean };
 
+/** Where it opened from: the checkout's "Ingresá", a discount code, or the invitation after ordering as a guest */
+export type LoginReason = 'cuenta' | 'codigo' | 'pedido';
+
+const INTRO: Record<LoginReason, { title: string; text: string }> = {
+  cuenta: { title: 'Ingresá con tu correo', text: 'Te mandamos un código a tu correo para confirmar que sos vos.' },
+  codigo: {
+    title: 'Los códigos son para clientes registrados',
+    text: 'Registrate con tu correo y usá tu código en este pedido. Te mandamos un código para confirmar que sos vos.',
+  },
+  pedido: {
+    title: '¿Querés códigos de descuento?',
+    text: 'Registrate con tu correo. Te mandamos un código para confirmar que sos vos.',
+  },
+};
+
 interface LoginSheetProps {
   open: boolean;
+  reason: LoginReason;
   onClose: () => void;
   /** The phone is logged in now (the session cookie is set) */
   onLoggedIn: (email: string) => void;
 }
 
 /**
- * Orders by app need a verified email, asked once per phone: why we ask, the email, then the 6-digit code.
- * Opens from the cart's "Continuar con el pedido" when there's no session (and from the checkout as a fallback).
+ * Registering is optional (guests order too) and gets you discount codes and your details kept: what you get, the
+ * email, then the 6-digit code. Opens from the checkout (Ingresá, a discount code) and the order's status page.
  */
-export function LoginSheet({ open, onClose, onLoggedIn }: LoginSheetProps) {
+export function LoginSheet({ open, reason, onClose, onLoggedIn }: LoginSheetProps) {
   const [step, setStep] = useState<Step>({ name: 'email' });
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
@@ -105,16 +121,23 @@ export function LoginSheet({ open, onClose, onLoggedIn }: LoginSheetProps) {
       open={open}
       onClose={onClose}
       side="bottom"
-      title={step.name === 'email' ? 'Antes de tu primer pedido' : 'Revisá tu correo'}
+      title={step.name === 'email' ? INTRO[reason].title : 'Revisá tu correo'}
     >
       <div className="pt-4 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
         {step.name === 'email' ? (
           <form onSubmit={onEmailSubmit} noValidate>
-            <p className="text-pretty text-washi-muted">
-              Te mandamos un código a tu correo para confirmar que sos vos. Así evitamos pedidos falsos y la cocina solo
-              prepara pedidos reales.
-            </p>
+            <p className="text-pretty text-washi-muted">{INTRO[reason].text}</p>
             <ul className="mt-4 mb-5 space-y-2.5 text-sm">
+              <li className="flex items-start gap-2.5">
+                <CheckIcon className="mt-0.5 size-4.5 shrink-0" aria-hidden />
+                <span>
+                  <strong>Códigos de descuento</strong> para tus pedidos.
+                </span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <CheckIcon className="mt-0.5 size-4.5 shrink-0" aria-hidden />
+                <span>Tus datos quedan cargados para el próximo pedido.</span>
+              </li>
               <li className="flex items-start gap-2.5">
                 <CheckIcon className="mt-0.5 size-4.5 shrink-0" aria-hidden />
                 <span>

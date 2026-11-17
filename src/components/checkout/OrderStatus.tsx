@@ -4,11 +4,16 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import { buttonClassName } from '@/components/ui/Button';
+import { Button, buttonClassName } from '@/components/ui/Button';
 import { BUSINESS } from '@/config/business';
 import { formatPrice } from '@/lib/format';
-import { getOrder, type ApiResult } from '@/lib/pedidosApp';
+import { getAccount, getOrder, linkOrder, type ApiResult } from '@/lib/pedidosApp';
 import type { CustomerOrder } from '@/types/pedidos';
+
+import { LoginSheet } from './LoginSheet';
+
+/** The invitation for guests: unknown until asked, offered, or done (this order went into the new account) */
+type Invite = 'unknown' | 'offer' | 'linked' | 'none';
 
 /** How often the page asks for news while the shop hasn't answered */
 const POLL_MS = 10_000;
@@ -36,6 +41,25 @@ export function OrderStatus() {
   }, [id]);
 
   const order = result?.ok ? result.data : null;
+
+  // Ordered as a guest: registering gets discount codes, and this order fills their next checkout
+  const [invite, setInvite] = useState<Invite>('unknown');
+  const [loginOpen, setLoginOpen] = useState(false);
+  useEffect(() => {
+    let active = true;
+    void getAccount().then((account) => {
+      if (active) setInvite(account.ok ? 'none' : 'offer');
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const onLoggedIn = async () => {
+    setLoginOpen(false);
+    const linked = await linkOrder(id);
+    setInvite(linked.ok ? 'linked' : 'none');
+  };
 
   return (
     <main className="mx-auto w-full max-w-md flex-1 space-y-6 px-4 py-10 text-center">
@@ -76,9 +100,33 @@ export function OrderStatus() {
         </>
       )}
 
+      {order && invite === 'offer' && (
+        <section aria-labelledby="invite-title" className="space-y-3 rounded-xl border border-hairline p-4 text-left">
+          <div>
+            <h2 id="invite-title" className="font-bold text-washi">
+              ¿Querés códigos de descuento?
+            </h2>
+            <p className="mt-1 text-sm text-pretty text-washi-muted">
+              Registrate con tu correo: los códigos son para clientes registrados y en el próximo pedido tus datos ya
+              están cargados.
+            </p>
+          </div>
+          <Button variant="secondary" fullWidth onClick={() => setLoginOpen(true)}>
+            Registrarme
+          </Button>
+        </section>
+      )}
+      {invite === 'linked' && (
+        <p role="status" className="rounded-xl border border-hairline p-4 text-sm text-washi-muted">
+          Listo, ya estás registrado. Este pedido quedó en tu cuenta.
+        </p>
+      )}
+
       <Link href="/" className={buttonClassName({ variant: 'secondary', fullWidth: true })}>
         Volver al menú
       </Link>
+
+      <LoginSheet open={loginOpen} reason="pedido" onClose={() => setLoginOpen(false)} onLoggedIn={() => void onLoggedIn()} />
     </main>
   );
 }

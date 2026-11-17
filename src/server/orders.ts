@@ -16,8 +16,10 @@ import { checkServerCode } from './discounts';
 import { requestDate } from './http';
 import { getLiveMenu } from './liveMenu';
 
-/** A customer can't have more than this many orders waiting for the shop's answer */
+/** A customer (or a guest's phone) can't have more than this many orders waiting for the shop's answer */
 const MAX_PENDING_PER_CUSTOMER = 3;
+/** A guest's checkout sent faster than this after opening it is a robot's (a person has to at least reach the button) */
+const MIN_GUEST_FILL_MS = 2000;
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === 'object' && value !== null;
 const text = (value: unknown, max: number): string => (typeof value === 'string' ? value.slice(0, max) : '');
@@ -45,7 +47,7 @@ export const usedCodeOf = (order: OrderDetails, code: string): string | null =>
 /** Saves the order with its lines as text and prices of this moment (the menu can change later) */
 export const insertOrder = async (
   order: OrderDetails,
-  who: { customerId: string | null; phone: string; email: string | null; usedCode: string | null },
+  who: { customerId: string | null; phone: string; email: string | null; usedCode: string | null; guest?: boolean },
 ): Promise<OrderRow> => {
   const lines: OrderLineSnapshot[] = order.items.map((item) => ({
     quantity: item.quantity,
@@ -56,8 +58,8 @@ export const insertOrder = async (
   const db = await getDb();
   const [row] = await db.query<OrderRow>(
     `INSERT INTO orders (id, customer_id, customer_name, phone, email, delivery_method, address, payment_method,
-       lines, subtotal, discount_label, discount_amount, delivery_fee, total, discount_code, notes)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+       lines, subtotal, discount_label, discount_amount, delivery_fee, total, discount_code, notes, guest)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
      RETURNING *`,
     [
       randomUUID(),
@@ -76,6 +78,7 @@ export const insertOrder = async (
       order.total,
       who.usedCode,
       order.notes || null,
+      who.guest ?? false,
     ],
   );
   if (!row) throw new Error('El pedido no se guardó.');
@@ -85,9 +88,22 @@ export const insertOrder = async (
 /**
  * POST /api/pedidos. The cart arrives as menu references (the same format the phone saves); every price,
  * discount and the total are rebuilt here from the menu, never taken from the request.
+ * `who`: the logged-in customer, or nulls for a guest (no account: no discount codes, and a trap for robots).
  */
-export const createOrderFromRequest = async (customerId: string, email: string, body: unknown): Promise<CreateOrderResult> => {
+export const createOrderFromRequest = async (
+  who: { customerId: string | null; email: string | null },
+  body: unknown,
+): Promise<CreateOrderResult> => {
   if (!isRecord(body) || !Array.isArray(body.items)) return { ok: false, status: 400, error: 'Pedido inválido.' };
+  const { customerId, email } = who;
+  const guest = customerId === null;
+  if (guest) {
+    // A hidden field a person never sees, and a form filled faster than anyone could
+    if (typeof body.website === 'string' && body.website.trim() !== '') return { ok: false, status: 400, error: 'Pedido inválido.' };
+    if (typeof body.elapsedMs !== 'number' || body.elapsedMs < MIN_GUEST_FILL_MS) {
+      return { ok: false, status: 429, error: 'Esperá un momento y probá de nuevo.' };
+    }
+  }
 
   const date = requestDate(body.ahora);
   const live = await getLiveMenu(date);
@@ -126,6 +142,9 @@ export const createOrderFromRequest = async (customerId: string, email: string, 
   // A code from the shop's app: paused or used up since the customer applied it, the order stops here so the
   // total they saw never changes behind their back
   let extraCodes: DiscountCode[] = [];
+  if (form.discountCode && guest) {
+    return { ok: false, status: 401, error: 'Los códigos de descuento son para clientes registrados. Quitalo para seguir.' };
+  }
   if (form.discountCode) {
     const check = await checkServerCode(form.discountCode, customerId);
     if (check && !check.ok) return { ok: false, status: 409, error: `${check.error} Quitalo para seguir.` };
@@ -139,14 +158,16 @@ export const createOrderFromRequest = async (customerId: string, email: string, 
 
   const db = await getDb();
   const [pending] = await db.query<{ count: number }>(
-    "SELECT count(*)::int AS count FROM orders WHERE customer_id = $1 AND status = 'nuevo'",
-    [customerId],
+    guest
+      ? "SELECT count(*)::int AS count FROM orders WHERE phone = $1 AND guest AND status = 'nuevo'"
+      : "SELECT count(*)::int AS count FROM orders WHERE customer_id = $1 AND status = 'nuevo'",
+    [guest ? phone : customerId],
   );
   if ((pending?.count ?? 0) >= MAX_PENDING_PER_CUSTOMER) {
     return { ok: false, status: 429, error: 'Ya tenés pedidos esperando confirmación. Esperá la respuesta del local.' };
   }
 
-  const row = await insertOrder(order, { customerId, phone, email, usedCode });
+  const row = await insertOrder(order, { customerId, phone, email, usedCode, guest });
   return { ok: true, id: row.id };
 };
 
@@ -178,6 +199,7 @@ export interface OrderRow {
   driver: string | null;
   driver_float: number | null;
   driver_returned: number | null;
+  guest: boolean;
 }
 
 const iso = (value: Date | string): string => new Date(value).toISOString();
@@ -189,7 +211,8 @@ export const toStaffOrder = (row: OrderRow): StaffOrder => ({
   customerName: row.customer_name,
   phone: row.phone,
   email: row.email,
-  manual: row.customer_id === null,
+  // Loaded by hand in the shop's app (a guest's order has no account either, but came from the site)
+  manual: row.customer_id === null && !row.guest,
   deliveryMethod: row.delivery_method,
   address: row.address,
   paymentMethod: row.payment_method,
@@ -243,10 +266,16 @@ export const listSales = async (from: string, to: string): Promise<SalesResult> 
   return { ok: true, orders: rows.map(toStaffOrder) };
 };
 
-/** The customer's own order, or null (also if it belongs to someone else) */
-export const getCustomerOrder = async (customerId: string, orderId: string): Promise<CustomerOrder | null> => {
+/**
+ * An order for its status page: a guest's with its link (the id is a random UUID), an account's only with that
+ * account's session. Null otherwise.
+ */
+export const getCustomerOrder = async (customerId: string | null, orderId: string): Promise<CustomerOrder | null> => {
   const db = await getDb();
-  const [row] = await db.query<OrderRow>('SELECT * FROM orders WHERE id = $1 AND customer_id = $2', [orderId, customerId]);
+  const [row] = await db.query<OrderRow>('SELECT * FROM orders WHERE id = $1 AND (guest OR customer_id = $2)', [
+    orderId,
+    customerId,
+  ]);
   if (!row) return null;
   return {
     id: row.id,
@@ -257,6 +286,16 @@ export const getCustomerOrder = async (customerId: string, orderId: string): Pro
     deliveryMethod: row.delivery_method,
     total: row.total,
   };
+};
+
+/** A guest who registers from the status page keeps that order in their account (it fills their next checkout) */
+export const linkGuestOrder = async (customerId: string, orderId: string): Promise<boolean> => {
+  const db = await getDb();
+  const rows = await db.query<{ id: string }>(
+    'UPDATE orders SET customer_id = $1 WHERE id = $2 AND guest AND customer_id IS NULL RETURNING id',
+    [customerId, orderId],
+  );
+  return rows.length > 0;
 };
 
 // ─── Shop decisions ─────────────────────────────────────────────────────────

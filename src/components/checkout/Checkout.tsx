@@ -16,6 +16,7 @@ import {
 
 import { ScheduleNotices } from '@/components/shop/ScheduleNotices';
 import { AccountSection } from './AccountSection';
+import { LoginSheet, type LoginReason } from './LoginSheet';
 import { Button, buttonClassName } from '@/components/ui/Button';
 import { CashIcon, CheckIcon, HomeIcon, PhoneIcon, SplitPayIcon, StoreIcon } from '@/components/ui/icons';
 import { Input, Textarea } from '@/components/ui/Input';
@@ -42,7 +43,7 @@ import { describeExcludes, discountableSubtotal, lookUpCode } from '@/lib/discou
 import { formatList, formatPrice } from '@/lib/format';
 import { getNow } from '@/lib/schedule';
 import { normalizePhone } from '@/lib/phone';
-import { checkDiscountCode, loadSavedPhone, ORDERS_BY_APP, savePhone, sendOrder } from '@/lib/pedidosApp';
+import { checkDiscountCode, getAccount, loadSavedPhone, logOut, ORDERS_BY_APP, savePhone, sendOrder } from '@/lib/pedidosApp';
 import { buildWhatsAppUrl } from '@/services/whatsappService';
 import { useCartStore } from '@/store/useCartStore';
 import type { CartItem, DeliveryMethod, DiscountCode, OrderDiscount, PaymentMethod } from '@/types';
@@ -186,16 +187,33 @@ interface DiscountCodeFieldProps {
   discount: OrderDiscount | null;
   /** The cart's lines: a code that leaves out some sections may not touch any of them */
   items: readonly CartItem[];
+  /** Orders by app, for a guest: codes are for registered customers, so the link opens the login instead */
+  requireLogin?: () => void;
+  /** Starts with the field open (right after logging in to use a code) */
+  initiallyOpen?: boolean;
 }
 
 /** Folded by default: "¿Tenés un código de descuento?" opens the field; once applied it shows with "Quitar" */
-function DiscountCodeField({ applied, onApply, onRemove, extraCodes, discount, items }: DiscountCodeFieldProps) {
-  const [open, setOpen] = useState(false);
+function DiscountCodeField({
+  applied,
+  onApply,
+  onRemove,
+  extraCodes,
+  discount,
+  items,
+  requireLogin,
+  initiallyOpen = false,
+}: DiscountCodeFieldProps) {
+  const [open, setOpen] = useState(initiallyOpen);
   const [value, setValue] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [checking, setChecking] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const errorId = 'discount-code-error';
+
+  useEffect(() => {
+    if (initiallyOpen) inputRef.current?.focus();
+  }, [initiallyOpen]);
 
   const fail = (message: string) => {
     setError(message);
@@ -264,6 +282,10 @@ function DiscountCodeField({ applied, onApply, onRemove, extraCodes, discount, i
       <button
         type="button"
         onClick={() => {
+          if (requireLogin) {
+            requireLogin();
+            return;
+          }
           setOpen(true);
           requestAnimationFrame(() => inputRef.current?.focus());
         }}
@@ -420,8 +442,23 @@ export function Checkout() {
   const whatsappUrl = order ? buildWhatsAppUrl(order) : null;
   const submitLabel = ORDERS_BY_APP ? `Enviar pedido · ${formatPrice(total)}` : `Enviar pedido por WhatsApp · ${formatPrice(total)}`;
 
-  // Orders by app (ORDERS_BY_APP): an account, a phone for the shop's WhatsApp answer, and a POST instead of wa.me
-  const [accountEmail, setAccountEmail] = useState<string | null>(null);
+  // Orders by app (ORDERS_BY_APP): an optional account, a phone for the shop's WhatsApp answer, and a POST instead of wa.me
+  // The logged-in email; null for a guest; undefined until known
+  const [accountEmail, setAccountEmail] = useState<string | null | undefined>(undefined);
+  const [login, setLogin] = useState<LoginReason | null>(null);
+  // Kept while the sheet slides away, so its title doesn't change on the way out
+  const [lastLoginReason, setLastLoginReason] = useState<LoginReason>('cuenta');
+  const askLogin = (reason: LoginReason) => {
+    setLastLoginReason(reason);
+    setLogin(reason);
+  };
+  // Logged in to use a code: the code field comes up open
+  const [codeFieldOpen, setCodeFieldOpen] = useState(false);
+  // The robot check: a person takes a moment to get to the button (read in the submit handler, never at render)
+  const openedAtRef = useRef(0);
+  useEffect(() => {
+    openedAtRef.current = Date.now();
+  }, []);
   const [phone, setPhone] = useState(loadSavedPhone);
   // The address of the last delivery, while it's the one in the field: the hint says it can be changed
   const [lastAddress, setLastAddress] = useState('');
@@ -433,6 +470,35 @@ export function Checkout() {
     setPhone((prev) => prev || account.phone);
     setLastAddress(account.address);
   }, []);
+
+  useEffect(() => {
+    if (!ORDERS_BY_APP) return;
+    let active = true;
+    void getAccount().then((result) => {
+      if (active) onAccountChange(result.ok ? result.data : null);
+    });
+    return () => {
+      active = false;
+    };
+  }, [onAccountChange]);
+
+  const onLoggedIn = async () => {
+    const reason = login;
+    setLogin(null);
+    // Asked again for the details: a customer on a new phone gets their last order's ones too
+    const account = await getAccount();
+    onAccountChange(account.ok ? account.data : null);
+    if (reason === 'codigo') setCodeFieldOpen(true);
+  };
+
+  const leave = async () => {
+    await logOut();
+    setAccountEmail(null);
+    setCodeFieldOpen(false);
+    // Codes are for registered customers: a guest's order can't carry one
+    setServerCodes([]);
+    setForm((prev) => ({ ...prev, discountCode: '' }));
+  };
   const [phoneError, setPhoneError] = useState<string | undefined>();
   const [sendError, setSendError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
@@ -455,14 +521,11 @@ export function Checkout() {
       return;
     }
     if (!ORDERS_BY_APP || sending) return;
-    if (!accountEmail) {
-      setSendError('Primero ingresá con tu correo (arriba, en Tu cuenta).');
-      return;
-    }
 
     setSending(true);
     setSendError(null);
-    const result = await sendOrder(form, phone, items);
+    const website = formRef.current?.querySelector<HTMLInputElement>('input[name="website"]')?.value ?? '';
+    const result = await sendOrder(form, phone, items, { website, elapsedMs: Date.now() - openedAtRef.current });
     if (!result.ok) {
       setSending(false);
       setSendError(result.error);
@@ -541,7 +604,16 @@ export function Checkout() {
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-10">
         <form ref={formRef} onSubmit={handleSubmit} noValidate className="w-full space-y-9 lg:max-w-2xl">
-          {ORDERS_BY_APP && <AccountSection onChange={onAccountChange} />}
+          {ORDERS_BY_APP && (
+            <AccountSection email={accountEmail} onLogIn={() => askLogin('cuenta')} onLogOut={() => void leave()} />
+          )}
+          {ORDERS_BY_APP && (
+            // A trap for robots: off screen and out of the tab order, so a person never fills it
+            <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+              <label htmlFor="checkout-website">No completar</label>
+              <input id="checkout-website" name="website" type="text" tabIndex={-1} autoComplete="off" defaultValue="" />
+            </div>
+          )}
 
           <fieldset className="space-y-4">
             <legend className="mb-3 font-title text-xl text-washi sm:text-2xl">Tus datos</legend>
@@ -635,6 +707,10 @@ export function Checkout() {
 
           <div className="space-y-3">
             <DiscountCodeField
+              // Folds again on logging out (a guest's link opens the login instead)
+              key={`${accountEmail === null ? 'guest' : 'account'}-${codeFieldOpen ? 'open' : 'folded'}`}
+              initiallyOpen={codeFieldOpen}
+              requireLogin={ORDERS_BY_APP && accountEmail === null ? () => askLogin('codigo') : undefined}
               applied={form.discountCode}
               onApply={(code, definition) => {
                 if (definition) setServerCodes([definition]);
@@ -725,6 +801,14 @@ export function Checkout() {
           <OrderSummary items={items} discount={discount} deliveryFee={deliveryFee} />
         </div>
       </div>
+      {ORDERS_BY_APP && (
+        <LoginSheet
+          open={login !== null}
+          reason={lastLoginReason}
+          onClose={() => setLogin(null)}
+          onLoggedIn={() => void onLoggedIn()}
+        />
+      )}
     </PageShell>
   );
 }

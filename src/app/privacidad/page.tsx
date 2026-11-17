@@ -28,7 +28,8 @@ export default function PrivacidadPage() {
       <h2>Qué datos pedimos</h2>
       <ul>
         <li>
-          <strong>Tu correo</strong>, para mandarte el código de ingreso antes de tu primer pedido.
+          <strong>Tu correo</strong>, solo si te registrás: para mandarte el código de ingreso. Podés pedir sin
+          registrarte.
         </li>
         <li>
           <strong>Tu nombre y tu celular</strong>, para saber de quién es el pedido y escribirte por WhatsApp.
@@ -46,9 +47,12 @@ export default function PrivacidadPage() {
       <h2>Para qué los usamos</h2>
       <ul>
         <li>Preparar y entregar tu pedido, y avisarte por WhatsApp la hora o si no lo podemos tomar.</li>
-        <li>Completar tus datos la próxima vez que pidas (nombre, celular y la dirección del último envío).</li>
+        <li>
+          Si te registraste, completar tus datos la próxima vez que pidas (nombre, celular y la dirección del último
+          envío) y dejarte usar códigos de descuento.
+        </li>
         <li>Llevar las cuentas del local (ventas del día y de cada mes).</li>
-        <li>Evitar pedidos falsos: por eso pedimos el código por correo.</li>
+        <li>Confirmar que el correo de tu cuenta es tuyo: por eso te mandamos un código.</li>
       </ul>
       <p>No usamos tus datos para publicidad, no los vendemos y no los compartimos con nadie para otros fines.</p>
 
