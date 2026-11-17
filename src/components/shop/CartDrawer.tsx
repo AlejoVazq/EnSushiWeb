@@ -330,7 +330,7 @@ export function CartDrawer({ layout, open = false, onClose, onCheckout, onEditBo
               onClick={() => leave(onCheckout)}
               // Closed: the notice above says when the shop opens; sold out: the line says it
               disabled={!canOrder || soldOutInCart.length > 0}
-              className="flex h-14 w-full items-center justify-center rounded-2xl bg-washi font-bold text-sumi transition hover:bg-washi/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi disabled:pointer-events-none disabled:opacity-40"
+              className="flex h-14 w-full items-center justify-center rounded-2xl bg-shu font-bold text-shu-fg transition hover:bg-shu/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi disabled:pointer-events-none disabled:opacity-40"
             >
               Continuar con el pedido
             </button>

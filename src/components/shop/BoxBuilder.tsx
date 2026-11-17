@@ -408,7 +408,7 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
 
       {showBar && (
         <div className="sticky bottom-[max(1rem,env(safe-area-inset-bottom))] z-20 @2xl:ml-auto @2xl:max-w-xl">
-          <div className="grid grid-cols-[1fr_auto] items-center gap-x-3 rounded-2xl bg-washi py-3 pr-3 pl-4 text-sumi shadow-lg shadow-black/50">
+          <div className="grid grid-cols-[1fr_auto] items-center gap-x-3 rounded-2xl bg-shu py-3 pr-3 pl-4 text-shu-fg shadow-lg shadow-black/50">
             <div className="min-w-0">
               <p className="text-[0.9375rem] leading-snug font-bold text-pretty tabular-nums">
                 {notice === 'added'
@@ -435,7 +435,7 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
                 <button
                   type="button"
                   onClick={cancelEdit}
-                  className="h-11 rounded-xl px-3 text-sm font-bold underline underline-offset-4 hover:bg-sumi/10 focus-visible:outline-2 focus-visible:outline-sumi"
+                  className="h-11 rounded-xl px-3 text-sm font-bold underline underline-offset-4 hover:bg-shu-fg/10 focus-visible:outline-2 focus-visible:outline-shu-fg"
                 >
                   Cancelar
                 </button>
@@ -462,7 +462,7 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
               <button
                 type="button"
                 onClick={() => update({ size: fitsElsewhere.id })}
-                className="col-span-2 -ml-1 mt-1 h-9 justify-self-start rounded-lg px-1 text-left text-[0.8125rem] font-bold underline underline-offset-4 hover:bg-sumi/10 focus-visible:outline-2 focus-visible:outline-sumi"
+                className="col-span-2 -ml-1 mt-1 h-9 justify-self-start rounded-lg px-1 text-left text-[0.8125rem] font-bold underline underline-offset-4 hover:bg-shu-fg/10 focus-visible:outline-2 focus-visible:outline-shu-fg"
               >
                 Así como está, entra en la {fitsElsewhere.name.toLowerCase()}
               </button>
@@ -491,12 +491,12 @@ function BarButton({ children, onClick, disabled = false, outline = false }: Bar
       disabled={disabled}
       className={cn(
         'h-11 rounded-xl px-4 text-sm font-bold whitespace-nowrap tabular-nums transition',
-        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sumi',
+        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shu-fg',
         disabled || outline
-          ? 'border-[1.5px] border-sumi/40 text-sumi'
-          : 'bg-sumi text-washi hover:bg-sumi-2',
+          ? 'border-[1.5px] border-shu-fg/50 text-shu-fg'
+          : 'bg-shu-fg text-shu hover:bg-shu-fg/90',
         disabled && 'cursor-default',
-        outline && !disabled && 'hover:border-sumi',
+        outline && !disabled && 'hover:border-shu-fg',
       )}
     >
       {children}

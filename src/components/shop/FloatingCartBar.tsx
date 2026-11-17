@@ -21,12 +21,12 @@ export function FloatingCartBar({ onOpenCart }: FloatingCartBarProps) {
       <button
         type="button"
         onClick={onOpenCart}
-        className="mx-auto flex h-14 animate-bar-up w-full max-w-md items-center justify-between rounded-2xl bg-washi px-4 font-bold text-sumi shadow-lg shadow-black/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi"
+        className="mx-auto flex h-14 animate-bar-up w-full max-w-md items-center justify-between rounded-2xl bg-shu px-4 font-bold text-shu-fg shadow-lg shadow-black/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi"
       >
         <span className="flex items-center gap-3">
           <span
             key={count}
-            className="grid h-8 min-w-8 -rotate-6 animate-stamp place-items-center rounded-md bg-shu px-1.5 font-title text-sm text-shu-fg tabular-nums"
+            className="grid h-8 min-w-8 -rotate-6 animate-stamp place-items-center rounded-md bg-shu-fg px-1.5 font-title text-sm text-shu tabular-nums"
           >
             {count}
           </span>

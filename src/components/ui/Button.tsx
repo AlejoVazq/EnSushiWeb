@@ -14,9 +14,9 @@ interface ButtonStyleProps {
 
 export interface ButtonProps extends ComponentProps<'button'>, ButtonStyleProps {}
 
-/** primary is the crema plate (one per screen); secondary is outlined; ghost is text */
+/** primary is the red plate (one per screen); secondary is outlined; ghost is text */
 const VARIANTS: Record<ButtonVariant, string> = {
-  primary: 'bg-washi text-sumi hover:-translate-y-px hover:bg-washi/90 hover:shadow-lg hover:shadow-black/40',
+  primary: 'bg-shu text-shu-fg hover:-translate-y-px hover:bg-shu/90 hover:shadow-lg hover:shadow-black/40',
   secondary: 'border border-hairline-strong text-washi hover:border-washi hover:bg-sumi-1',
   ghost: 'text-washi-muted hover:bg-sumi-2 hover:text-washi',
 };

@@ -17,7 +17,7 @@ import { ItemDrawing } from './ItemDrawing';
 const { preorderCutoff } = BUSINESS.schedule;
 
 const plateClassName =
-  'flex h-14 w-full items-center justify-center rounded-2xl bg-washi px-4 font-bold text-sumi tabular-nums transition hover:bg-washi/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi disabled:pointer-events-none disabled:opacity-40';
+  'flex h-14 w-full items-center justify-center rounded-2xl bg-shu px-4 font-bold text-shu-fg tabular-nums transition hover:bg-shu/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi disabled:pointer-events-none disabled:opacity-40';
 
 interface BuildItemSheetProps {
   /** Last item opened: kept while the sheet closes so its content doesn't vanish mid-animation */

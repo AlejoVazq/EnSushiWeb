@@ -12,9 +12,9 @@
   --color-hairline-strong: #a9adb6;
   --color-washi: #2b2d33;
   --color-washi-muted: #5c5f68;
-  /* Bermellón: solo "en tu pedido" */
-  --color-shu: #c8432b;
-  --color-shu-fg: #fff6ee;
+  /* Rojo EnSushi (2026-11-17): barra de arriba, sellos de "en tu pedido" y botones/barras principales. El grafito queda para letras y avisos */
+  --color-shu: #cc1222;
+  --color-shu-fg: #ffffff;
   /* Borde de campos de texto (3:1 sobre el fondo); nunca para texto */
   --color-field-edge: #7d818a;
   /* Rosa frío: solo errores de campos, distinto del bermellón */

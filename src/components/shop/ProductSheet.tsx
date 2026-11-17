@@ -46,7 +46,7 @@ export function ProductSheet({ product, open, onClose, imageUrl, picker, price, 
       <button
         type="button"
         onClick={line.onAdd}
-        className="flex h-14 w-full items-center justify-center rounded-2xl bg-washi px-4 font-bold text-sumi tabular-nums transition hover:bg-washi/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi"
+        className="flex h-14 w-full items-center justify-center rounded-2xl bg-shu px-4 font-bold text-shu-fg tabular-nums transition hover:bg-shu/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-washi"
       >
         {priceText ? `Agregar · ${priceText}` : 'Agregar'}
       </button>
