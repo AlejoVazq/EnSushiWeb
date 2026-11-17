@@ -276,13 +276,13 @@ export function BoxBuilder({ draft, onDraftChange, onOpenCart }: BoxBuilderProps
   return (
     <div className="space-y-8">
       {closed && (
-        <p className="rounded-xl border border-hairline-strong px-4 py-3 text-sm leading-relaxed text-washi">
+        <p className="rounded-xl bg-hora px-4 py-3 text-sm leading-relaxed text-hora-fg">
           Ahora no tomamos pedidos. Podés ver el menú y armar tu pedido cuando abramos.
         </p>
       )}
 
       {blocked && (
-        <p className="rounded-xl border border-hairline-strong px-4 py-3 text-sm leading-relaxed text-washi">
+        <p className="rounded-xl bg-hora px-4 py-3 text-sm leading-relaxed text-hora-fg">
           Los rolls y nigiris se piden hasta las {preorderCutoff}.
           {isCategoryShown(EXTRAS_CATEGORY_ID) && ' Los acompañamientos siguen disponibles en su pestaña.'}
         </p>
