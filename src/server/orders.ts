@@ -234,12 +234,21 @@ export const toStaffOrder = (row: OrderRow): StaffOrder => ({
   driverReturned: row.driver_returned,
 });
 
-/** The shop app's list: everything from the last `hours` hours, newest first */
-export const listStaffOrders = async (hours = 18): Promise<StaffOrder[]> => {
+/** Unanswered orders older than today still show in today's list for this long, so none gets lost at midnight */
+const PENDING_HOURS = 18;
+
+/**
+ * The shop app's list, newest first: one day's orders ("YYYY-MM-DD" in the shop's time zone). Today's also carries
+ * the ones still waiting for an answer from the night before.
+ */
+export const listStaffOrders = async (day: string, isToday: boolean): Promise<StaffOrder[]> => {
   const db = await getDb();
   const rows = await db.query<OrderRow>(
-    'SELECT * FROM orders WHERE created_at > now() - make_interval(hours => $1) ORDER BY created_at DESC LIMIT 200',
-    [hours],
+    `SELECT * FROM orders
+     WHERE (created_at AT TIME ZONE $2)::date = $1::date
+        OR ($3 AND status = 'nuevo' AND created_at > now() - make_interval(hours => $4))
+     ORDER BY created_at DESC LIMIT 300`,
+    [day, BUSINESS.schedule.timeZone, isToday, PENDING_HOURS],
   );
   return rows.map(toStaffOrder);
 };

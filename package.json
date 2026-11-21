@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "codigo": "node scripts/codigo.mjs",
-    "local-usuario": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/local-usuario.mjs"
+    "local-usuario": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/local-usuario.mjs",
+    "pin-ventas": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/pin-ventas.mjs"
   },
   "dependencies": {
     "@electric-sql/pglite": "^0.5.11",

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type FormEvent } from 'react';
 
 import type { StaffOrder } from '../../../src/types/pedidos';
 import { formatPrice } from '../shared/textos';
@@ -17,8 +17,99 @@ const monthOf = (day: string, monthsBack: number): [string, string] => {
   return [first.toISOString().slice(0, 10), last.toISOString().slice(0, 10)];
 };
 
-/** The confirmed orders of a period: totals on screen, everything in an Excel file */
+type Lock = { state: 'checking' } | { state: 'locked' } | { state: 'open'; pin: string } | { state: 'error'; error: string };
+
+/**
+ * Ventas, behind the PIN set on the server (`npm run pin-ventas`), whoever is logged in. Leaving the screen locks it
+ * again; with no PIN set it opens straight away.
+ */
 export function Sales() {
+  const [lock, setLock] = useState<Lock>({ state: 'checking' });
+  const [pin, setPin] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const response = await window.ensushi.api('GET', '/api/local/ventas/pin');
+      if (cancelled) return;
+      if (response.status === 200 && typeof response.data === 'object' && response.data !== null && 'required' in response.data) {
+        setLock(response.data.required === true ? { state: 'locked' } : { state: 'open', pin: '' });
+      } else setLock({ state: 'error', error: errorText(response.data) });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    setBusy(true);
+    setError(null);
+    const response = await window.ensushi.api('POST', '/api/local/ventas/pin', { pin });
+    setBusy(false);
+    if (response.status === 200) setLock({ state: 'open', pin });
+    else {
+      setError(errorText(response.data));
+      setPin('');
+    }
+  };
+
+  // Stable, so the report doesn't ask again every time the app re-renders
+  const relock = useCallback((message: string) => {
+    setPin('');
+    setError(message);
+    setLock({ state: 'locked' });
+  }, []);
+
+  if (lock.state === 'open') return <SalesReport pin={lock.pin} onLocked={relock} />;
+
+  return (
+    <div className="page">
+      <div className="page-head">
+        <div>
+          <h1>Ventas</h1>
+          <p className="muted">Para ver las ventas hace falta el PIN.</p>
+        </div>
+      </div>
+      {lock.state === 'checking' && <p className="muted">Cargando…</p>}
+      {lock.state === 'error' && <p className="error">{lock.error}</p>}
+      {lock.state === 'locked' && (
+        <form className="block" style={{ gap: 16, maxWidth: 360 }} onSubmit={submit}>
+          <div className="field">
+            <label htmlFor="sales-pin">PIN</label>
+            <input
+              id="sales-pin"
+              type="password"
+              inputMode="numeric"
+              autoComplete="off"
+              maxLength={8}
+              className="num"
+              value={pin}
+              onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
+              autoFocus
+            />
+          </div>
+          {error && <p className="error">{error}</p>}
+          <button type="submit" className="btn primary" disabled={busy || pin.length < 4}>
+            {busy ? 'Revisando…' : 'Ver ventas'}
+          </button>
+        </form>
+      )}
+    </div>
+  );
+}
+
+interface SalesReportProps {
+  /** '' when the server has no PIN set */
+  pin: string;
+  /** The server stopped taking the PIN (it was changed, or too many tries) */
+  onLocked: (message: string) => void;
+}
+
+/** The confirmed orders of a period: totals on screen, everything in an Excel file */
+function SalesReport({ pin, onLocked }: SalesReportProps) {
   const [from, setFrom] = useState(() => monthOf(today(), 0)[0]);
   const [to, setTo] = useState(today);
   const [orders, setOrders] = useState<StaffOrder[] | null>(null);
@@ -30,9 +121,10 @@ export function Sales() {
     if (!from || !to) return;
     let cancelled = false;
     void (async () => {
-      const response = await window.ensushi.api('GET', `/api/local/ventas?desde=${from}&hasta=${to}`);
+      const response = await window.ensushi.api('POST', '/api/local/ventas', { desde: from, hasta: to, pin });
       if (cancelled) return;
-      if (response.status === 200 && Array.isArray(response.data)) {
+      if (response.status === 403 || response.status === 429) onLocked(errorText(response.data));
+      else if (response.status === 200 && Array.isArray(response.data)) {
         setOrders(response.data as StaffOrder[]);
         setError(null);
       } else {
@@ -43,7 +135,7 @@ export function Sales() {
     return () => {
       cancelled = true;
     };
-  }, [from, to]);
+  }, [from, to, pin, onLocked]);
 
   const setPeriod = ([start, end]: [string, string]) => {
     setFrom(start);

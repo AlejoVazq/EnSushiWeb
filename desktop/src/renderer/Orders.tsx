@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { StaffCashDay, StaffMenu, StaffOrder } from '../../../src/types/pedidos';
 import type { Settings } from '../shared/bridge';
 import { formatPrice, formatTime } from '../shared/textos';
+import { formatDay, today } from '../shared/ventas';
 
 import { Cash } from './Cash';
 import { DiscountCodes } from './DiscountCodes';
@@ -40,6 +41,13 @@ const beep = () => {
 const errorText = (data: unknown): string =>
   typeof data === 'object' && data !== null && 'error' in data && typeof data.error === 'string' ? data.error : 'Error del servidor.';
 
+/** "2026-11-21" → "2026-11-20" */
+const dayBefore = (day: string): string => new Date(Date.parse(`${day}T12:00:00Z`) - 86_400_000).toISOString().slice(0, 10);
+
+/** "2026-11-20" → "vie 20/11" */
+const dayLabel = (day: string): string =>
+  `${new Date(`${day}T12:00:00Z`).toLocaleDateString('es-AR', { weekday: 'short', timeZone: 'UTC' }).replace('.', '')} ${formatDay(day).slice(0, 5)}`;
+
 type Panel = 'pedidos' | 'cocina' | 'nuevo' | 'caja' | 'menu' | 'codigos' | 'ventas' | 'ajustes';
 
 const NAV: readonly { panel: Panel; label: string; icon: IconName }[] = [
@@ -65,6 +73,10 @@ interface OrdersProps {
 export function Orders({ settings, onSettingsSaved, onLoggedOut, updateVersion }: OrdersProps) {
   const [orders, setOrders] = useState<StaffOrder[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  // Another day's orders, to look back (null = today's, the ones that poll and beep)
+  const [pastDay, setPastDay] = useState<string | null>(null);
+  const [pastOrders, setPastOrders] = useState<StaffOrder[] | null>(null);
+  const [pastError, setPastError] = useState<string | null>(null);
   const [panel, setPanel] = useState<Panel>('pedidos');
   // Changing it starts the new order over
   const [newOrderKey, setNewOrderKey] = useState(0);
@@ -112,6 +124,27 @@ export function Orders({ settings, onSettingsSaved, onLoggedOut, updateVersion }
     const timer = window.setInterval(() => void refresh(), POLL_MS);
     return () => window.clearInterval(timer);
   }, [refresh]);
+
+  useEffect(() => {
+    if (!pastDay) return;
+    let cancelled = false;
+    setPastOrders(null);
+    setPastError(null);
+    void (async () => {
+      const response = await window.ensushi.api('GET', `/api/local/pedidos?dia=${pastDay}`);
+      if (cancelled) return;
+      if (response.status === 200 && Array.isArray(response.data)) setPastOrders(response.data as StaffOrder[]);
+      else setPastError(errorText(response.data));
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [pastDay]);
+
+  const showDay = (day: string | null) => {
+    setPastDay(day && day !== today() ? day : null);
+    setSelectedId(null);
+  };
 
   const loadMenu = useCallback(async () => {
     const response = await window.ensushi.api('GET', '/api/local/menu');
@@ -168,10 +201,14 @@ export function Orders({ settings, onSettingsSaved, onLoggedOut, updateVersion }
   };
 
   /** After confirming, rejecting or printing: the server's version of the order replaces ours */
-  const replaceOrder = (updated: StaffOrder) =>
+  const replaceOrder = (updated: StaffOrder) => {
     setOrders((prev) => prev.map((order) => (order.id === updated.id ? updated : order)));
+    setPastOrders((prev) => prev && prev.map((order) => (order.id === updated.id ? updated : order)));
+  };
 
+  /** From a band, the kitchen or a new order: always one of today's */
   const openOrder = (id: string) => {
+    setPastDay(null);
     setSelectedId(id);
     setPanel('pedidos');
     document.title = 'EnSushi Local';
@@ -185,12 +222,16 @@ export function Orders({ settings, onSettingsSaved, onLoggedOut, updateVersion }
   };
 
   const pending = orders.filter((order) => order.status === 'nuevo');
-  const others = orders.filter((order) => order.status !== 'nuevo');
-  const sequence = [...pending, ...others];
-  const selected = orders.find((order) => order.id === selectedId) ?? null;
   const confirmed = orders.filter((order) => order.status === 'confirmado');
-  const confirmedTotal = confirmed.reduce((sum, order) => sum + order.total, 0);
   const inKitchen = confirmed.filter((order) => !gone[order.id]).length;
+  // What the list shows: today's, or the day picked to look back
+  const shown = pastDay ? (pastOrders ?? []) : orders;
+  const shownPending = shown.filter((order) => order.status === 'nuevo');
+  const shownOthers = shown.filter((order) => order.status !== 'nuevo');
+  const sequence = [...shownPending, ...shownOthers];
+  const selected = shown.find((order) => order.id === selectedId) ?? null;
+  const shownConfirmed = shown.filter((order) => order.status === 'confirmado');
+  const confirmedTotal = shownConfirmed.reduce((sum, order) => sum + order.total, 0);
   // Tonight's drivers first, then the usual ones
   const drivers = [...new Set([...orders.flatMap((order) => (order.driver ? [order.driver] : [])), ...usualDrivers])];
   // The list re-renders with every poll (5 s), enough to keep "hace N min" current
@@ -229,7 +270,10 @@ export function Orders({ settings, onSettingsSaved, onLoggedOut, updateVersion }
         data-order={order.id}
         className={`order ${order.status}`}
         aria-current={order.id === selectedId}
-        onClick={() => openOrder(order.id)}
+        onClick={() => {
+          setSelectedId(order.id);
+          document.title = 'EnSushi Local';
+        }}
       >
         <span className="n">#{order.number}</span>
         <span className="who">{order.customerName}</span>
@@ -349,30 +393,56 @@ export function Orders({ settings, onSettingsSaved, onLoggedOut, updateVersion }
               <section className="list" aria-label="Lista de pedidos">
                 <header>
                   <h1>Pedidos</h1>
+                  <div className="days" role="group" aria-label="Día">
+                    <button className="choice" aria-pressed={!pastDay} onClick={() => showDay(null)}>
+                      Hoy
+                    </button>
+                    <button className="choice" aria-pressed={pastDay === dayBefore(today())} onClick={() => showDay(dayBefore(today()))}>
+                      Ayer
+                    </button>
+                    <input
+                      type="date"
+                      aria-label="Otro día"
+                      max={today()}
+                      value={pastDay ?? today()}
+                      onChange={(e) => e.target.value && showDay(e.target.value)}
+                    />
+                  </div>
                   <span className="today num">
-                    {confirmed.length === 0
-                      ? 'Hoy todavía no hay confirmados'
-                      : `Hoy: ${confirmed.length} ${confirmed.length === 1 ? 'confirmado' : 'confirmados'} · ${formatPrice(confirmedTotal)}`}
+                    {pastDay
+                      ? `${dayLabel(pastDay)}: ${shownConfirmed.length} ${shownConfirmed.length === 1 ? 'confirmado' : 'confirmados'} · ${formatPrice(confirmedTotal)}`
+                      : shownConfirmed.length === 0
+                        ? 'Hoy todavía no hay confirmados'
+                        : `Hoy: ${shownConfirmed.length} ${shownConfirmed.length === 1 ? 'confirmado' : 'confirmados'} · ${formatPrice(confirmedTotal)}`}
                   </span>
                 </header>
-                {pending.length > 0 && (
+                {pastDay && pending.length > 0 && (
+                  <button className="back-today" onClick={() => showDay(null)}>
+                    {pending.length === 1 ? 'Hoy hay 1 pedido por responder' : `Hoy hay ${pending.length} pedidos por responder`}
+                    <Icon name="arrow" size="xs" />
+                  </button>
+                )}
+                {shownPending.length > 0 && (
                   <>
                     <div className="group">
                       <span>Por responder</span>
                       <span>↑ ↓ para moverte</span>
                     </div>
-                    <div className="order-list">{pending.map(listItem)}</div>
+                    <div className="order-list">{shownPending.map(listItem)}</div>
                   </>
                 )}
-                {others.length > 0 && (
+                {shownOthers.length > 0 && (
                   <>
                     <div className="group">
                       <span>Respondidos</span>
                     </div>
-                    <div className="order-list">{others.map(listItem)}</div>
+                    <div className="order-list">{shownOthers.map(listItem)}</div>
                   </>
                 )}
-                {orders.length === 0 && (
+                {pastDay && pastError && <p className="empty error">{pastError}</p>}
+                {pastDay && !pastError && !pastOrders && <p className="empty">Cargando…</p>}
+                {pastDay && pastOrders?.length === 0 && <p className="empty">Ese día no hubo pedidos.</p>}
+                {!pastDay && orders.length === 0 && (
                   <p className="empty">{connection ? 'Sin conexión: la lista vuelve sola cuando haya.' : 'Todavía no hay pedidos hoy.'}</p>
                 )}
               </section>

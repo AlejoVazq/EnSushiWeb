@@ -140,4 +140,13 @@ export const MIGRATIONS: readonly string[] = [
   `
   ALTER TABLE orders ADD COLUMN guest boolean NOT NULL DEFAULT false;
   `,
+
+  // 9 — settings of the shop that live on the server: today only the PIN of the app's Ventas screen (scrypt hash)
+  `
+  CREATE TABLE shop_settings (
+    key text PRIMARY KEY,
+    value text NOT NULL,
+    updated_at timestamptz NOT NULL DEFAULT now()
+  );
+  `,
 ];
